@@ -3,12 +3,14 @@ name = "replayt-otel-span-exporter"
 version = "0.1.0"
 description = "OpenTelemetry Span Exporter for Replayt Workflows: Python project using replayt; see docs for scope."
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "opentelemetry-api>=1.0.0",
+]
 
 [project.optional-dependencies]
 dev = [
-  "pytest>=8.0",
-  "ruff>=0.6.0",
+    "pytest>=8.0",
+    "ruff>=0.6.0",
 ]
 
 [build-system]
