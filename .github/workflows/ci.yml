@@ -2,9 +2,17 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - master
+      # Mission Control backlog workflows push mc/backlog-* before CI poll
+      - "mc/**"
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+      - master
+      - "mc/**"
+  workflow_dispatch:
 
 jobs:
   test:
