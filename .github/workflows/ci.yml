@@ -45,3 +45,23 @@ jobs:
         file: ./coverage.xml
         flags: unittests
         name: codecov-umbrella
+
+  supply-chain:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Align with requires-python (>=3.11); test job matrix is legacy
+        python-version: ["3.11", "3.12"]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+    # PyPA pip-audit has no --severity-high; exits non-zero if any known vuln is found
+    - name: Run supply-chain audit
+      run: pip-audit --desc
