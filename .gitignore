@@ -1,3 +1,6 @@
+# Aider (AI coding assistant artifacts)
+.aider*
+
 # Python
 __pycache__/
 *.py[cod]
