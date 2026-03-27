@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- GitHub Actions: default workflow **`permissions: contents: read`** for least-privilege **`GITHUB_TOKEN`** use (phase 6 security review).
 - Codecov upload step uses `fail_ci_if_error: false` so token or fork limitations do not fail CI.
 - GitHub Actions test job Python matrix aligned with `requires-python` (3.11 and 3.12).
 - README CI section names the workflow file, branch triggers, and Python versions used in CI.
