@@ -46,6 +46,7 @@ jobs:
         file: ./coverage.xml
         flags: unittests
         name: codecov-umbrella
+        fail_ci_if_error: false
 
   supply-chain:
     runs-on: ubuntu-latest

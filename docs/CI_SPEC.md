@@ -56,7 +56,7 @@ Do not rely on a hand-maintained `requirements-ci.txt` unless the project later 
 
 **`pytest`** is run from the repository root so all collected tests run. Today tests live under **`tests/`**; if **`tests/integration/`** or similar is added later, it remains part of default discovery unless explicitly excluded.
 
-**Current layout (informative):** The suite includes module smoke and dependency checks (e.g. **`tests/test_init.py`**, **`tests/test_dependencies.py`**). Treat this as the minimal “unit + integration” bar until the tree is split (see §6).
+**Current layout (informative):** The suite includes module smoke, dependency checks (e.g. **`tests/test_init.py`**, **`tests/test_dependencies.py`**), and **`tests/integration/`** for API-boundary checks. Treat this as the minimal “unit + integration” bar (see §6).
 
 **CI command (must stay equivalent unless this doc is updated):** after install,
 
@@ -79,7 +79,7 @@ and ensure CI runs the full suite (or document a deliberate subset in this file)
 
 **Default branch:** The same workflow must be **green** on the current **`master`** (or default branch) tip for the canonical paths above.
 
-**Codecov:** If the workflow uploads coverage, failures of the upload step should be understood: for **public** repositories the action may succeed without a token; **private** repos or **fork** PRs may need **`CODECOV_TOKEN`** or adjusted **`fail_ci_if_error`** behavior—document any chosen policy in this file when it changes.
+**Codecov:** Upload uses **`fail_ci_if_error: false`** so missing tokens or fork PRs do not fail the workflow; coverage still uploads when Codecov accepts the report.
 
 ## Optional jobs (recommended, not part of the minimal three backlog bullets)
 
@@ -103,9 +103,9 @@ When **`pyproject.toml`** changes **`requires-python`** or dev dependencies, upd
 
 ### Reference fingerprint (reconcile when editing CI)
 
-As of phase **2** spec refinement, **`.github/workflows/ci.yml`** includes:
+As of phase **3** builder pass, **`.github/workflows/ci.yml`** includes:
 
-- **`test`**: **`actions/checkout@v3`**, **`actions/setup-python@v4`**, matrix **`python-version: ["3.11", "3.12"]`**, **`tomllib`** parse of **`pyproject.toml`**, **`pip install -e ".[dev]"`**, **`pytest --cov=replayt_otel_span_exporter --cov-report=xml`**, **`codecov/codecov-action@v3`** with **`./coverage.xml`**.
+- **`test`**: **`actions/checkout@v3`**, **`actions/setup-python@v4`**, matrix **`python-version: ["3.11", "3.12"]`**, **`tomllib`** parse of **`pyproject.toml`**, **`pip install -e ".[dev]"`**, **`pytest --cov=replayt_otel_span_exporter --cov-report=xml`**, **`codecov/codecov-action@v3`** with **`./coverage.xml`** and **`fail_ci_if_error: false`**.
 - **`supply-chain`**: same Python matrix, checkout/setup/validate/install, then **`pip-audit --ignore-vuln CVE-2026-4539 --desc`**.
 
 Update this subsection when jobs, pins, or commands diverge.
