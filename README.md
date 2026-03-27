@@ -25,6 +25,10 @@ python -m venv .venv
 pip install -e ".[dev]"
 ```
 
+## Continuous integration
+
+GitHub Actions (or an equivalent) should run **`pytest`** on push and pull request using the Python range allowed by **`pyproject.toml`** and the same **`pip install -e ".[dev]"`** path as above. See **[docs/CI_SPEC.md](docs/CI_SPEC.md)** for the full acceptance criteria and maintainer notes.
+
 ## Optional agent workflows
 
 This repo may include a [`.cursor/skills/`](.cursor/skills/) directory for Cursor-style agent skills. **`.gitignore`**
@@ -38,6 +42,7 @@ local tooling entries. Adapt or remove optional directories to match your teamâ€
 | `docs/REPLAYT_ECOSYSTEM_IDEA.md` | Positioning (core-gap / showcase / bridge / combinator prompts) |
 | `docs/MISSION.md` | Mission and scope |
 | `docs/DESIGN_PRINCIPLES.md` | Design and integration principles |
+| `docs/CI_SPEC.md` | CI triggers, Python matrix, install path, and test expectations |
 | `docs/reference-documentation/` | Optional markdown snapshot for contributors (when present) |
 | `src/replayt_otel_span_exporter/` | Python package (import `replayt_otel_span_exporter`) |
 | `pyproject.toml` | Package metadata |

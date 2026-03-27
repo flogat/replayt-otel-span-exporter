@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- _(Add user-visible changes here; move bullets into a version section when you release.)_
+- CI pipeline specification and testable acceptance criteria in `docs/CI_SPEC.md`.
 
 ## [0.1.0] - 2026-03-25
 
