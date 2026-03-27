@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - CI pipeline specification and testable acceptance criteria in `docs/CI_SPEC.md`.
+- `pytest-cov` in dev extras so CI coverage matches local installs.
+- Dependency smoke test for OpenTelemetry API imports.
+
+### Changed
+
+- GitHub Actions test job Python matrix aligned with `requires-python` (3.11 and 3.12).
 
 ## [0.1.0] - 2026-03-25
 

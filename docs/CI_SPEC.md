@@ -62,11 +62,6 @@ If the workflow runs **`pytest --cov=...`** or uploads coverage (e.g. Codecov), 
 
 When **`pyproject.toml`** changes **`requires-python`** or dev dependencies, update the workflow and this document in the same maintenance pass so they stay aligned.
 
-### Known drift (as of spec authoring)
+### Known drift
 
-The checked-in **`.github/workflows/ci.yml`** should be reconciled with this spec:
-
-- The **test** job matrix may list Python versions **below** **`requires-python`**; those rows will fail `pip install -e .` until the matrix is aligned (e.g. **3.11** and **3.12** only).
-- The **test** job may invoke **`pytest --cov=...`** without **`pytest-cov`** in **`dev`** dependencies; add the dependency or remove coverage from the command.
-
-The **Spec gate** and **Builder** phases should treat the bullets in **Acceptance criteria** as authoritative and fix or justify any deviation.
+None at last reconciliation: the **test** job matrix matches **`requires-python`** (**3.11** and **3.12**), and **`pytest-cov`** is listed in **`[project.optional-dependencies].dev`** alongside **`pytest --cov`** in CI. Update this subsection whenever **`pyproject.toml`** or **`.github/workflows/ci.yml`** diverges from the acceptance criteria above.
