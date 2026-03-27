@@ -1,5 +1,3 @@
-import pytest
-
 def test_import():
     """Test that the package can be imported."""
     import replayt_otel_span_exporter
