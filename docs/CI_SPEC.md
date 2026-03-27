@@ -2,6 +2,16 @@
 
 This document refines the backlog item **“Set up CI pipeline for automated testing”** into testable requirements. Implementation belongs in **`.github/workflows/`** and supporting config; this file is the contract for what “done” means.
 
+## Backlog traceability
+
+| Original acceptance criterion | Satisfied by (this doc) |
+| ----------------------------- | ------------------------ |
+| CI workflow file exists | [§1 Workflow present](#1-workflow-present) |
+| Tests run on PR and push | [§2 Triggers](#2-triggers) |
+| CI passes with current code | [§7 Green mainline and workflow success](#7-green-mainline-and-workflow-success) |
+
+The rows below expand those three bullets into checks a human or gate phase can verify without guessing.
+
 ## Goals
 
 - Run automated tests on every relevant **push** and **pull_request** so regressions are caught before merge.
@@ -9,45 +19,74 @@ This document refines the backlog item **“Set up CI pipeline for automated tes
 
 ## Acceptance criteria
 
-1. **Workflow present**  
-   At least one workflow file under **`.github/workflows/`** (for example **`ci.yml`**) defines a job that runs the test suite.
+### 1. Workflow present
 
-2. **Triggers**  
-   The workflow runs on **`push`** and **`pull_request`** for the branches this repository integrates on. As of this writing that includes **`master`** and the Mission Control integration pattern **`mc/**`** (adjust if the default branch or naming changes—update this doc in the same change).
+At least one workflow file under **`.github/workflows/`** (for example **`ci.yml`**) defines a job that runs the test suite.
 
-3. **Python versions match the package**  
-   CI uses only Python versions that satisfy **`[project].requires-python`** in **`pyproject.toml`** (currently **`>=3.11`**). The job matrix (or single version) must not include interpreters the project metadata excludes, or CI will fail at install time in a confusing way.
+**Verify:** The file is committed on the default branch and appears under **Actions** (or the host’s equivalent) as a workflow.
 
-4. **Dependencies from the project**  
-   Before tests, install the package in editable mode with dev extras, matching contributor quick start:
+### 2. Triggers
 
-   ```bash
-   python -m pip install --upgrade pip
-   pip install -e ".[dev]"
-   ```
+The workflow runs on **`push`** and **`pull_request`** for the branches this repository integrates on. As of this writing that includes **`master`** and the Mission Control integration pattern **`mc/**`** (adjust if the default branch or naming changes—update this doc in the same change).
 
-   Do not rely on a hand-maintained `requirements-ci.txt` unless the project later adds one and documents it here.
+**Branch filters:** **`pull_request`** events must target **`master`** or **`mc/**`** so PRs into those integration lines run CI. **`push`** events must include **`master`** and **`mc/**`** so direct pushes run CI.
 
-5. **Tests executed**  
-   **`pytest`** is run from the repository root so all collected tests run. Today tests live under **`tests/`**; if **`tests/integration/`** or similar is added later, it remains part of default discovery unless explicitly excluded.
+**Supplementary:** **`workflow_dispatch`** is allowed for manual reruns; it does not replace the push/PR requirement above.
 
-6. **“Unit” and “integration” in this repo**  
-   The backlog asks for both. Until the tree is split, **all pytest-collected tests** under **`tests/`** satisfy the requirement. If the suite grows, prefer either:
+### 3. Python versions match the package
 
-   - directories such as **`tests/unit/`** and **`tests/integration/`**, or  
-   - markers (`pytest.mark.unit` / `pytest.mark.integration`) with documented invocations,
+CI uses only Python versions that satisfy **`[project].requires-python`** in **`pyproject.toml`** (currently **`>=3.11`**). The job matrix (or single version) must not include interpreters the project metadata excludes, or CI will fail at install time in a confusing way.
 
-   and ensure CI runs the full suite (or document a deliberate subset in this file).
+**Tomllib validation:** Any step that parses **`pyproject.toml`** with **`tomllib`** requires **Python ≥ 3.11**, which matches the minimum in **`requires-python`**.
 
-7. **Green mainline**  
-   The workflow is **required to pass** on the current **`master`** (or default branch) tip once implementation matches this spec—no failing steps for the canonical install-and-test path.
+### 4. Dependencies from the project
+
+Before tests, install the package in editable mode with dev extras, matching contributor quick start:
+
+```bash
+python -m pip install --upgrade pip
+pip install -e ".[dev]"
+```
+
+Do not rely on a hand-maintained `requirements-ci.txt` unless the project later adds one and documents it here.
+
+**Verify:** The workflow does not install ad hoc package lists that bypass **`pyproject.toml`** for the main test path.
+
+### 5. Tests executed
+
+**`pytest`** is run from the repository root so all collected tests run. Today tests live under **`tests/`**; if **`tests/integration/`** or similar is added later, it remains part of default discovery unless explicitly excluded.
+
+**Current layout (informative):** The suite includes module smoke and dependency checks (e.g. **`tests/test_init.py`**, **`tests/test_dependencies.py`**). Treat this as the minimal “unit + integration” bar until the tree is split (see §6).
+
+**CI command (must stay equivalent unless this doc is updated):** after install,
+
+```bash
+pytest --cov=replayt_otel_span_exporter --cov-report=xml
+```
+
+### 6. “Unit” and “integration” in this repo
+
+The backlog asks for both. Until the tree is split, **all pytest-collected tests** under **`tests/`** satisfy the requirement. If the suite grows, prefer either:
+
+- directories such as **`tests/unit/`** and **`tests/integration/`**, or  
+- markers (`pytest.mark.unit` / `pytest.mark.integration`) with documented invocations,
+
+and ensure CI runs the full suite (or document a deliberate subset in this file).
+
+### 7. Green mainline and workflow success
+
+**Definition — “CI passes”:** A push or PR that triggers the workflow must produce a **successful** workflow run: **every job** in **`.github/workflows/ci.yml`** completes without failure (no job-level failure and no failed required step). Today that includes at least **`test`** and **`supply-chain`**; if jobs are added or marked advisory, update this section in the same change.
+
+**Default branch:** The same workflow must be **green** on the current **`master`** (or default branch) tip for the canonical paths above.
+
+**Codecov:** If the workflow uploads coverage, failures of the upload step should be understood: for **public** repositories the action may succeed without a token; **private** repos or **fork** PRs may need **`CODECOV_TOKEN`** or adjusted **`fail_ci_if_error`** behavior—document any chosen policy in this file when it changes.
 
 ## Optional jobs (recommended, not part of the minimal three backlog bullets)
 
 These align with **[docs/DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md)** (“Observable automation”) and existing docs:
 
-- **Lint:** `ruff check` on **`src/`** and **`tests/`** using the version pinned in **`[project.optional-dependencies].dev`**.
-- **Supply chain:** `pip-audit` with ignore rules documented in **[docs/DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)**.
+- **Lint:** `ruff check` on **`src/`** and **`tests/`** using the version pinned in **`[project.optional-dependencies].dev`** — **not** present as a separate job in **`ci.yml`** today; add when the team wants lint gating in CI.
+- **Supply chain:** Implemented as job **`supply-chain`**: **`pip-audit`** with ignore rules documented in **[docs/DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)**. This job counts toward [§7](#7-green-mainline-and-workflow-success).
 
 ## Coverage and third-party upload steps
 
@@ -62,6 +101,16 @@ If the workflow runs **`pytest --cov=...`** or uploads coverage (e.g. Codecov), 
 
 When **`pyproject.toml`** changes **`requires-python`** or dev dependencies, update the workflow and this document in the same maintenance pass so they stay aligned.
 
+### Reference fingerprint (reconcile when editing CI)
+
+As of phase **2** spec refinement, **`.github/workflows/ci.yml`** includes:
+
+- **`test`**: **`actions/checkout@v3`**, **`actions/setup-python@v4`**, matrix **`python-version: ["3.11", "3.12"]`**, **`tomllib`** parse of **`pyproject.toml`**, **`pip install -e ".[dev]"`**, **`pytest --cov=replayt_otel_span_exporter --cov-report=xml`**, **`codecov/codecov-action@v3`** with **`./coverage.xml`**.
+- **`supply-chain`**: same Python matrix, checkout/setup/validate/install, then **`pip-audit --ignore-vuln CVE-2026-4539 --desc`**.
+
+Update this subsection when jobs, pins, or commands diverge.
+
 ### Known drift
 
-None at last reconciliation: the **test** job matrix matches **`requires-python`** (**3.11** and **3.12**), and **`pytest-cov`** is listed in **`[project.optional-dependencies].dev`** alongside **`pytest --cov`** in CI. Update this subsection whenever **`pyproject.toml`** or **`.github/workflows/ci.yml`** diverges from the acceptance criteria above.
+- **Lint job:** Recommended in [Optional jobs](#optional-jobs-recommended-not-part-of-the-minimal-three-backlog-bullets) but **not** implemented as its own job; **`ruff`** remains available via **`[dev]`** for local use.
+- **Otherwise:** The **test** matrix matches **`requires-python`** (**3.11** and **3.12**), **`pytest-cov`** is in **`[project.optional-dependencies].dev`**, and **`pytest --cov`** matches §5. Update this subsection whenever **`pyproject.toml`** or **`.github/workflows/ci.yml`** diverges from the acceptance criteria above.

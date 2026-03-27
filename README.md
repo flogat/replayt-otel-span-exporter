@@ -27,7 +27,7 @@ pip install -e ".[dev]"
 
 ## Continuous integration
 
-The **test** job in **`.github/workflows/ci.yml`** runs **`pytest`** with coverage on **push** and **pull_request** to **`master`** and **`mc/**`**, on Python **3.11** and **3.12**, after **`pip install -e ".[dev]"`** (same as quick start). See **[docs/CI_SPEC.md](docs/CI_SPEC.md)** for acceptance criteria and maintainer notes.
+**`.github/workflows/ci.yml`** runs on **push** and **pull_request** to **`master`** and **`mc/**`**. The **`test`** job installs with **`pip install -e ".[dev]"`**, runs **`pytest`** with coverage on Python **3.11** and **3.12**, and uploads coverage; the **`supply-chain`** job runs **`pip-audit`** on the same matrix. See **[docs/CI_SPEC.md](docs/CI_SPEC.md)** for full acceptance criteria, the definition of a “green” run, and maintainer notes.
 
 ## Optional agent workflows
 
