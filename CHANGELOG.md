@@ -12,9 +12,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Mission and positioning filled in `docs/MISSION.md` and `docs/REPLAYT_ECOSYSTEM_IDEA.md` (framework-bridge pattern).
 - Builder contract for the OpenTelemetry span exporter skeleton: `docs/SPEC_OTEL_EXPORTER_SKELETON.md` (public API, prepared-span IR, test expectations, `opentelemetry-sdk` dependency note).
 - README links the exporter spec alongside mission and ecosystem docs.
+- `docs/DEPENDENCY_AUDIT.md`: OpenTelemetry API/SDK pin notes for the exporter skeleton.
 
 ### Added
 
+- **`ReplaytSpanExporter`**: OpenTelemetry SDK **`SpanExporter`** that appends **`PreparedSpanRecord`** snapshots to a test-observable buffer; **`shutdown`** stops further appends; **`force_flush`** is a synchronous no-op returning **`True`**.
+- **`PreparedSpanRecord`** IR and attribute serialization helpers in `replayt_otel_span_exporter.records`.
+- Runtime dependency **`opentelemetry-sdk>=1.0.0`** (alongside existing **`opentelemetry-api`**).
+- Tests: `tests/test_exporter.py` (real **`TracerProvider`** + **`SimpleSpanProcessor`**), `tests/test_records.py` (attribute serialization).
 - Integration test under `tests/integration/` exercising the OpenTelemetry trace API.
 - CI pipeline specification and testable acceptance criteria in `docs/CI_SPEC.md`.
 - `pytest-cov` in dev extras so CI coverage matches local installs.
