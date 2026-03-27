@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - GitHub Actions test job Python matrix aligned with `requires-python` (3.11 and 3.12).
+- README CI section names the workflow file, branch triggers, and Python versions used in CI.
 
 ## [0.1.0] - 2026-03-25
 

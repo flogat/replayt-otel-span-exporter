@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # Align with requires-python (>=3.11); test job matrix is legacy
+        # Match requires-python and the test job matrix (3.11 / 3.12)
         python-version: ["3.11", "3.12"]
     steps:
     - uses: actions/checkout@v3

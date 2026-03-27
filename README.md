@@ -27,7 +27,7 @@ pip install -e ".[dev]"
 
 ## Continuous integration
 
-GitHub Actions (or an equivalent) should run **`pytest`** on push and pull request using the Python range allowed by **`pyproject.toml`** and the same **`pip install -e ".[dev]"`** path as above. See **[docs/CI_SPEC.md](docs/CI_SPEC.md)** for the full acceptance criteria and maintainer notes.
+The **test** job in **`.github/workflows/ci.yml`** runs **`pytest`** with coverage on **push** and **pull_request** to **`master`** and **`mc/**`**, on Python **3.11** and **3.12**, after **`pip install -e ".[dev]"`** (same as quick start). See **[docs/CI_SPEC.md](docs/CI_SPEC.md)** for acceptance criteria and maintainer notes.
 
 ## Optional agent workflows
 
