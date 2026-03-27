@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integration test under `tests/integration/` exercising the OpenTelemetry trace API.
 - CI pipeline specification and testable acceptance criteria in `docs/CI_SPEC.md`.
 - `pytest-cov` in dev extras so CI coverage matches local installs.
-- Dependency smoke test for OpenTelemetry API imports.
+- Dependency smoke tests for OpenTelemetry API imports and SDK export types (`tests/test_dependencies.py`).
 
 ### Changed
 
