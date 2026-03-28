@@ -36,7 +36,7 @@ When mapping or buffering fails inside **`ReplaytSpanExporter.export`**, the exp
 
 ## Prepared span metadata (triage)
 
-Integrators **SHOULD** set OpenTelemetry span attributes **`replayt.workflow_id`** and **`replayt.step_id`** so **`PreparedSpanRecord`** can expose first-class **`workflow_id`** and **`step_id`** fields for correlation. Sensitive attribute keys (per **`replayt_otel_span_exporter.redaction.attribute_key_is_sensitive`**) are stored as **`[REDACTED]`** in **`PreparedSpanRecord.attributes`** once the **triage metadata** backlog is implemented—see **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](docs/SPEC_EXPORT_TRIAGE_METADATA.md)**.
+Integrators **SHOULD** set OpenTelemetry span attributes **`replayt.workflow_id`** and **`replayt.step_id`** (exact, case-sensitive keys) so **`PreparedSpanRecord`** exposes first-class **`workflow_id`** and **`step_id`** for correlation. Triage strings are taken from serialized span values before key-based redaction; sensitive attribute keys (per **`replayt_otel_span_exporter.redaction.attribute_key_is_sensitive`**) are stored as **`[REDACTED]`** in **`PreparedSpanRecord.attributes`**. Details: **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](docs/SPEC_EXPORT_TRIAGE_METADATA.md)**.
 
 ## Optional agent workflows
 

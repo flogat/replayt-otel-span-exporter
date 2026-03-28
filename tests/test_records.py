@@ -1,6 +1,9 @@
 """Unit tests for ``PreparedSpanRecord`` helpers."""
 
-from replayt_otel_span_exporter.records import serialize_attribute_value
+from replayt_otel_span_exporter.records import (
+    serialize_attribute_value,
+    triage_id_from_serialized_value,
+)
 
 
 def test_serialize_attribute_value_scalars_and_sequences():
@@ -26,3 +29,14 @@ def test_serialize_attribute_value_unknown_type_stringifies():
             return "odd"
 
     assert serialize_attribute_value(Odd()) == "odd"  # type: ignore[arg-type]
+
+
+def test_triage_id_from_serialized_value_none_and_empty():
+    assert triage_id_from_serialized_value(None) is None
+    assert triage_id_from_serialized_value("") is None
+
+
+def test_triage_id_from_serialized_value_string_and_scalar_coercion():
+    assert triage_id_from_serialized_value("wf-1") == "wf-1"
+    assert triage_id_from_serialized_value(42) == "42"
+    assert triage_id_from_serialized_value(True) == "True"
