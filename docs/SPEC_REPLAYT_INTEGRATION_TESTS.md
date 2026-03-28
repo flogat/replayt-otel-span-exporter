@@ -70,10 +70,15 @@ Use this checklist in **Spec gate**, **Build gate**, and PR review for the **“
 
 Maintainers MUST keep this section accurate when replayt or the adapter changes.
 
-- **Minimum `replayt` version (PEP 440 specifiers):** _TBD — e.g. `>=x.y.z`_
-- **Public entry point(s) (modules / callables / types):** _TBD_
-- **Data passed across the boundary:** _TBD — e.g. mapping from **`PreparedSpanRecord`** fields to replayt arguments_
-- **What “success” means at the boundary:** _TBD — e.g. no exception, returned handle type, observable replayt state_
+- **Minimum `replayt` version (PEP 440 specifiers):** **`>=0.4.25`** (declared on the **`dev`** extra in **`pyproject.toml`**).
+- **Public entry point(s) (modules / callables / types):**
+  - **`replayt.runner.Runner`** — constructed with a **`Workflow`**, an **`EventStore`**, and optional lifecycle hooks; **`run()`** drives execution.
+  - **`replayt.runner.RunContext`** — **`set(key, value)`** / **`get(key, default=None)`** for per-run context data (documented on **`Runner`** as the hook surface for trace IDs and similar side data via **`before_step`**).
+  - **`replayt.workflow.Workflow`** — minimal one-step workflow for the smoke run.
+  - **`replayt.persistence.sqlite.SQLiteStore`** — durable store implementation used only so **`Runner`** can complete a real run (file-backed temp DB in tests).
+  - **`replayt.testing.DryRunLLMClient`** — no-network LLM client so the workflow run does not need API keys.
+- **Data passed across the boundary:** A plain **`dict`** built from **`PreparedSpanRecord`** (**`trace_id`**, **`span_id`**, **`name`**, **`kind`**, **`start_time_unix_nano`**, **`end_time_unix_nano`**, **`attributes`**) is written with **`RunContext.set("otel_span", ...)`** inside **`Runner`**’s **`before_step`** callback; the step handler reads it with **`get`** and asserts equality.
+- **What “success” means at the boundary:** No **`ContextSchemaError`** or type errors from replayt; the step sees the same mapping; **`Runner.run()`** returns **`RunResult`** with **`status == "completed"`**.
 
 ## Non-goals (this backlog)
 

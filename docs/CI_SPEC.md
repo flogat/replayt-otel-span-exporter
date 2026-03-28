@@ -109,7 +109,7 @@ When **`pyproject.toml`** changes **`requires-python`** or dev dependencies, upd
 
 - **Default `GITHUB_TOKEN` permissions:** workflow-level **`permissions: contents: read`** (least privilege).
 - **`test`**: **`actions/checkout@v3`**, **`actions/setup-python@v4`**, matrix **`python-version: ["3.11", "3.12"]`**, **`tomllib`** parse of **`pyproject.toml`**, **`pip install -e ".[dev]"`**, **`pytest --cov=replayt_otel_span_exporter --cov-report=xml`**, **`codecov/codecov-action@v3`** with **`./coverage.xml`** and **`fail_ci_if_error: false`**.
-- **`supply-chain`**: same Python matrix, checkout/setup/validate/install, then **`pip-audit --ignore-vuln CVE-2026-4539 --desc`**.
+- **`supply-chain`**: same Python matrix, checkout/setup/validate/install, then **`pip-audit --ignore-vuln CVE-2026-4539 --ignore-vuln CVE-2025-69872 --desc`**.
 
 Update this subsection when jobs, pins, or commands diverge.
 
