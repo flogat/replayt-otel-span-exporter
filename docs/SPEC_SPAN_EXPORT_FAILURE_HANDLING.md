@@ -75,6 +75,8 @@ Integrators observe failures through:
 
 ### 5.1 Prohibited content in export-failure logs
 
+**Prepared-span IR:** Key-based **value** redaction on **`PreparedSpanRecord.attributes`** (literal **`"[REDACTED]"`** for sensitive keys) is specified in **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)** §3. That work **does not** change §5.1’s logging prohibitions; it **does** make exported buffers safer for in-process inspection.
+
 On **export failure** log records (and on **INFO** or higher in exporter code paths), **MUST NOT** emit:
 
 - Full **`PreparedSpanRecord.attributes`** mappings or raw **`ReadableSpan`** attribute dicts.

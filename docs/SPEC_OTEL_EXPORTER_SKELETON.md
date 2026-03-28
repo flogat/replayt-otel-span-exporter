@@ -12,6 +12,8 @@ This document refines the backlog item **“Implement basic OpenTelemetry span e
 
 **Export failure UX:** **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** extends §2.3 with logging, redaction, and integrator documentation requirements for **`ReplaytSpanExporter.export`** failures.
 
+**Triage metadata and IR attribute redaction:** **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)** extends §3 with **`workflow_id`** / **`step_id`** fields and key-based value redaction on **`PreparedSpanRecord.attributes`** using **`replayt_otel_span_exporter.redaction.attribute_key_is_sensitive`**.
+
 ## Reference naming (normative for this repository)
 
 These names are the **canonical** integration surface for the backlog item; Builder and review phases should treat them as the stable contract unless a follow-on backlog explicitly renames or splits them.
@@ -78,7 +80,9 @@ The backlog asks to **prepare** spans for replayt workflows **before** this repo
 | **name** | Span name | Non-empty string for typical spans. |
 | **kind** | Span kind | String or enum name stable for tests. |
 | **start_time_unix_nano** / **end_time_unix_nano** | Span start/end | Integer nanoseconds since Unix epoch, matching SDK `ReadableSpan` time fields. |
-| **attributes** | Span attributes | Plain **`dict`** with string keys and JSON-friendly values; serialization rules MUST match the **`records`** module contract (scalars, homogeneous sequences, **`bytes`** → UTF-8 text with replacement on decode errors, unknown types stringified). |
+| **attributes** | Span attributes | Plain **`dict`** with string keys and JSON-friendly values; serialization rules MUST match the **`records`** module contract (scalars, homogeneous sequences, **`bytes`** → UTF-8 text with replacement on decode errors, unknown types stringified). Values for keys classified as sensitive by **`replayt_otel_span_exporter.redaction.attribute_key_is_sensitive`** MUST be replaced per **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)** §3 when that backlog is in scope. |
+| **workflow_id** | Span attribute **`replayt.workflow_id`** | **`str | None`** — first-class triage field; see **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)** §2. |
+| **step_id** | Span attribute **`replayt.step_id`** | **`str | None`** — first-class triage field; same spec. |
 
 **Edge cases (normative):**
 
@@ -117,6 +121,10 @@ Tests are implemented in phase **3** (Builder) and later; this section defines *
 
 - Prefer **`tests/unit/`** for fast, focused tests if the repo introduces that layout; otherwise follow **[docs/CI_SPEC.md](CI_SPEC.md)** §6 and place files under **`tests/`** with clear naming (for example **`test_exporter.py`**). New tests must run under the **default `pytest` invocation** documented in CI.
 
+### 4.5 Triage metadata and redacted attributes (when in scope)
+
+- When the **“Add metadata for triage without leaking secrets”** backlog is active, extend coverage per **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)** §5 (triage field population, absence, coercion, and **`[REDACTED]`** values for sensitive attribute keys).
+
 ## 5. Layout and style
 
 - Match **`ruff`**-clean style and existing package patterns (**`src/`** layout, **`pyproject.toml`** metadata).
@@ -134,6 +142,7 @@ Use this checklist in **Spec gate**, **Build gate**, and PR review. Every item M
 5. Attribute serialization rules have focused coverage per §4.2 (not only through end-to-end tracer tests).
 6. **`__all__`** contains only **`ReplaytSpanExporter`**, **`PreparedSpanRecord`**, and **`__version__`** (no accidental public leakage of helpers).
 7. Layout and **`ruff`**-clean style per §5; dependency audit row for OpenTelemetry matches **`pyproject.toml`**.
+8. When the **“Add metadata for triage without leaking secrets”** backlog is in scope: **`PreparedSpanRecord`** triage fields, redacted **`attributes`**, tests, and docs per **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)** §7.
 
 ## Implementation notes for Builder / Maintainer
 
