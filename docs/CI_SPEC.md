@@ -56,7 +56,7 @@ Do not rely on a hand-maintained `requirements-ci.txt` unless the project later 
 
 **`pytest`** is run from the repository root so all collected tests run. Today tests live under **`tests/`**; if **`tests/integration/`** or similar is added later, it remains part of default discovery unless explicitly excluded.
 
-**Current layout (informative):** The suite includes module smoke, dependency checks (e.g. **`tests/test_init.py`**, **`tests/test_dependencies.py`**), and **`tests/integration/`** for API-boundary checks. Treat this as the minimal “unit + integration” bar (see §6).
+**Current layout (informative):** The suite includes module smoke, dependency checks (e.g. **`tests/test_init.py`**, **`tests/test_dependencies.py`**), exporter skeleton coverage (**`tests/test_exporter.py`**, **`tests/test_records.py`**) per **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** §4 and the **§6 verifiable acceptance checklist**, and **`tests/integration/`** for API-boundary checks. New tests stay in default **`pytest`** discovery unless this doc is updated. Treat this as the minimal “unit + integration” bar (see §6).
 
 **CI command (must stay equivalent unless this doc is updated):** after install,
 
@@ -103,8 +103,9 @@ When **`pyproject.toml`** changes **`requires-python`** or dev dependencies, upd
 
 ### Reference fingerprint (reconcile when editing CI)
 
-As of phase **3** builder pass, **`.github/workflows/ci.yml`** includes:
+**Current** **`.github/workflows/ci.yml`** includes:
 
+- **Default `GITHUB_TOKEN` permissions:** workflow-level **`permissions: contents: read`** (least privilege).
 - **`test`**: **`actions/checkout@v3`**, **`actions/setup-python@v4`**, matrix **`python-version: ["3.11", "3.12"]`**, **`tomllib`** parse of **`pyproject.toml`**, **`pip install -e ".[dev]"`**, **`pytest --cov=replayt_otel_span_exporter --cov-report=xml`**, **`codecov/codecov-action@v3`** with **`./coverage.xml`** and **`fail_ci_if_error: false`**.
 - **`supply-chain`**: same Python matrix, checkout/setup/validate/install, then **`pip-audit --ignore-vuln CVE-2026-4539 --desc`**.
 

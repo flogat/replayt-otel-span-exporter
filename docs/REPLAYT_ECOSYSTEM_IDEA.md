@@ -39,5 +39,5 @@ _Novel composition of replayt + other tools._
 
 ## Your choice
 
-- **Primary pattern:** _(1–4 or short name)_
-- **One-paragraph pitch:** _
+- **Primary pattern:** **3 — Framework bridge** (OpenTelemetry Python SDK → replayt-oriented prepared records; see **[MISSION.md](MISSION.md)**).
+- **One-paragraph pitch:** This package exposes a small **`SpanExporter`** that turns finished SDK spans into a documented, test-stable intermediate representation so replayt integrators can adopt workflows **without** pushing adapter logic into replayt core; pins and CI live **here** per consumer-side maintenance.
