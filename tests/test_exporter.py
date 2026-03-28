@@ -1,13 +1,33 @@
 """Tests for ``ReplaytSpanExporter`` and ``PreparedSpanRecord`` (real SDK pipeline)."""
 
+import logging
 from unittest.mock import MagicMock
 
 from opentelemetry import trace
-from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace import ReadableSpan, SpanProcessor, TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor, SpanExportResult
 from opentelemetry.trace import format_span_id, format_trace_id
 
 from replayt_otel_span_exporter import PreparedSpanRecord, ReplaytSpanExporter
+
+
+class _ReadableSpanCollector(SpanProcessor):
+    """Collects finished spans so a test can call ``export`` with a multi-span batch."""
+
+    def __init__(self) -> None:
+        self.spans: list[ReadableSpan] = []
+
+    def on_start(self, span, parent_context) -> None:
+        return None
+
+    def on_end(self, span: ReadableSpan) -> None:
+        self.spans.append(span)
+
+    def shutdown(self) -> None:
+        return None
+
+    def force_flush(self, timeout_millis: int = 30000) -> bool:
+        return True
 
 
 def test_exporter_ingests_finished_span_via_simple_processor():
@@ -59,8 +79,9 @@ def test_exporter_force_flush_returns_true():
     assert exporter.force_flush(timeout_millis=1) is True
 
 
-def test_exporter_export_returns_failure_when_transformation_raises(monkeypatch):
+def test_exporter_export_returns_failure_when_transformation_raises(caplog, monkeypatch):
     """Internal mapper errors surface as FAILURE without raising (spec 2.3)."""
+    caplog.set_level(logging.ERROR, logger="replayt_otel_span_exporter.exporter")
     from replayt_otel_span_exporter import exporter as exporter_mod
 
     def _fail(_span):
@@ -72,3 +93,71 @@ def test_exporter_export_returns_failure_when_transformation_raises(monkeypatch)
     result = exporter.export([MagicMock()])
     assert result is SpanExportResult.FAILURE
     assert exporter.records == []
+
+    errors = [r for r in caplog.records if r.levelno == logging.ERROR]
+    assert errors
+    assert errors[0].exc_info is not None
+    assert getattr(errors[0], "span_count") == 1
+    assert getattr(errors[0], "failed_span_index") == 0
+
+
+def test_exporter_batch_failure_is_atomic_and_logs_failing_index(caplog, monkeypatch):
+    caplog.set_level(logging.ERROR, logger="replayt_otel_span_exporter.exporter")
+    from replayt_otel_span_exporter import exporter as exporter_mod
+    from replayt_otel_span_exporter.records import prepared_span_record_from_readable
+
+    real = prepared_span_record_from_readable
+    calls = {"n": 0}
+
+    def flaky(span):
+        calls["n"] += 1
+        if calls["n"] == 2:
+            raise RuntimeError("simulated second-span failure")
+        return real(span)
+
+    monkeypatch.setattr(exporter_mod, "prepared_span_record_from_readable", flaky)
+
+    collector = _ReadableSpanCollector()
+    provider = TracerProvider()
+    provider.add_span_processor(collector)
+    tracer = provider.get_tracer(__name__)
+    with tracer.start_as_current_span("s1"):
+        pass
+    with tracer.start_as_current_span("s2"):
+        pass
+    assert len(collector.spans) == 2
+
+    exporter = ReplaytSpanExporter()
+    assert exporter.export(collector.spans) is SpanExportResult.FAILURE
+    assert exporter.records == []
+
+    errors = [r for r in caplog.records if r.levelno == logging.ERROR]
+    assert getattr(errors[0], "span_count") == 2
+    assert getattr(errors[0], "failed_span_index") == 1
+
+
+def test_exporter_failure_logs_do_not_include_sensitive_attribute_values(
+    caplog, monkeypatch
+):
+    caplog.set_level(logging.ERROR, logger="replayt_otel_span_exporter.exporter")
+    from replayt_otel_span_exporter import exporter as exporter_mod
+
+    def _fail(_span):
+        raise RuntimeError("mapper failed")
+
+    monkeypatch.setattr(exporter_mod, "prepared_span_record_from_readable", _fail)
+
+    collector = _ReadableSpanCollector()
+    provider = TracerProvider()
+    provider.add_span_processor(collector)
+    tracer = provider.get_tracer(__name__)
+    secret = "NOT_IN_LOGS_77231"
+    with tracer.start_as_current_span("leaky") as span:
+        span.set_attribute("user.password", secret)
+
+    exporter = ReplaytSpanExporter()
+    assert exporter.export(collector.spans) is SpanExportResult.FAILURE
+    assert secret not in caplog.text
+
+    errors = [r for r in caplog.records if r.levelno == logging.ERROR]
+    assert getattr(errors[0], "sensitive_attribute_keys_present") is True
