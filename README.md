@@ -54,6 +54,7 @@ local tooling entries. Adapt or remove optional directories to match your team�
 | `docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md` | Export failure logging, redaction, and integrator-visible surfaces (Builder contract) |
 | `docs/SPEC_EXPORT_TRIAGE_METADATA.md` | Triage metadata on prepared spans — canonical OTel keys, IR fields, attribute redaction, tests |
 | `docs/SPEC_REPLAYT_INTEGRATION_TESTS.md` | Replayt integration boundary — scenarios, pins, CI, `test_replayt_boundary.py` |
+| `docs/SPEC_README_QUICK_START.md` | README quick start, usage example, and CI proof (`test_readme_usage_example.py`) — Builder contract |
 | `docs/DESIGN_PRINCIPLES.md` | Design and integration principles |
 | `docs/CI_SPEC.md` | CI triggers, Python matrix, install path, and test expectations |
 | `docs/COMPATIBILITY.md` | Supported versions matrix, pin strategy, CI alignment, replayt release links |

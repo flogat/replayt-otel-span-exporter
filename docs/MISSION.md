@@ -55,6 +55,7 @@ These bullets are the **mission-level summary**; **[CI_SPEC.md](CI_SPEC.md)** is
   - **[SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)** — **`workflow_id`** / **`step_id`** and **`[REDACTED]`** attribute handling (see that spec §5).
   - **[SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** — replayt import boundary; **`tests/integration/test_replayt_boundary.py`** MUST be collected by default **`pytest`** when **`replayt`** is on the path (see that spec §3–§5 and §7).
   - **`tests/integration/test_opentelemetry_api_usage.py`** — OpenTelemetry trace API smoke only (no **`replayt`**), per **[CI_SPEC.md](CI_SPEC.md)** §5.
+  - **[SPEC_README_QUICK_START.md](SPEC_README_QUICK_START.md)** — README quick start, usage example, and **`tests/test_readme_usage_example.py`** (or equivalent named in **[CI_SPEC.md](CI_SPEC.md)** §5) once the Builder adds them.
 - **Supply chain:** **`supply-chain`** job expectations and **`pip-audit`** ignore rules live in **[DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)** and **[CI_SPEC.md](CI_SPEC.md)** (optional jobs §).
 
 ## Success criteria
