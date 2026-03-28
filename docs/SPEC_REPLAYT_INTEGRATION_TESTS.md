@@ -44,7 +44,7 @@ The Builder MUST implement **all** of the following. Exact assertion shapes foll
 
 ### 4.3 Dependency presence
 
-- Missing **`replayt`** on the install path MUST surface as a **failed** install or **import error** during test collection or execution — **not** a silent skip — unless the repository adopts a **documented** optional CI job (not the default today). Default policy: **replayt is required for the standard **`dev`** / CI install** once this backlog is implemented.
+- Missing **`replayt`** on the install path MUST surface as a **failed** install or **import error** during test collection or execution — **not** a silent skip — unless the repository adopts a **documented** optional CI job (not the default today). Default policy: **`replayt`** is required for the standard **`dev`** / CI install.
 
 ## 5. Local and CI invocation
 
@@ -66,9 +66,7 @@ Use this checklist in **Spec gate**, **Build gate**, and PR review for the **“
 
 ## 7. Implemented boundary (concrete API under test)
 
-**Populated by the Builder in the same pull request as the tests.** Until then, this section is intentionally incomplete; **Spec gate** for *this* backlog may pass on §1–6 **requirements** alone, while **Build gate** MUST NOT pass until the bullet list below is filled.
-
-Maintainers MUST keep this section accurate when replayt or the adapter changes.
+The bullets below record the API exercised by **`tests/integration/test_replayt_boundary.py`**. Update them when replayt or this adapter changes.
 
 - **Minimum `replayt` version (PEP 440 specifiers):** **`>=0.4.25`** (declared on the **`dev`** extra in **`pyproject.toml`**).
 - **Public entry point(s) (modules / callables / types):**

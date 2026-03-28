@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
+- Architecture review (phase 5): `README.md`, `docs/CI_SPEC.md`, `docs/MISSION.md`, and `docs/SPEC_REPLAYT_INTEGRATION_TESTS.md` use present-tense wording now that replayt integration tests ship with the **`dev`** extra (no “when the backlog lands” placeholders).
 - Backlog **“Add replayt integration tests”**: spec phase 2 added `docs/SPEC_REPLAYT_INTEGRATION_TESTS.md` (boundary definition, scenarios, optional-deps policy, §6 checklist); phase 3 filled §7 and wired **`tests/integration/test_replayt_boundary.py`**. Cross-links and CI expectations in `docs/CI_SPEC.md`, `docs/MISSION.md`, `docs/SPEC_OTEL_EXPORTER_SKELETON.md`, `docs/DEPENDENCY_AUDIT.md`, and `README.md`.
 - Refined exporter skeleton spec (phase 2): canonical names (`ReplaytSpanExporter`, `PreparedSpanRecord`, `__all__`), aligned dependency wording with `pyproject.toml`, exporter threading/shutdown/`SpanExportResult` semantics, IR edge cases, expanded test contract, and §6 verifiable acceptance checklist in `docs/SPEC_OTEL_EXPORTER_SKELETON.md`; `docs/CI_SPEC.md` references the checklist.
 - Mission and positioning filled in `docs/MISSION.md` and `docs/REPLAYT_ECOSYSTEM_IDEA.md` (framework-bridge pattern).
