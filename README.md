@@ -70,8 +70,9 @@ print(rec.name, rec.trace_id)
 appending to the **`records`** buffer. **`"deny"`** returns **`SpanExportResult.SUCCESS`**
 to the OpenTelemetry SDK (policy outcome, not a transport failure) and does not append that
 batch. Optional **`on_export_audit`** receives a small typed event with allow-listed fields
-(decision, counts, first-record ids, **`workflow_id`** / **`step_id`** when present). Without
-a hook, behavior matches the default path above. Full rules: **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md)**.
+(decision, counts, first-record ids, **`workflow_id`** / **`step_id`** when present); it runs
+only together with **`on_export_commit`** (passing **`on_export_audit`** alone has no effect).
+Without a hook, behavior matches the default path above. Full rules: **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md)**.
 
 ## Continuous integration
 
