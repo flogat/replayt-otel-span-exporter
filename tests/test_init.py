@@ -6,12 +6,20 @@ def test_import():
 
 
 def test_version():
-    """Test that the package has a version."""
-    import replayt_otel_span_exporter
+    """Package version matches pyproject.toml and install metadata."""
+    import importlib.metadata
+    import pathlib
+    import tomllib
 
-    # The package should have a __version__ attribute
-    assert hasattr(replayt_otel_span_exporter, "__version__")
-    assert replayt_otel_span_exporter.__version__ == "0.1.0"
+    import replayt_otel_span_exporter as pkg
+
+    assert hasattr(pkg, "__version__")
+    root = pathlib.Path(__file__).resolve().parents[1]
+    expected = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))["project"][
+        "version"
+    ]
+    assert pkg.__version__ == expected
+    assert importlib.metadata.version("replayt-otel-span-exporter") == expected
 
 
 def test_package_all_matches_public_contract():
