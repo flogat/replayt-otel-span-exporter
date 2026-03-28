@@ -1,8 +1,10 @@
 """Tests for ``ReplaytSpanExporter`` and ``PreparedSpanRecord`` (real SDK pipeline)."""
 
+from unittest.mock import MagicMock
+
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor, SpanExportResult
 from opentelemetry.trace import format_span_id, format_trace_id
 
 from replayt_otel_span_exporter import PreparedSpanRecord, ReplaytSpanExporter
@@ -55,3 +57,18 @@ def test_exporter_force_flush_returns_true():
     exporter = ReplaytSpanExporter()
     assert exporter.force_flush() is True
     assert exporter.force_flush(timeout_millis=1) is True
+
+
+def test_exporter_export_returns_failure_when_transformation_raises(monkeypatch):
+    """Internal mapper errors surface as FAILURE without raising (spec 2.3)."""
+    from replayt_otel_span_exporter import exporter as exporter_mod
+
+    def _fail(_span):
+        raise RuntimeError("simulated transformation failure")
+
+    monkeypatch.setattr(exporter_mod, "prepared_span_record_from_readable", _fail)
+
+    exporter = ReplaytSpanExporter()
+    result = exporter.export([MagicMock()])
+    assert result is SpanExportResult.FAILURE
+    assert exporter.records == []

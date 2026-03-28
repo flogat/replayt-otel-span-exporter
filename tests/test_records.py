@@ -16,6 +16,10 @@ def test_serialize_attribute_value_bytes_utf8():
     assert serialize_attribute_value(b"hello") == "hello"
 
 
+def test_serialize_attribute_value_bytes_invalid_utf8_uses_replacement():
+    assert serialize_attribute_value(b"\xff") == "\ufffd"
+
+
 def test_serialize_attribute_value_unknown_type_stringifies():
     class Odd:
         def __str__(self) -> str:

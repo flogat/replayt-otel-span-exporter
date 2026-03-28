@@ -9,3 +9,13 @@ def test_version():
     # The package should have a __version__ attribute
     assert hasattr(replayt_otel_span_exporter, '__version__')
     assert replayt_otel_span_exporter.__version__ == "0.1.0"
+
+
+def test_package_all_matches_public_contract():
+    import replayt_otel_span_exporter as pkg
+
+    assert set(pkg.__all__) == {
+        "PreparedSpanRecord",
+        "ReplaytSpanExporter",
+        "__version__",
+    }
