@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Backlog **“Define project mission and scope”** (phase **2** spec): **[docs/MISSION.md](docs/MISSION.md)** adds backlog traceability, expanded user outcome wording, a **Test and CI expectations** section (install line, **`pytest --cov`** command, Python matrix, green-run definition, spec-to-suite mapping), **Success criteria** aligned with changelog/CI, an **Audience** table, and **LLM and demos** boundaries cross-linked to design principles and specs.
+
 ### Added
 
 - **`PreparedSpanRecord`** **`workflow_id`** and **`step_id`** (from span attributes **`replayt.workflow_id`** / **`replayt.step_id`**) and **`[REDACTED]`** placeholders on sensitive keys in **`attributes`** per **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](docs/SPEC_EXPORT_TRIAGE_METADATA.md)**; **`redact_sensitive_attribute_values`** in **`replayt_otel_span_exporter.redaction`**.
