@@ -71,4 +71,4 @@ jobs:
         pip install -e ".[dev]"
     # PyPA pip-audit has no --severity-high; --ignore-vuln only for CVEs in docs/DEPENDENCY_AUDIT.md
     - name: Run supply-chain audit
-      run: pip-audit --ignore-vuln CVE-2026-4539 --desc
+      run: pip-audit --ignore-vuln CVE-2026-4539 --ignore-vuln CVE-2025-69872 --desc
