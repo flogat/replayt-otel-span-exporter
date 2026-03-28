@@ -25,7 +25,7 @@
 
 ## Success
 
-- **Automated tests** (see **[CI_SPEC.md](CI_SPEC.md)**) cover span ingestion and transformation as specified in **[SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** and the replayt boundary per **[SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** (**`tests/integration/test_replayt_boundary.py`**).
+- **Automated tests** (see **[CI_SPEC.md](CI_SPEC.md)**) cover span ingestion and transformation as specified in **[SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** and the replayt boundary per **[SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** (**`tests/integration/test_replayt_boundary.py`**). When the **export failure handling** backlog is in progress, tests and behavior must also satisfy **[SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)**.
 - **Public API** remains small and listed explicitly (**`__all__`**); extension points are documented in the spec and design principles.
 - **Changelog** records user-visible API and dependency changes under **Unreleased** until release.
 
