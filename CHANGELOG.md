@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Export failure logging (backlog: error handling and logging for span export failures):** **`ReplaytSpanExporter`** logs internal **`export`** mapping/buffer errors at **ERROR** under **`replayt_otel_span_exporter.exporter`** with **`exc_info`**, structured fields (**`span_count`**, **`failed_span_index`** when known, trace and span hex ids and span name/kind for real **`ReadableSpan`** batches), and a boolean **`sensitive_attribute_keys_present`** derived from **`replayt_otel_span_exporter.redaction.attribute_key_is_sensitive`**. A single batch either appends all prepared records or none. README **Export failures** and **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** describe integrator-visible behavior.
 - **`replayt>=0.4.25`** on the **`dev`** optional extra for CI and local runs; integration tests **`tests/integration/test_replayt_boundary.py`** exercise **`PreparedSpanRecord`** → **`replayt`** **`RunContext`** via **`Runner.before_step`** (see **`docs/SPEC_REPLAYT_INTEGRATION_TESTS.md`** §7).
 - **`ReplaytSpanExporter`**: OpenTelemetry SDK **`SpanExporter`** that appends **`PreparedSpanRecord`** snapshots to a test-observable buffer; **`shutdown`** stops further appends; **`force_flush`** is a synchronous no-op returning **`True`**.
 - **`PreparedSpanRecord`** IR and attribute serialization helpers in `replayt_otel_span_exporter.records`.
@@ -21,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **`ReplaytSpanExporter.export`:** a batch that hits an internal error no longer leaves earlier spans from that call in the buffer (all-or-nothing append per **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** §1).
 - **`dev`** pins **`requests>=2.33.0`** for a clean **`pip-audit`** graph with **`replayt`**; **`supply-chain`** ignores **CVE-2025-69872** (**diskcache** / pickle) with rationale in **`docs/DEPENDENCY_AUDIT.md`** (same pattern as **pygments**).
 - GitHub Actions: default workflow **`permissions: contents: read`** for least-privilege **`GITHUB_TOKEN`** use.
 - Codecov upload step uses `fail_ci_if_error: false` so token or fork limitations do not fail CI.
@@ -29,7 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
-- Architecture review (phase 5): `README.md`, `docs/CI_SPEC.md`, `docs/MISSION.md`, and `docs/SPEC_REPLAYT_INTEGRATION_TESTS.md` use present-tense wording now that replayt integration tests ship with the **`dev`** extra (no “when the backlog lands” placeholders).
+- Backlog **“Add error handling and logging for span export failures”**: phase **2** added **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** (logging contract, redaction rules, batch semantics, test contract, acceptance checklist). Cross-links in **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](docs/SPEC_OTEL_EXPORTER_SKELETON.md)** §2.3, **[README.md](README.md)**, **[docs/MISSION.md](docs/MISSION.md)**, and **[docs/CI_SPEC.md](docs/CI_SPEC.md)**. Phase **3** added README **Export failures**, implementation, and tests per that spec.
+- Architecture review (phase 5): `docs/CI_SPEC.md`, `docs/MISSION.md`, and `docs/SPEC_OTEL_EXPORTER_SKELETON.md` §2.3 describe **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** as active CI and exporter requirements (no “when implemented” wording). `README.md`, `docs/CI_SPEC.md`, `docs/MISSION.md`, and `docs/SPEC_REPLAYT_INTEGRATION_TESTS.md` describe replayt integration tests against the **`dev`** extra in present tense (no “when the backlog lands” placeholders for that path).
 - Backlog **“Add replayt integration tests”**: spec phase 2 added `docs/SPEC_REPLAYT_INTEGRATION_TESTS.md` (boundary definition, scenarios, optional-deps policy, §6 checklist); phase 3 filled §7 and wired **`tests/integration/test_replayt_boundary.py`**. Cross-links and CI expectations in `docs/CI_SPEC.md`, `docs/MISSION.md`, `docs/SPEC_OTEL_EXPORTER_SKELETON.md`, `docs/DEPENDENCY_AUDIT.md`, and `README.md`.
 - Refined exporter skeleton spec (phase 2): canonical names (`ReplaytSpanExporter`, `PreparedSpanRecord`, `__all__`), aligned dependency wording with `pyproject.toml`, exporter threading/shutdown/`SpanExportResult` semantics, IR edge cases, expanded test contract, and §6 verifiable acceptance checklist in `docs/SPEC_OTEL_EXPORTER_SKELETON.md`; `docs/CI_SPEC.md` references the checklist.
 - Mission and positioning filled in `docs/MISSION.md` and `docs/REPLAYT_ECOSYSTEM_IDEA.md` (framework-bridge pattern).

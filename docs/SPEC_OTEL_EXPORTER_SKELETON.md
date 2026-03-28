@@ -10,6 +10,8 @@ This document refines the backlog item **“Implement basic OpenTelemetry span e
 | Unit tests verify span ingestion and basic transformation | [§4 Test contract](#4-test-contract), [§6 Checklist](#6-verifiable-acceptance-checklist) |
 | Code follows project layout and style | [§5 Layout and style](#5-layout-and-style), [§6 Checklist](#6-verifiable-acceptance-checklist) |
 
+**Export failure UX:** **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** extends §2.3 with logging, redaction, and integrator documentation requirements for **`ReplaytSpanExporter.export`** failures.
+
 ## Reference naming (normative for this repository)
 
 These names are the **canonical** integration surface for the backlog item; Builder and review phases should treat them as the stable contract unless a follow-on backlog explicitly renames or splits them.
@@ -60,7 +62,8 @@ These names are the **canonical** integration surface for the backlog item; Buil
 ### 2.3 Error handling
 
 - **`export`** MUST NOT raise into the SDK for **normal** callback usage: unexpected errors during transformation SHOULD be caught and surfaced as **`SpanExportResult.FAILURE`** so a buggy exporter does not tear down the application’s tracing thread. Document any intentional propagation of exceptions.
-- **Recommended test (non-blocking for spec gate):** a controlled test that forces transformation to fail (for example a stub span or monkeypatched mapper) and asserts **`export`** returns **`SpanExportResult.FAILURE`** without raising.
+- **Logging, redaction, and documented failure surfaces** for export failures are specified in **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)**. Treat that spec’s **§7** checklist as part of exporter “done” for failure UX.
+- **Required tests:** a controlled test that forces transformation to fail (for example a stub span or monkeypatched mapper) **MUST** assert **`export`** returns **`SpanExportResult.FAILURE`** without raising. The suite **MUST** also satisfy **`SPEC_SPAN_EXPORT_FAILURE_HANDLING.md`** §6 (logging and redaction assertions).
 
 ## 3. Prepared span records (“replayt-oriented”)
 

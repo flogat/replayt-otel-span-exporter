@@ -5,7 +5,7 @@
 This project builds on **[replayt](https://pypi.org/project/replayt/)**. Read
 **[docs/REPLAYT_ECOSYSTEM_IDEA.md](docs/REPLAYT_ECOSYSTEM_IDEA.md)** for positioning options, then
 **[docs/MISSION.md](docs/MISSION.md)** for scope and goals. Backlog-driven contracts live in specs such as
-**[docs/SPEC_OTEL_EXPORTER_SKELETON.md](docs/SPEC_OTEL_EXPORTER_SKELETON.md)** and **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](docs/SPEC_REPLAYT_INTEGRATION_TESTS.md)** (replayt boundary contract; tests in **`tests/integration/test_replayt_boundary.py`**).
+**[docs/SPEC_OTEL_EXPORTER_SKELETON.md](docs/SPEC_OTEL_EXPORTER_SKELETON.md)**, **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** (logging and redaction on export failure), and **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](docs/SPEC_REPLAYT_INTEGRATION_TESTS.md)** (replayt boundary contract; tests in **`tests/integration/test_replayt_boundary.py`**).
 
 ## Design principles
 
@@ -30,6 +30,10 @@ pip install -e ".[dev]"
 
 **`.github/workflows/ci.yml`** runs on **push** and **pull_request** to **`master`** and **`mc/**`**. The **`test`** job installs with **`pip install -e ".[dev]"`**, runs **`pytest`** with coverage on Python **3.11** and **3.12**, and uploads coverage; the **`supply-chain`** job runs **`pip-audit`** on the same matrix. See **[docs/CI_SPEC.md](docs/CI_SPEC.md)** for full acceptance criteria, the definition of a “green” run, and maintainer notes.
 
+## Export failures
+
+When mapping or buffering fails inside **`ReplaytSpanExporter.export`**, the exporter returns **`SpanExportResult.FAILURE`** and does not raise into the OpenTelemetry SDK. Operational detail is written with **`logging`**: loggers live under the **`replayt_otel_span_exporter`** hierarchy (for example **`replayt_otel_span_exporter.exporter`**). Failure records use **ERROR** and include exception info for stack traces. Full prepared attribute maps are not attached to those records; a shared redaction table defines sensitive attribute **key** patterns. Field names, batch semantics, and redaction rules are defined in **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)**. Third-party exception messages should be treated as untrusted even when they appear inside traceback text.
+
 ## Optional agent workflows
 
 This repo may include a [`.cursor/skills/`](.cursor/skills/) directory for Cursor-style agent skills. **`.gitignore`**
@@ -43,6 +47,7 @@ local tooling entries. Adapt or remove optional directories to match your team�
 | `docs/REPLAYT_ECOSYSTEM_IDEA.md` | Positioning (core-gap / showcase / bridge / combinator prompts) |
 | `docs/MISSION.md` | Mission and scope |
 | `docs/SPEC_OTEL_EXPORTER_SKELETON.md` | Exporter skeleton backlog — API, IR, tests (Builder contract) |
+| `docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md` | Export failure logging, redaction, and integrator-visible surfaces (Builder contract) |
 | `docs/SPEC_REPLAYT_INTEGRATION_TESTS.md` | Replayt integration boundary — scenarios, pins, CI, `test_replayt_boundary.py` |
 | `docs/DESIGN_PRINCIPLES.md` | Design and integration principles |
 | `docs/CI_SPEC.md` | CI triggers, Python matrix, install path, and test expectations |
