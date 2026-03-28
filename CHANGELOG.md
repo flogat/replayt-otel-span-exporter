@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Refined **[docs/SPEC_FIRST_ALPHA_RELEASE.md](docs/SPEC_FIRST_ALPHA_RELEASE.md)** for the **Publish first alpha release** backlog: expanded testable acceptance criteria ([§0](docs/SPEC_FIRST_ALPHA_RELEASE.md#0-testable-acceptance-criteria-expanded-backlog-wording)), **`__version__`** / **`importlib.metadata`** alignment with **`[project].version`**, recommended **`twine check`**, private-index install example, **`--pre`** note for integrators, [§5.1](docs/SPEC_FIRST_ALPHA_RELEASE.md#51-ci-and-suite-health-informative) CI vs **§5** verification scope, and checklist updates.
+
 ## [0.2.0a1] - 2026-03-28
 
 First **PEP 440 alpha** prerelease of the OpenTelemetry → replayt-prep bridge. **`replayt`** stays on the **`dev`** extra only; runtime deps remain **`opentelemetry-api`** and **`opentelemetry-sdk`**. Publish with **`python -m build`** and **`twine upload`**, then run **[docs/SPEC_FIRST_ALPHA_RELEASE.md](docs/SPEC_FIRST_ALPHA_RELEASE.md)** §5 verification. Backlog **“Publish first alpha release”** (phase **3** build): **`[project].version`** / **`__version__`** set to **`0.2.0a1`**; **`tests/test_release_metadata.py`** guards the alpha version shape; **`tests/test_init.py`** ties **`__version__`** to **`pyproject.toml`** and **`importlib.metadata`**.
