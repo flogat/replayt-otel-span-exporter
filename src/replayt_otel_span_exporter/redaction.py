@@ -7,6 +7,8 @@ substrings. This module is the single source for that policy; see
 
 from __future__ import annotations
 
+from typing import Any
+
 # Substrings (lowercase) — illustrative list extended only via spec maintenance.
 _SENSITIVE_KEY_SUBSTRINGS: tuple[str, ...] = (
     "authorization",
@@ -29,3 +31,19 @@ def attribute_key_is_sensitive(key: str) -> bool:
     """
     lower = key.lower()
     return any(fragment in lower for fragment in _SENSITIVE_KEY_SUBSTRINGS)
+
+
+REDACTED_ATTRIBUTE_PLACEHOLDER = "[REDACTED]"
+
+
+def redact_sensitive_attribute_values(attributes: dict[str, Any]) -> dict[str, Any]:
+    """Return a copy of *attributes* with sensitive keys replaced per triage IR spec.
+
+    Values for keys where :func:`attribute_key_is_sensitive` is true become the
+    literal string :data:`REDACTED_ATTRIBUTE_PLACEHOLDER`; other entries are
+    unchanged. See **docs/SPEC_EXPORT_TRIAGE_METADATA.md** §3.
+    """
+    return {
+        k: (REDACTED_ATTRIBUTE_PLACEHOLDER if attribute_key_is_sensitive(str(k)) else v)
+        for k, v in attributes.items()
+    }

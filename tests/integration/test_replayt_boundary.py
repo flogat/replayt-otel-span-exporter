@@ -55,6 +55,8 @@ def test_prepared_record_crosses_replayt_run_context_boundary():
 
     with tracer.start_as_current_span("ctx-bridge-span") as span:
         span.set_attribute("bridge", True)
+        span.set_attribute("replayt.workflow_id", "wf-bridge")
+        span.set_attribute("replayt.step_id", "bridge-step")
     rec = exporter.records[0]
     payload = {
         "trace_id": rec.trace_id,
@@ -64,6 +66,8 @@ def test_prepared_record_crosses_replayt_run_context_boundary():
         "start_time_unix_nano": rec.start_time_unix_nano,
         "end_time_unix_nano": rec.end_time_unix_nano,
         "attributes": dict(rec.attributes),
+        "workflow_id": rec.workflow_id,
+        "step_id": rec.step_id,
     }
 
     def before_step(ctx: RunContext, state: str) -> None:

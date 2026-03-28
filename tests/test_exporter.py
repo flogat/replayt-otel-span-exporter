@@ -54,6 +54,58 @@ def test_exporter_ingests_finished_span_via_simple_processor():
     assert rec.end_time_unix_nano > 0
     assert rec.start_time_unix_nano <= rec.end_time_unix_nano
     assert rec.attributes["test.attr"] == "expected-value"
+    assert rec.workflow_id is None
+    assert rec.step_id is None
+
+
+def test_exporter_triage_metadata_populated_from_canonical_attributes():
+    exporter = ReplaytSpanExporter()
+    provider = TracerProvider()
+    provider.add_span_processor(SimpleSpanProcessor(exporter))
+    tracer = provider.get_tracer(__name__)
+
+    with tracer.start_as_current_span("triage-span") as span:
+        span.set_attribute("replayt.workflow_id", "wf-alpha")
+        span.set_attribute("replayt.step_id", "step-7")
+
+    rec = exporter.records[0]
+    assert rec.workflow_id == "wf-alpha"
+    assert rec.step_id == "step-7"
+    assert rec.attributes["replayt.workflow_id"] == "wf-alpha"
+    assert rec.attributes["replayt.step_id"] == "step-7"
+
+
+def test_exporter_triage_workflow_id_coerces_int():
+    exporter = ReplaytSpanExporter()
+    provider = TracerProvider()
+    provider.add_span_processor(SimpleSpanProcessor(exporter))
+    tracer = provider.get_tracer(__name__)
+
+    with tracer.start_as_current_span("coerce-span") as span:
+        span.set_attribute("replayt.workflow_id", 99)
+
+    rec = exporter.records[0]
+    assert rec.workflow_id == "99"
+    assert rec.attributes["replayt.workflow_id"] == "99"
+
+
+def test_exporter_sensitive_attribute_redacted_triage_fields_unchanged():
+    exporter = ReplaytSpanExporter()
+    provider = TracerProvider()
+    provider.add_span_processor(SimpleSpanProcessor(exporter))
+    tracer = provider.get_tracer(__name__)
+    secret = "super-secret-value"
+    with tracer.start_as_current_span("redact-span") as span:
+        span.set_attribute("replayt.workflow_id", "wf-safe")
+        span.set_attribute("replayt.step_id", "s1")
+        span.set_attribute("user.password", secret)
+
+    rec = exporter.records[0]
+    assert rec.workflow_id == "wf-safe"
+    assert rec.step_id == "s1"
+    assert rec.attributes["user.password"] == "[REDACTED]"
+    assert secret not in rec.attributes.values()
+    assert rec.attributes["replayt.workflow_id"] == "wf-safe"
 
 
 def test_exporter_shutdown_prevents_further_appends():
@@ -79,7 +131,9 @@ def test_exporter_force_flush_returns_true():
     assert exporter.force_flush(timeout_millis=1) is True
 
 
-def test_exporter_export_returns_failure_when_transformation_raises(caplog, monkeypatch):
+def test_exporter_export_returns_failure_when_transformation_raises(
+    caplog, monkeypatch
+):
     """Internal mapper errors surface as FAILURE without raising (spec 2.3)."""
     caplog.set_level(logging.ERROR, logger="replayt_otel_span_exporter.exporter")
     from replayt_otel_span_exporter import exporter as exporter_mod

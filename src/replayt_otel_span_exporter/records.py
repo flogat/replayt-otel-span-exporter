@@ -14,6 +14,12 @@ from opentelemetry.sdk.trace import ReadableSpan
 from opentelemetry.trace import format_span_id, format_trace_id
 from opentelemetry.util import types
 
+from replayt_otel_span_exporter.redaction import redact_sensitive_attribute_values
+
+# Canonical OpenTelemetry attribute keys (case-sensitive); see SPEC_EXPORT_TRIAGE_METADATA §2.1.
+WORKFLOW_ID_ATTRIBUTE_KEY = "replayt.workflow_id"
+STEP_ID_ATTRIBUTE_KEY = "replayt.step_id"
+
 
 def serialize_attribute_value(value: types.AttributeValue) -> Any:
     """Convert an OpenTelemetry attribute value to a JSON-friendly Python value.
@@ -49,6 +55,24 @@ def prepared_attributes_from_readable(
     return {str(k): serialize_attribute_value(v) for k, v in attributes.items()}
 
 
+def triage_id_from_serialized_value(serialized: Any) -> str | None:
+    """Coerce a serialized attribute value to a triage id string, or ``None`` if empty.
+
+    Per **docs/SPEC_EXPORT_TRIAGE_METADATA.md** §2.2–§2.3: values pass through
+    :func:`serialize_attribute_value` first; non-strings are coerced with
+    ``str(...)``. An empty string after coercion becomes ``None``. A missing
+    attribute yields ``serialized is None`` from ``dict.get`` and maps to
+    ``None``.
+    """
+    if serialized is None:
+        return None
+    if isinstance(serialized, str):
+        coerced = serialized
+    else:
+        coerced = str(serialized)
+    return coerced if coerced else None
+
+
 @dataclass(frozen=True, slots=True)
 class PreparedSpanRecord:
     """Normalized span snapshot for replayt-facing consumers (skeleton IR).
@@ -66,7 +90,13 @@ class PreparedSpanRecord:
     stored as ``0`` so the record always holds integers.
 
     **attributes**: String keys mapped to JSON-friendly values; see
-    ``serialize_attribute_value``.
+    ``serialize_attribute_value``. Values for keys classified as sensitive by
+    :func:`replayt_otel_span_exporter.redaction.attribute_key_is_sensitive`
+    are replaced with the literal ``"[REDACTED]"`` (see **SPEC_EXPORT_TRIAGE_METADATA** §3).
+
+    **workflow_id** / **step_id**: First-class triage fields from span attributes
+    ``replayt.workflow_id`` and ``replayt.step_id`` (exact keys), each ``None``
+    when absent or empty after coercion.
     """
 
     trace_id: str
@@ -76,6 +106,8 @@ class PreparedSpanRecord:
     start_time_unix_nano: int
     end_time_unix_nano: int
     attributes: dict[str, Any]
+    workflow_id: str | None
+    step_id: str | None
 
 
 def prepared_span_record_from_readable(span: ReadableSpan) -> PreparedSpanRecord:
@@ -95,6 +127,20 @@ def prepared_span_record_from_readable(span: ReadableSpan) -> PreparedSpanRecord
     if end is None:
         end = 0
 
+    serialized_attrs = prepared_attributes_from_readable(span.attributes)
+    workflow_id = triage_id_from_serialized_value(
+        serialized_attrs.get(WORKFLOW_ID_ATTRIBUTE_KEY)
+    )
+    step_id = triage_id_from_serialized_value(
+        serialized_attrs.get(STEP_ID_ATTRIBUTE_KEY)
+    )
+    redacted_attrs = redact_sensitive_attribute_values(serialized_attrs)
+    # Canonical keys must match triage string form (§2.4), not raw serialized scalars.
+    if workflow_id is not None:
+        redacted_attrs[WORKFLOW_ID_ATTRIBUTE_KEY] = workflow_id
+    if step_id is not None:
+        redacted_attrs[STEP_ID_ATTRIBUTE_KEY] = step_id
+
     return PreparedSpanRecord(
         trace_id=trace_id,
         span_id=span_id,
@@ -102,5 +148,7 @@ def prepared_span_record_from_readable(span: ReadableSpan) -> PreparedSpanRecord
         kind=span.kind.name,
         start_time_unix_nano=start,
         end_time_unix_nano=end,
-        attributes=prepared_attributes_from_readable(span.attributes),
+        attributes=redacted_attrs,
+        workflow_id=workflow_id,
+        step_id=step_id,
     )
