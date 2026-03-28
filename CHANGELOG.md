@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
-- Backlog **“Define project mission and scope”** (phase **2** spec): **[docs/MISSION.md](docs/MISSION.md)** adds backlog traceability, expanded user outcome wording, a **Test and CI expectations** section (install line, **`pytest --cov`** command, Python matrix, green-run definition, spec-to-suite mapping), **Success criteria** aligned with changelog/CI, an **Audience** table, and **LLM and demos** boundaries cross-linked to design principles and specs.
+- Backlog **“Define project mission and scope”** (phase **2** spec): **[docs/MISSION.md](docs/MISSION.md)** adds backlog traceability, expanded user outcome wording, a **Test and CI expectations** section (install line, **`pytest --cov`** command, Python matrix, green-run definition, spec-to-suite mapping), **Success criteria** that name changelog and CI expectations, an **Audience** table, and **LLM and demos** boundaries linked to design principles and specs.
 
 ### Added
 

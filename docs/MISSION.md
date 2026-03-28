@@ -43,11 +43,11 @@ For implementation contracts, use the spec files linked from the [Scope](#scope)
 
 These bullets are the **mission-level summary**; **[CI_SPEC.md](CI_SPEC.md)** is authoritative if anything diverges.
 
-- **Install path (contributors + default CI):** `pip install -e ".[dev]"` after upgrading **`pip`**, so **`replayt`** and other dev pins match **`pyproject.toml`** (see **[CI_SPEC.md](CI_SPEC.md)** §4–§5).
+- **Install path (contributors + default CI):** `python -m pip install --upgrade pip` then `pip install -e ".[dev]"` so **`replayt`** and other dev pins match **`pyproject.toml`** (see **[CI_SPEC.md](CI_SPEC.md)** §4–§5).
 - **Tests command (default CI):** from the repository root,  
   `pytest --cov=replayt_otel_span_exporter --cov-report=xml`  
   so **all** collected tests under **`tests/`** run on every matrix cell unless **[CI_SPEC.md](CI_SPEC.md)** is explicitly revised (see §5–§6 there).
-- **Python matrix:** versions must satisfy **`[project].requires-python`** (currently **≥ 3.11**); CI currently exercises **3.11** and **3.12** (see **[CI_SPEC.md](CI_SPEC.md)** §3 and the reference fingerprint §).
+- **Python matrix:** versions must satisfy **`[project].requires-python`** (currently **≥ 3.11**); CI currently exercises **3.11** and **3.12** (see **[CI_SPEC.md](CI_SPEC.md)** §3 and the **Reference fingerprint** subsection under **Implementation notes for Builder / Maintainer**).
 - **Workflow success:** a **green** change is a successful run of **every** job in **`.github/workflows/ci.yml`** (today at least **`test`** and **`supply-chain`**); see **[CI_SPEC.md](CI_SPEC.md)** §7.
 - **Spec-to-suite mapping (what CI is expected to prove):**
   - **[SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** — exporter IR, **`ReplaytSpanExporter`** behavior, and skeleton test contract (e.g. **`tests/test_exporter.py`**, **`tests/test_records.py`**).
