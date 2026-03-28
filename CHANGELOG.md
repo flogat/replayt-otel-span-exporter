@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
+- Refined exporter skeleton spec (phase 2): canonical names (`ReplaytSpanExporter`, `PreparedSpanRecord`, `__all__`), aligned dependency wording with `pyproject.toml`, exporter threading/shutdown/`SpanExportResult` semantics, IR edge cases, expanded test contract, and §6 verifiable acceptance checklist in `docs/SPEC_OTEL_EXPORTER_SKELETON.md`; `docs/CI_SPEC.md` references the checklist.
 - Mission and positioning filled in `docs/MISSION.md` and `docs/REPLAYT_ECOSYSTEM_IDEA.md` (framework-bridge pattern).
 - Builder contract for the OpenTelemetry span exporter skeleton: `docs/SPEC_OTEL_EXPORTER_SKELETON.md` (public API, prepared-span IR, test expectations, `opentelemetry-sdk` dependency note).
 - README links the exporter spec alongside mission and ecosystem docs.

@@ -56,7 +56,7 @@ Do not rely on a hand-maintained `requirements-ci.txt` unless the project later 
 
 **`pytest`** is run from the repository root so all collected tests run. Today tests live under **`tests/`**; if **`tests/integration/`** or similar is added later, it remains part of default discovery unless explicitly excluded.
 
-**Current layout (informative):** The suite includes module smoke, dependency checks (e.g. **`tests/test_init.py`**, **`tests/test_dependencies.py`**), exporter skeleton coverage (**`tests/test_exporter.py`**, **`tests/test_records.py`**) per **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)**, and **`tests/integration/`** for API-boundary checks. New tests stay in default **`pytest`** discovery unless this doc is updated. Treat this as the minimal “unit + integration” bar (see §6).
+**Current layout (informative):** The suite includes module smoke, dependency checks (e.g. **`tests/test_init.py`**, **`tests/test_dependencies.py`**), exporter skeleton coverage (**`tests/test_exporter.py`**, **`tests/test_records.py`**) per **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** §4 and the **§6 verifiable acceptance checklist**, and **`tests/integration/`** for API-boundary checks. New tests stay in default **`pytest`** discovery unless this doc is updated. Treat this as the minimal “unit + integration” bar (see §6).
 
 **CI command (must stay equivalent unless this doc is updated):** after install,
 
