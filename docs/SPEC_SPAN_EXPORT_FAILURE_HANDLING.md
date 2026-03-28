@@ -29,6 +29,7 @@ It **extends** **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELET
 For this backlog, an **export failure** means any case where **`ReplaytSpanExporter.export`** returns **`SpanExportResult.FAILURE`** due to an **unexpected exception** in this package while handling a batch (mapping spans, appending to the buffer, or lock-protected sections), **excluding**:
 
 - **Post-`shutdown()` no-op exports** — still **`SUCCESS`** per skeleton §2.2; no failure logging required for that path.
+- **Policy denial via an integrator approval hook** — per **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)**, a hook returning **`"deny"`** is **not** an export failure: **`export`** returns **`SUCCESS`** and does not append records. That path is **not** required to emit **ERROR**-level failure logs from this package; audit visibility is specified in the approval spec §5.
 
 **Batch semantics (normative):** If any span in the batch raises during processing, the exporter **MUST** return **`FAILURE`** for the whole batch (consistent with today’s single **`try`** around the loop). It **MUST NOT** claim **`SUCCESS`** if any span in that call was not appended. The log entry **SHOULD** include the **batch size** (`len(spans)`). If the implementation can identify **which span** failed (index or stable id), **SHOULD** include that in structured fields.
 

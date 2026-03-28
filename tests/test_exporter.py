@@ -215,3 +215,102 @@ def test_exporter_failure_logs_do_not_include_sensitive_attribute_values(
 
     errors = [r for r in caplog.records if r.levelno == logging.ERROR]
     assert getattr(errors[0], "sensitive_attribute_keys_present") is True
+
+
+def test_exporter_approval_allow_appends_and_audits(caplog):
+    """SPEC_SPAN_EXPORT_APPROVAL_UX §8 — allow commits batch and emits audit."""
+    caplog.set_level(logging.INFO, logger="replayt_otel_span_exporter.exporter.audit")
+    audit_events: list[dict] = []
+
+    def commit(prepared, *, span_count: int):
+        assert span_count == 1
+        assert len(prepared) == 1
+        return "allow"
+
+    def audit(event):
+        audit_events.append(dict(event))
+
+    exporter = ReplaytSpanExporter(
+        on_export_commit=commit,
+        on_export_audit=audit,
+    )
+    provider = TracerProvider()
+    provider.add_span_processor(SimpleSpanProcessor(exporter))
+    tracer = provider.get_tracer(__name__)
+
+    with tracer.start_as_current_span("approval-allow") as span:
+        span.set_attribute("replayt.workflow_id", "wf-audit")
+        span.set_attribute("replayt.step_id", "s1")
+
+    assert len(exporter.records) == 1
+    assert len(audit_events) == 1
+    ev = audit_events[0]
+    assert ev["decision"] == "allow"
+    assert ev["prepared_count"] == 1
+    assert ev["span_count"] == 1
+    assert "trace_id" in ev and "span_id" in ev
+    assert ev.get("workflow_id") == "wf-audit"
+    assert ev.get("step_id") == "s1"
+
+    infos = [r for r in caplog.records if r.levelno == logging.INFO]
+    assert infos
+    assert getattr(infos[0], "decision") == "allow"
+
+
+def test_exporter_approval_deny_success_no_append_and_audits(caplog):
+    """SPEC_SPAN_EXPORT_APPROVAL_UX §8 — deny returns SUCCESS and skips buffer append."""
+    caplog.set_level(logging.INFO, logger="replayt_otel_span_exporter.exporter.audit")
+
+    def commit(_prepared, *, span_count: int):
+        assert span_count == 1
+        return "deny"
+
+    exporter = ReplaytSpanExporter(on_export_commit=commit)
+    provider = TracerProvider()
+    provider.add_span_processor(SimpleSpanProcessor(exporter))
+    tracer = provider.get_tracer(__name__)
+
+    with tracer.start_as_current_span("approval-deny"):
+        pass
+
+    assert len(exporter.records) == 0
+    infos = [r for r in caplog.records if r.levelno == logging.INFO]
+    assert infos
+    assert getattr(infos[0], "decision") == "deny"
+    assert "policy" in infos[0].getMessage().lower() or "denied" in infos[0].getMessage().lower()
+
+
+def test_exporter_approval_hook_failure_returns_failure_no_partial_append(caplog):
+    """SPEC_SPAN_EXPORT_APPROVAL_UX §8 — hook exception is FAILURE without partial append."""
+    caplog.set_level(logging.ERROR, logger="replayt_otel_span_exporter.exporter")
+
+    def commit(_p, *, span_count: int):
+        raise RuntimeError("hook exploded")
+
+    exporter = ReplaytSpanExporter(on_export_commit=commit)
+    provider = TracerProvider()
+    provider.add_span_processor(SimpleSpanProcessor(exporter))
+    tracer = provider.get_tracer(__name__)
+
+    with tracer.start_as_current_span("approval-boom"):
+        pass
+
+    assert len(exporter.records) == 0
+    errors = [r for r in caplog.records if r.levelno == logging.ERROR]
+    assert errors
+    assert "approval hook" in errors[0].getMessage().lower()
+    assert errors[0].exc_info is not None
+
+
+def test_exporter_approval_shutdown_does_not_invoke_hook():
+    """SPEC_SPAN_EXPORT_APPROVAL_UX §8 — post-shutdown export is a no-op; hook does not run."""
+    calls = {"n": 0}
+
+    def commit(_p, *, span_count: int):
+        calls["n"] += 1
+        return "allow"
+
+    exporter = ReplaytSpanExporter(on_export_commit=commit)
+    exporter.shutdown()
+    assert exporter.export([]) is SpanExportResult.SUCCESS
+    assert calls["n"] == 0
