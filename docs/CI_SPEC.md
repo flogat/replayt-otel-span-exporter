@@ -18,6 +18,7 @@ The rows below expand those three bullets into checks a human or gate phase can 
 
 - Run automated tests on every relevant **push** and **pull_request** so regressions are caught before merge.
 - Use the same **Python compatibility window** and **dependency installation path** as local development (`pyproject.toml`), so CI failures are reproducible locally.
+- Keep **documented supported versions** (Python, OpenTelemetry, **replayt** on the **`dev`** path) consistent with **[docs/COMPATIBILITY.md](COMPATIBILITY.md)**; update that file when the matrix or pins change.
 
 ## Acceptance criteria
 

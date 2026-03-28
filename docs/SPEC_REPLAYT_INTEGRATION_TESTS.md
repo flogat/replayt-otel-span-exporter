@@ -51,7 +51,7 @@ The Builder MUST implement **all** of the following. Exact assertion shapes foll
 - **`[project].dependencies`** MUST remain free of **`replayt`** for this backlog unless a separate item promotes it to runtime (see **[docs/MISSION.md](MISSION.md)** scope table).
 - **`replayt`** MUST be declared under **`[project.optional-dependencies]`** — either the existing **`dev`** extra or a dedicated extra (for example **`integration`**) that CI merges into its install line.
 - The documented install path for contributors and CI MUST install **`replayt`** without a second manual step. Today that means extending the **`pip install -e ".[dev]"`** line (or the equivalent documented in **[docs/CI_SPEC.md](CI_SPEC.md)**) so the integration tests always run in **`pytest`** on PRs and pushes.
-- When pins change, update **`docs/DEPENDENCY_AUDIT.md`** in the same maintenance pass (see §6 checklist).
+- When pins change, update **`docs/DEPENDENCY_AUDIT.md`** and **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** in the same maintenance pass (see §6 checklist).
 
 ## 6. Verifiable acceptance checklist
 
