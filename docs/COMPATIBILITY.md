@@ -34,6 +34,8 @@ Values below match the repository **at the time this section was last revised**;
 
 **Interpretation for integrators:** Any **Python** and **OpenTelemetry** versions satisfying the table are in policy for **using this exporter as a library**. Compatibility with **replayt** at runtime is **not** claimed by this matrix unless you align your environment with the **dev** pin or validate **`PreparedSpanRecord`** → replayt yourself; CI proves a **minimum** replayt API against the declared lower bound.
 
+**Published wheels and sdists:** When **`replayt-otel-span-exporter`** appears on [PyPI](https://pypi.org/project/replayt-otel-span-exporter/) (or another index), the **`[project]`** metadata for each uploaded version — **`requires-python`**, runtime **`Requires-Dist`** entries — comes from **`pyproject.toml`** at the release revision. Confirm the live project page for the version you install; it should match this matrix for that tag.
+
 ## 3. Pin strategy
 
 - **Runtime (OpenTelemetry):** Use **PEP 440 lower bounds** in **`[project].dependencies`**. When bumping, move **API** and **SDK** together on the same OpenTelemetry release line, per **[docs/DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)**.
