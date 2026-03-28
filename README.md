@@ -5,7 +5,7 @@
 This project builds on **[replayt](https://pypi.org/project/replayt/)**. Read
 **[docs/REPLAYT_ECOSYSTEM_IDEA.md](docs/REPLAYT_ECOSYSTEM_IDEA.md)** for positioning options, then
 **[docs/MISSION.md](docs/MISSION.md)** for scope and goals. Backlog-driven contracts live in specs such as
-**[docs/SPEC_OTEL_EXPORTER_SKELETON.md](docs/SPEC_OTEL_EXPORTER_SKELETON.md)**, **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** (logging and redaction on export failure), **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](docs/SPEC_EXPORT_TRIAGE_METADATA.md)** (**`workflow_id`** / **`step_id`** triage fields and **`[REDACTED]`** sensitive attribute values on prepared records), and **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](docs/SPEC_REPLAYT_INTEGRATION_TESTS.md)** (replayt boundary contract; tests in **`tests/integration/test_replayt_boundary.py`**).
+**[docs/SPEC_OTEL_EXPORTER_SKELETON.md](docs/SPEC_OTEL_EXPORTER_SKELETON.md)**, **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** (logging and redaction on export failure), **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](docs/SPEC_EXPORT_TRIAGE_METADATA.md)** (**`workflow_id`** / **`step_id`** triage fields and **`[REDACTED]`** sensitive attribute values on prepared records), **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md)** (optional integrator approval hook and audit visibility for span export), and **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](docs/SPEC_REPLAYT_INTEGRATION_TESTS.md)** (replayt boundary contract; tests in **`tests/integration/test_replayt_boundary.py`**).
 
 ## Design principles
 
@@ -92,6 +92,7 @@ local tooling entries. Adapt or remove optional directories to match your team�
 | `docs/SPEC_EXPORT_TRIAGE_METADATA.md` | Triage metadata on prepared spans — canonical OTel keys, IR fields, attribute redaction, tests |
 | `docs/SPEC_REPLAYT_INTEGRATION_TESTS.md` | Replayt integration boundary — scenarios, pins, CI, `test_replayt_boundary.py` |
 | `docs/SPEC_README_QUICK_START.md` | README quick start, usage example, and CI proof (`test_readme_usage_example.py`) — Builder contract |
+| `docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md` | Optional approval hook, audit signals, and tests for `ReplaytSpanExporter` — Builder contract |
 | `docs/DESIGN_PRINCIPLES.md` | Design and integration principles |
 | `docs/CI_SPEC.md` | CI triggers, Python matrix, install path, and test expectations |
 | `docs/COMPATIBILITY.md` | Supported versions matrix, pin strategy, CI alignment, replayt release links |

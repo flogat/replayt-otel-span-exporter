@@ -24,4 +24,5 @@ Document models, secrets handling, cost and redaction expectations here or in MI
 | -------- | ----- |
 | **Maintainers** | Mission, scripts, pinned versions, release notes |
 | **Integrators** | Stable adapter surface, **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** (matrix and replayt policy) |
+| **Governance / compliance** (when applicable) | **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)** (audit visibility), **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** and **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)** (redaction and triage) |
 | **Contributors** | README, tests, coding expectations |

@@ -14,6 +14,8 @@ This document refines the backlog item **“Implement basic OpenTelemetry span e
 
 **Triage metadata and IR attribute redaction:** **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)** extends §3 with **`workflow_id`** / **`step_id`** fields and key-based value redaction on **`PreparedSpanRecord.attributes`** using **`replayt_otel_span_exporter.redaction.attribute_key_is_sensitive`**.
 
+**Approval and audit hooks:** **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)** extends §2.2 with optional integrator gating **after** IR mapping and **before** buffer append, **`SpanExportResult.SUCCESS`** on policy denial, and documented audit visibility (logging / optional callback).
+
 ## Reference naming (normative for this repository)
 
 These names are the **canonical** integration surface for the backlog item; Builder and review phases should treat them as the stable contract unless a follow-on backlog explicitly renames or splits them.
@@ -53,7 +55,7 @@ These names are the **canonical** integration surface for the backlog item; Buil
 ### 2.2 Exporter behavior
 
 - The class **subclasses** **`opentelemetry.sdk.trace.export.SpanExporter`** (or otherwise satisfies the same contract if the SDK’s typing evolves—prefer subclassing for clarity).
-- **Constructor** — MUST accept an optional **shared buffer** argument (for example **`records: list[PreparedSpanRecord] | None = None`**) so tests can inject a list and observe appends without reflection. When omitted, the exporter uses an internal empty list.
+- **Constructor** — MUST accept an optional **shared buffer** argument (for example **`records: list[PreparedSpanRecord] | None = None`**) so tests can inject a list and observe appends without reflection. When omitted, the exporter uses an internal empty list. When **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)** is implemented, the constructor **MAY** accept additional optional parameters (approval hook, audit callback) per that spec; default behavior without those parameters **MUST** match the pre-approval baseline (append on successful mapping).
 - **Required methods** (names and semantics aligned with the SDK):
   - **`export(spans)`** — Accept a **`Sequence`** (or equivalent) of **finished** **`ReadableSpan`** instances, map each to **`PreparedSpanRecord`** (§3), and **append** to the buffer. Return **`SpanExportResult.SUCCESS`** when all spans in the batch are handled without internal error.
   - **`shutdown()`** — Idempotent flag so that **subsequent** **`export`** calls do **not** append new records; those calls still return **`SpanExportResult.SUCCESS`** (no-op export) for this skeleton so the SDK pipeline is not left in a failure state after shutdown.
@@ -143,6 +145,7 @@ Use this checklist in **Spec gate**, **Build gate**, and PR review. Every item M
 6. **`__all__`** contains only **`ReplaytSpanExporter`**, **`PreparedSpanRecord`**, and **`__version__`** (no accidental public leakage of helpers).
 7. Layout and **`ruff`**-clean style per §5; dependency audit row for OpenTelemetry matches **`pyproject.toml`**.
 8. **`PreparedSpanRecord`** triage fields, redacted **`attributes`**, tests, and docs per **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)** §7.
+9. When the **approval UX** backlog is in scope: optional hook, **`SUCCESS`** on deny, audit allow-list, threading, shutdown behavior, tests, and docs per **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)** §6–§9.
 
 ## Implementation notes for Builder / Maintainer
 
