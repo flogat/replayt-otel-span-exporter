@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Backlog **“Define and implement approval UX for span export”** (phase **3** build): optional **`ReplaytSpanExporter`** kwargs **`on_export_commit`** and **`on_export_audit`** per **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md)**; policy **`"deny"`** returns **`SpanExportResult.SUCCESS`** without appending; hook errors return **`FAILURE`** with no partial append; audit **INFO** on **`replayt_otel_span_exporter.exporter.audit`** using only §5.2 allow-listed **`extra`** fields; tests in **`tests/test_exporter.py`** §8 scenarios. **`typing.Protocol`** / **`TypedDict`** types **`ExportCommitHook`**, **`ExportAuditCallback`**, **`ExportAuditEvent`** live in **`replayt_otel_span_exporter.exporter`** (not added to **`__all__`**).
+
 ### Documentation
 
 - Backlog **“Define and implement approval UX for span export”** (phase **2** spec): **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md)** defines optional integrator approval gating after **`PreparedSpanRecord`** mapping, **`SpanExportResult.SUCCESS`** on policy denial, hook error semantics, thread-safety, audit allow-listed fields (logging and/or optional callback), test contract §8, and acceptance checklist §9. Cross-links from **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](docs/SPEC_OTEL_EXPORTER_SKELETON.md)** (traceability, §2.2 constructor, §6 item 9), **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** §1 (policy denial vs failure), **[docs/MISSION.md](docs/MISSION.md)** (scope, spec-to-suite mapping, success criteria, audience), **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §5, **[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)** (audience), and **[README.md](README.md)**.
