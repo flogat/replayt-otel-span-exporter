@@ -7,8 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`tests/test_release_packaging.py`**: CI runs **`python -m build`** and **`twine check`** on the produced sdist/wheel (per **[docs/SPEC_FIRST_ALPHA_RELEASE.md](docs/SPEC_FIRST_ALPHA_RELEASE.md)** §4). **`dev`** extra includes **`build`** and **`twine`** for those checks.
+
+### Changed
+
+- **`tests/test_release_metadata.py`**: asserts **CHANGELOG** has a dated **`## [<version>] - YYYY-MM-DD`** heading matching **`[project].version`** and a **`[Unreleased]`** section (per that spec §3).
+
 ### Documentation
 
+- **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §5 lists **`tests/test_release_packaging.py`** next to release metadata tests.
 - Refined **[docs/SPEC_FIRST_ALPHA_RELEASE.md](docs/SPEC_FIRST_ALPHA_RELEASE.md)** for the **Publish first alpha release** backlog: expanded testable acceptance criteria ([§0](docs/SPEC_FIRST_ALPHA_RELEASE.md#0-testable-acceptance-criteria-expanded-backlog-wording)), **`__version__`** / **`importlib.metadata`** alignment with **`[project].version`**, recommended **`twine check`**, private-index install example, **`--pre`** note for integrators, [§5.1](docs/SPEC_FIRST_ALPHA_RELEASE.md#51-ci-and-suite-health-informative) CI vs **§5** verification scope, and checklist updates.
 
 ## [0.2.0a1] - 2026-03-28
