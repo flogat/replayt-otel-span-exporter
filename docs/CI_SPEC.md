@@ -97,7 +97,8 @@ If the workflow runs **`pytest --cov=...`** or uploads coverage (e.g. Codecov), 
 
 ## Non-goals (this backlog)
 
-- Release publishing, deployment, or secret-dependent integration tests against live services.
+- **Release publishing automation** in this workflow file (the **“Set up CI pipeline”** backlog does not require upload jobs or PyPI secrets). Requirements for the **“Publish first alpha release”** backlog live in **[docs/SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)**; if maintainers add a **`release`** or **`publish`** job later, update this document’s **Reference fingerprint** and §7 in the same change.
+- Deployment or secret-dependent integration tests against live services beyond **`pip-audit`** / install steps already described.
 - Defining replayt upstream release policy (see mission and design docs).
 
 ## Implementation notes for Builder / Maintainer

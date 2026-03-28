@@ -14,6 +14,10 @@ Revise as the project matures. Defaults below are minimal—expand with rules fo
 
 Supported **Python**, **OpenTelemetry**, and **replayt (dev/test)** versions, **pin strategy**, **CI matrix** alignment, and **links to replayt release tracking** on PyPI are documented in **[docs/COMPATIBILITY.md](COMPATIBILITY.md)**. Update that file whenever **`pyproject.toml`** pins or **`.github/workflows/ci.yml`** matrix entries change.
 
+## Releases (alpha and later)
+
+**PEP 440** prerelease tagging, **CHANGELOG** cut lines, artifact upload, and post-upload **`pip install`** verification for **`replayt-otel-span-exporter`** are specified in **[docs/SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)**. CI automation for publishing is optional and must be documented in **[docs/CI_SPEC.md](CI_SPEC.md)** if added.
+
 ## LLM / demos (if applicable)
 
 Document models, secrets handling, cost and redaction expectations here or in MISSION.

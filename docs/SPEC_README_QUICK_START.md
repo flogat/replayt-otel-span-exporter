@@ -25,7 +25,7 @@ The root **`README.md`** MUST include a **Quick start** section (heading text MA
 ### 2.1 Library users (integrators)
 
 - State **`requires-python`** from **`pyproject.toml`** (today **≥ 3.11**).
-- Show installing the **distribution** from PyPI when published, using the **`[project].name`** hyphenated form readers expect on the command line: **`replayt-otel-span-exporter`** (for example **`pip install replayt-otel-span-exporter`**). If the package is not yet published, the README MUST say so briefly and point contributors to §2.2 instead of implying a broken install command.
+- Show installing the **distribution** from PyPI when published, using the **`[project].name`** hyphenated form readers expect on the command line: **`replayt-otel-span-exporter`** (for example **`pip install replayt-otel-span-exporter`**). If the package is not yet published, the README MUST say so briefly and point contributors to §2.2 instead of implying a broken install command. When an **alpha** or later release is published per **[docs/SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)**, the README MUST be updated in the same maintenance pass so §2.1 reflects the live index (public PyPI or documented **`--index-url`** pattern for a private registry).
 - MUST **not** instruct library users to add **`replayt`** solely to run the minimal exporter example.
 
 ### 2.2 Contributors and CI parity

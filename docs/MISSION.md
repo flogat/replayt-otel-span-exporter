@@ -36,6 +36,7 @@ For implementation contracts, use the spec files linked from the [Scope](#scope)
 | **`SpanExporter`** implementation and **prepared span records** per **[SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** | Runtime dependency on **`replayt`** for the skeleton milestone |
 | **`opentelemetry-api`** + **`opentelemetry-sdk`** as declared dependencies | Full replayt workflow execution, storage backends, or network export |
 | Optional **approval / audit hooks** for **`ReplaytSpanExporter`** per **[SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)** (integrator policy gate; not an in-repo UI) | Interactive approval products, persistent audit stores, or **replayt** runtime dependency for gating |
+| **First alpha (and later) PyPI / private-index publishing** — versioning, changelog, artifact upload, and install verification per **[SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** | Organization-wide release platforms, signing policy beyond normal **`twine`** usage, or changing **replayt** runtime dependency policy without a separate backlog |
 | Unit/integration tests described in the specs below | Performance SLAs and advanced batching semantics |
 
 **Exception — replayt integration tests:** **[SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** allows declaring **`replayt`** under **`[project.optional-dependencies]`** (for example bundled into **`dev`**) so CI can prove the boundary. That does **not** by itself add **`replayt`** to **`[project].dependencies`** for library users.
@@ -58,6 +59,7 @@ These bullets are the **mission-level summary**; **[CI_SPEC.md](CI_SPEC.md)** is
   - **`tests/integration/test_opentelemetry_api_usage.py`** — OpenTelemetry trace API smoke only (no **`replayt`**), per **[CI_SPEC.md](CI_SPEC.md)** §5.
   - **[SPEC_README_QUICK_START.md](SPEC_README_QUICK_START.md)** — README quick start, usage example, and CI proof via **`tests/test_readme_usage_example.py`** and **`tests/readme_usage_example_snippet.py`** (names recorded in **[CI_SPEC.md](CI_SPEC.md)** §5).
   - **[SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)** — optional **`ReplaytSpanExporter`** **`on_export_commit`** / **`on_export_audit`**, **`SpanExportResult.SUCCESS`** on policy denial, audit allow-list, and tests in **`tests/test_exporter.py`** per that spec §8.
+  - **[SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** — first **alpha** prerelease to PyPI or a private index: PEP 440 **alpha** **`[project].version`**, **[CHANGELOG.md](../CHANGELOG.md)** release section, upload, and §5 install verification (automation optional unless documented in **[CI_SPEC.md](CI_SPEC.md)**).
 - **Supply chain:** **`supply-chain`** job expectations and **`pip-audit`** ignore rules live in **[DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)** and **[CI_SPEC.md](CI_SPEC.md)** (optional jobs §).
 
 ## Success criteria
@@ -65,6 +67,7 @@ These bullets are the **mission-level summary**; **[CI_SPEC.md](CI_SPEC.md)** is
 - **Automated tests** (see **[CI_SPEC.md](CI_SPEC.md)** and [Test and CI expectations](#test-and-ci-expectations) above) cover span ingestion and transformation as specified in **[SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)**, export failure logging and redaction per **[SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)**, triage metadata and IR attribute redaction per **[SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)**, the replayt boundary per **[SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** (**`tests/integration/test_replayt_boundary.py`**), the README usage pipeline per **[SPEC_README_QUICK_START.md](SPEC_README_QUICK_START.md)** (**`tests/test_readme_usage_example.py`**), and approval / audit behavior per **[SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)** §8 (**`tests/test_exporter.py`**).
 - **Public API** remains small and listed explicitly (**`__all__`**); extension points are documented in the spec and design principles.
 - **Changelog** records user-visible API and dependency changes under **Unreleased** until release (**[CHANGELOG.md](../CHANGELOG.md)** at repo root).
+- **First alpha release** (backlog **“Publish first alpha release”**): **`[project].version`** is a PEP 440 **alpha** prerelease, **CHANGELOG** contains a dated section for that version, artifacts are on the chosen index, and **§5 verification** in **[SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** passes; README / compatibility prose updated per that spec §6 when the index is live.
 - **CI** on the default integration branch remains **green** per **[CI_SPEC.md](CI_SPEC.md)** §7 for the documented install path and **`pytest`** command.
 
 ## Compatibility matrix
@@ -83,7 +86,7 @@ When pins or CI versions change, update **`COMPATIBILITY.md`** in the same maint
 
 | Audience | Needs |
 | -------- | ----- |
-| **Maintainers** | This file, **[CI_SPEC.md](CI_SPEC.md)**, **`DEPENDENCY_AUDIT.md`**, release notes in **[CHANGELOG.md](../CHANGELOG.md)** |
+| **Maintainers** | This file, **[CI_SPEC.md](CI_SPEC.md)**, **`DEPENDENCY_AUDIT.md`**, **[SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** (alpha / publish checklist), release notes in **[CHANGELOG.md](../CHANGELOG.md)** |
 | **Integrators** | Stable adapter surface, **[COMPATIBILITY.md](COMPATIBILITY.md)**, **[SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)**, README overview |
 | **Governance / compliance** (when applicable) | **[SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)** audit allow-list, **[SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** redaction, **[SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)** triage fields |
 | **Contributors** | README quick start, specs under **`docs/`**, tests under **`tests/`** |
