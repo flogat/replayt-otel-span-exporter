@@ -64,22 +64,24 @@ These bullets are the **mission-level summary**; **[CI_SPEC.md](CI_SPEC.md)** is
 - **Changelog** records user-visible API and dependency changes under **Unreleased** until release (**[CHANGELOG.md](../CHANGELOG.md)** at repo root).
 - **CI** on the default integration branch remains **green** per **[CI_SPEC.md](CI_SPEC.md)** §7 for the documented install path and **`pytest`** command.
 
-## Compatibility matrix (initial)
+## Compatibility matrix
 
-| Component | Policy |
-| --------- | ------ |
-| **Python** | **`requires-python`** in **`pyproject.toml`** (currently **≥ 3.11**); CI matrix is the source of truth. |
-| **OpenTelemetry** | **`opentelemetry-api`** and **`opentelemetry-sdk`** pinned with compatible lower bounds; audit trail in **`DEPENDENCY_AUDIT.md`**. |
-| **replayt** | **Not** a runtime dependency of the library unless a backlog promotes it. For integration tests, optional / **`dev`** pin and policy in **`DEPENDENCY_AUDIT.md`** per **[SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)**. |
+**Canonical documentation:** **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** — full matrix, pin strategy, how CI proves the contract, and links to **replayt** releases on PyPI.
 
-Update this table when pins or CI versions change.
+| Component | Policy (summary) |
+| --------- | ---------------- |
+| **Python** | **`requires-python`** in **`pyproject.toml`** (currently **≥ 3.11**); CI matrix (**3.11** / **3.12**) is described in **[CI_SPEC.md](CI_SPEC.md)** and **[COMPATIBILITY.md](COMPATIBILITY.md)** §4. |
+| **OpenTelemetry** | **`opentelemetry-api`** and **`opentelemetry-sdk`** lower bounds in **`pyproject.toml`**; rationale in **`DEPENDENCY_AUDIT.md`**. |
+| **replayt** | **Not** a runtime dependency unless a backlog promotes it. **Dev / CI** lower bound on the **`dev`** extra; boundary and minimum version in **[SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** §7. |
+
+When pins or CI versions change, update **`COMPATIBILITY.md`** in the same maintenance pass as **`pyproject.toml`** and **`CI_SPEC.md`** (reference fingerprint).
 
 ## Audience
 
 | Audience | Needs |
 | -------- | ----- |
 | **Maintainers** | This file, **[CI_SPEC.md](CI_SPEC.md)**, **`DEPENDENCY_AUDIT.md`**, release notes in **[CHANGELOG.md](../CHANGELOG.md)** |
-| **Integrators** | Stable adapter surface, compatibility matrix above, **[SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)**, README overview |
+| **Integrators** | Stable adapter surface, **[COMPATIBILITY.md](COMPATIBILITY.md)**, **[SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)**, README overview |
 | **Contributors** | README quick start, specs under **`docs/`**, tests under **`tests/`** |
 
 Extend audience rows in **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md)** when new stakeholder types appear.

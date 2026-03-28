@@ -40,8 +40,8 @@ These names are the **canonical** integration surface for the backlog item; Buil
 ## 1. Dependencies and versions
 
 - **`opentelemetry-api`** and **`opentelemetry-sdk`** are **runtime** dependencies declared in **`[project].dependencies`** in **`pyproject.toml`** (lower bounds must stay aligned—typically the same minimum major/minor policy for both packages).
-- When pins change, update **`docs/DEPENDENCY_AUDIT.md`** in the same maintenance pass and keep CI green on the Python matrix defined in **`docs/CI_SPEC.md`**.
-- **Supported OpenTelemetry versions** for this skeleton: minimum versions follow **`pyproject.toml`**; resolved versions in CI/dev installs should remain compatible with the APIs this spec relies on (**`SpanExporter`**, **`ReadableSpan`**, **`TracerProvider`**, **`SimpleSpanProcessor`** or **`BatchSpanProcessor`**). Document material compatibility shifts in **`docs/MISSION.md`** when the matrix or pins change.
+- When pins change, update **`docs/DEPENDENCY_AUDIT.md`** and **`docs/COMPATIBILITY.md`** in the same maintenance pass and keep CI green on the Python matrix defined in **`docs/CI_SPEC.md`**.
+- **Supported OpenTelemetry versions** for this skeleton: minimum versions follow **`pyproject.toml`**; resolved versions in CI/dev installs should remain compatible with the APIs this spec relies on (**`SpanExporter`**, **`ReadableSpan`**, **`TracerProvider`**, **`SimpleSpanProcessor`** or **`BatchSpanProcessor`**). Record material compatibility shifts in **`docs/COMPATIBILITY.md`** when the matrix or pins change; keep **`docs/MISSION.md`** aligned for the mission-level summary.
 
 ## 2. Public surface and OpenTelemetry contract
 

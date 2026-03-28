@@ -56,6 +56,7 @@ local tooling entries. Adapt or remove optional directories to match your teamâ€
 | `docs/SPEC_REPLAYT_INTEGRATION_TESTS.md` | Replayt integration boundary â€” scenarios, pins, CI, `test_replayt_boundary.py` |
 | `docs/DESIGN_PRINCIPLES.md` | Design and integration principles |
 | `docs/CI_SPEC.md` | CI triggers, Python matrix, install path, and test expectations |
+| `docs/COMPATIBILITY.md` | Supported versions matrix, pin strategy, CI alignment, replayt release links |
 | `docs/reference-documentation/` | Optional markdown snapshot for contributors (when present) |
 | `src/replayt_otel_span_exporter/` | Python package (import `replayt_otel_span_exporter`) |
 | `pyproject.toml` | Package metadata |
