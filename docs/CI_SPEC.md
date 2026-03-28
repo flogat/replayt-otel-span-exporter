@@ -103,7 +103,7 @@ When **`pyproject.toml`** changes **`requires-python`** or dev dependencies, upd
 
 ### Reference fingerprint (reconcile when editing CI)
 
-As of phase **6** security pass, **`.github/workflows/ci.yml`** includes:
+**Current** **`.github/workflows/ci.yml`** includes:
 
 - **Default `GITHUB_TOKEN` permissions:** workflow-level **`permissions: contents: read`** (least privilege).
 - **`test`**: **`actions/checkout@v3`**, **`actions/setup-python@v4`**, matrix **`python-version: ["3.11", "3.12"]`**, **`tomllib`** parse of **`pyproject.toml`**, **`pip install -e ".[dev]"`**, **`pytest --cov=replayt_otel_span_exporter --cov-report=xml`**, **`codecov/codecov-action@v3`** with **`./coverage.xml`** and **`fail_ci_if_error: false`**.
