@@ -9,9 +9,7 @@ This project builds on **[replayt](https://pypi.org/project/replayt/)**. Read
 
 ## Design principles
 
-**[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)** covers **replayt** compatibility, versioning, and (for showcases)
-**LLM** boundaries.
-
+**[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)** covers **replayt** compatibility, versioning, and **LLM** boundaries for demos and agent tooling.
 
 ## Reference documentation (optional)
 
@@ -20,11 +18,50 @@ copies of upstream replayt documentation there for offline review or agent conte
 
 ## Quick start
 
+### Library users (integrators)
+
+This package targets **Python 3.11+** (`requires-python` in **`pyproject.toml`**). The **`replayt-otel-span-exporter`** wheel is **not on PyPI yet**; clone the repository and use **Contributors and CI parity** until a release is published. After publish, install with **`pip install replayt-otel-span-exporter`** (no **`replayt`** dependency required for the runtime install or the **Usage** example below). Version and pin detail: **[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)**.
+
+### Contributors and CI parity
+
 ```bash
 python -m venv .venv
-# Windows: .venv\\Scripts\\activate
+source .venv/bin/activate
+# Windows: .venv\Scripts\activate
+python -m pip install --upgrade pip
 pip install -e ".[dev]"
 ```
+
+## Usage
+
+The block below matches **`tests/readme_usage_example_snippet.py`**, which **`tests/test_readme_usage_example.py`** runs in CI. Standalone scripts can omit the global **`TracerProvider`** save/restore that the snippet uses for test isolation.
+
+```python
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+
+from replayt_otel_span_exporter import PreparedSpanRecord, ReplaytSpanExporter
+
+records: list[PreparedSpanRecord] = []
+exporter = ReplaytSpanExporter(records=records)
+provider = TracerProvider()
+provider.add_span_processor(SimpleSpanProcessor(exporter))
+trace.set_tracer_provider(provider)
+
+tracer = trace.get_tracer("readme-example")
+with tracer.start_as_current_span("example-span") as span:
+    span.set_attribute("app.operation", "demo")
+    span.set_attribute("replayt.workflow_id", "wf-readme")
+    span.set_attribute("replayt.step_id", "step-1")
+
+provider.shutdown()
+
+rec = records[0]
+print(rec.name, rec.trace_id)
+```
+
+**PreparedSpanRecord** values are the hand-off for replayt-oriented workflows: this package prepares span-shaped data for downstream consumers without importing **`replayt`**. The concrete **`replayt`** import boundary in CI is **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](docs/SPEC_REPLAYT_INTEGRATION_TESTS.md)** (section 7) and **`tests/integration/test_replayt_boundary.py`** when **`replayt`** is installed via the **`dev`** extra.
 
 ## Continuous integration
 
