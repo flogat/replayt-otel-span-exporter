@@ -12,6 +12,8 @@ This document refines the backlog item **“Set up CI pipeline for automated tes
 
 The rows below expand those three bullets into checks a human or gate phase can verify without guessing.
 
+**Related backlog — replayt integration tests:** When implemented, the **`test`** job MUST still satisfy §5 here while also meeting **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** (install path includes **`replayt`** for default **`pytest`**).
+
 ## Goals
 
 - Run automated tests on every relevant **push** and **pull_request** so regressions are caught before merge.
@@ -56,7 +58,7 @@ Do not rely on a hand-maintained `requirements-ci.txt` unless the project later 
 
 **`pytest`** is run from the repository root so all collected tests run. Today tests live under **`tests/`**; if **`tests/integration/`** or similar is added later, it remains part of default discovery unless explicitly excluded.
 
-**Current layout (informative):** The suite includes module smoke, dependency checks (e.g. **`tests/test_init.py`**, **`tests/test_dependencies.py`**), exporter skeleton coverage (**`tests/test_exporter.py`**, **`tests/test_records.py`**) per **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** §4 and the **§6 verifiable acceptance checklist**, and **`tests/integration/`** for API-boundary checks. New tests stay in default **`pytest`** discovery unless this doc is updated. Treat this as the minimal “unit + integration” bar (see §6).
+**Current layout (informative):** The suite includes module smoke, dependency checks (e.g. **`tests/test_init.py`**, **`tests/test_dependencies.py`**), exporter skeleton coverage (**`tests/test_exporter.py`**, **`tests/test_records.py`**) per **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** §4 and the **§6 verifiable acceptance checklist**, and **`tests/integration/`** for API-boundary checks. **`tests/integration/test_opentelemetry_api_usage.py`** covers the OpenTelemetry trace API only. When the **“Add replayt integration tests”** backlog lands, additional files under **`tests/integration/`** MUST import **`replayt`** and follow **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)**; CI continues to run the full **`pytest`** command in §5 with an install that includes **`replayt`** (optional extra or **`dev`** — see that spec). New tests stay in default **`pytest`** discovery unless this doc is updated. Treat this as the minimal “unit + integration” bar (see §6).
 
 **CI command (must stay equivalent unless this doc is updated):** after install,
 

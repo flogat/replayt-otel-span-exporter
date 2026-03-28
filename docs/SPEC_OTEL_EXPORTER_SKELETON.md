@@ -30,7 +30,7 @@ These names are the **canonical** integration surface for the backlog item; Buil
 ## Non-goals (this backlog)
 
 - Shipping a full replayt workflow integration, RPC, or file format—only **in-process preparation** of span data.
-- Adding **`replayt`** as a runtime dependency unless a later backlog item requires it.
+- Adding **`replayt`** as a runtime dependency unless a later backlog item requires it. (Test-time / optional **`replayt`** for integration tests is specified separately in **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)**.)
 - Performance tuning, batching policies beyond what the SDK already provides, or custom `SpanProcessor` types unless needed to satisfy §2–§4.
 
 ## 1. Dependencies and versions

@@ -21,9 +21,11 @@
 | **`opentelemetry-api`** + **`opentelemetry-sdk`** as declared dependencies | Full replayt workflow execution, storage backends, or network export |
 | Unit/integration tests described in the spec | Performance SLAs and advanced batching semantics |
 
+**Exception — replayt integration tests backlog:** **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** allows declaring **`replayt`** under **`[project.optional-dependencies]`** (for example bundled into **`dev`**) so CI can prove the boundary. That does **not** by itself add **`replayt`** to **`[project].dependencies`** for library users.
+
 ## Success
 
-- **Automated tests** (see **[CI_SPEC.md](CI_SPEC.md)**) cover span ingestion and transformation as specified in **[SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)**.
+- **Automated tests** (see **[CI_SPEC.md](CI_SPEC.md)**) cover span ingestion and transformation as specified in **[SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)**, and — when that backlog is implemented — the replayt boundary per **[SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)**.
 - **Public API** remains small and listed explicitly (**`__all__`**); extension points are documented in the spec and design principles.
 - **Changelog** records user-visible API and dependency changes under **Unreleased** until release.
 
@@ -33,5 +35,6 @@
 | --------- | ------ |
 | **Python** | **`requires-python`** in **`pyproject.toml`** (currently **≥ 3.11**); CI matrix is the source of truth. |
 | **OpenTelemetry** | **`opentelemetry-api`** and **`opentelemetry-sdk`** pinned with compatible lower bounds; audit trail in **`DEPENDENCY_AUDIT.md`**. |
+| **replayt** | **Not** a runtime dependency of the library unless a backlog promotes it. For integration tests, optional / **`dev`** pin and policy in **`DEPENDENCY_AUDIT.md`** per **[SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)**. |
 
 Update this table when pins or CI versions change.
