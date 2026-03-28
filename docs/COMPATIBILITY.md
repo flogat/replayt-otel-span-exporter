@@ -75,6 +75,7 @@ Upstream **source** or **changelog** URLs may appear on the PyPI sidebar as **Pr
 2. **Pins** — Any change to **`replayt`**, OpenTelemetry, or **`requires-python`** updates §2–§4 here, **`docs/DEPENDENCY_AUDIT.md`**, and **[docs/CI_SPEC.md](CI_SPEC.md)** reference fingerprint when applicable.
 3. **Boundary** — **`SPEC_REPLAYT_INTEGRATION_TESTS.md`** §7 **minimum replayt** stays in sync with the **`dev`** extra lower bound.
 4. **Links** — §5 URLs remain valid; adjust if PyPI layout changes.
+5. **Published distribution** — When **[docs/SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** §5–§6 are satisfied for a version on PyPI or a named private index, confirm §2 **Published wheels and sdists** still matches integrator expectations (metadata on the live project page; index URL named in maintainer handoff if not public PyPI).
 
 ## Non-goals
 

@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §5 lists **`tests/test_release_packaging.py`** next to release metadata tests.
 - Refined **[docs/SPEC_FIRST_ALPHA_RELEASE.md](docs/SPEC_FIRST_ALPHA_RELEASE.md)** for the **Publish first alpha release** backlog: expanded testable acceptance criteria ([§0](docs/SPEC_FIRST_ALPHA_RELEASE.md#0-testable-acceptance-criteria-expanded-backlog-wording)), **`__version__`** / **`importlib.metadata`** alignment with **`[project].version`**, recommended **`twine check`**, private-index install example, **`--pre`** note for integrators, [§5.1](docs/SPEC_FIRST_ALPHA_RELEASE.md#51-ci-and-suite-health-informative) CI vs **§5** verification scope, and checklist updates.
+- Phase **2** spec pass (**Close first alpha**): **[docs/SPEC_FIRST_ALPHA_RELEASE.md](docs/SPEC_FIRST_ALPHA_RELEASE.md)** — follow-on backlog traceability, §0.1 testable mapping, normative **`python -m build`** / **`twine check`** before upload ([§4](docs/SPEC_FIRST_ALPHA_RELEASE.md#4-publishing-target-normative)), [§5.2](docs/SPEC_FIRST_ALPHA_RELEASE.md#52-release-handoff-record-normative) release handoff fields, §6 README pin guidance; **[docs/SPEC_README_QUICK_START.md](docs/SPEC_README_QUICK_START.md)** §2.1 version-pin rule; **[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)** §6 checklist item for published distribution; **[docs/MISSION.md](docs/MISSION.md)** success criterion cross-link.
 
 ## [0.2.0a1] - 2026-03-28
 
