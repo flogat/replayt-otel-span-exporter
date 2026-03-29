@@ -12,16 +12,16 @@ This document refines the backlog item **“Set up CI pipeline for automated tes
 
 The rows below expand those three bullets into checks a human or gate phase can verify without guessing.
 
-**Expand CI matrix to Python 3.13** (separate backlog):
+**Expand CI matrix to Python 3.13 with documented policy** (Mission Control backlog **`4a00b7f7-af4e-4200-9d28-38e3827fa2e5`**):
 
 | Backlog acceptance theme | Satisfied by (this doc) |
 | ------------------------- | ------------------------ |
 | Add **3.13** to **`test`** and **`supply-chain`** when dependencies allow | [§3.1 Python 3.13 matrix expansion](#31-python-313-matrix-expansion-normative-backlog) |
-| Update reference fingerprint + **COMPATIBILITY** caveats (**pip-audit**, **`replayt`**, OTel resolution) | §3.1 items 5–6, **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §4.1 |
+| Update reference fingerprint + **COMPATIBILITY** caveats (**pip-audit**, **`replayt`**, OTel resolution) | §3.1 items 5–6, **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §4–§4.1 |
 
 **Replayt integration tests:** The **`test`** job satisfies §5 here and meets **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** (install path includes **`replayt`** for default **`pytest`**). **Pin bumps:** Validating a higher (or lower) **`replayt`** lower bound on the **`dev`** extra is **merging a green `test` job** on every Python matrix cell after **`pip install -e ".[dev]"`**: full **`pytest`** MUST collect and pass **`tests/integration/test_replayt_boundary.py`**. Normative steps and the maintainer doc pass live in that spec **[§5.1](SPEC_REPLAYT_INTEGRATION_TESTS.md#51-how-replayt-pin-bumps-are-validated-in-ci-normative)**.
 
-**Python 3.13 matrix expansion:** Backlog **“Expand CI matrix to Python 3.13 with documented compatibility fingerprint”** is normative in [§3.1](#31-python-313-matrix-expansion-normative-backlog); it extends **`test`** / **`supply-chain`** matrices, **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §4 / §4.1, and the **Reference fingerprint** below.
+**Python 3.13 matrix expansion:** Backlog **“Expand CI matrix to Python 3.13 with documented policy”** (**`4a00b7f7-af4e-4200-9d28-38e3827fa2e5`**) is normative in [§3.1](#31-python-313-matrix-expansion-normative-backlog); it extends **`test`** / **`supply-chain`** matrices, **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §4 / §4.1, and the **Reference fingerprint** below.
 
 **OpenTelemetry runtime pins:** Backlog **“Document OpenTelemetry upper-bound or float policy in pyproject and COMPATIBILITY”** — default install has **no** committed lockfile; **`opentelemetry-api`** / **`opentelemetry-sdk`** **float** to newest compatible **1.x** releases satisfying **`pyproject.toml`** lower bounds on each CI run. Normative policy and integrator guidance: **[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)**; compatibility matrix context: **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §3.1.
 
@@ -66,21 +66,23 @@ CI uses only Python versions that satisfy **`[project].requires-python`** in **`
 
 ### 3.1 Python 3.13 matrix expansion (normative backlog)
 
-**Backlog:** Expand CI matrix to Python 3.13 with documented compatibility fingerprint.
+**Backlog:** Expand CI matrix to Python 3.13 with documented policy (Mission Control **`4a00b7f7-af4e-4200-9d28-38e3827fa2e5`**).
 
-**Objective:** When the **`dev`** stack (**`replayt`**, OpenTelemetry transitives, **`pip-audit`**, **`pytest`**, etc.) supports **Python 3.13** on **`ubuntu-latest`** in GitHub Actions, default CI MUST exercise **3.13** alongside **3.11** and **3.12** on every matrix cell that today runs **3.11** and **3.12**, so the proven contract in **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §4 matches **`.github/workflows/ci.yml`**.
+**Objective:** When the **`dev`** stack (**`replayt`**, OpenTelemetry transitives, **`pip-audit`**, **`pytest`**, etc.) supports **Python 3.13** on **`ubuntu-latest`** in GitHub Actions, default CI MUST exercise **3.13** alongside **3.11** and **3.12** on every matrix cell, so the proven contract in **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §4 matches **`.github/workflows/ci.yml`**.
+
+**Structural vs green CI:** If **`.github/workflows/ci.yml`** already lists **`"3.13"`** next to **3.11** / **3.12** and **`tests/test_compatibility_contract.py`** expects **`frozenset({"3.11", "3.12", "3.13"})`**, items **1**, **6**, and **7** below are satisfied from a wiring perspective. The backlog is **not** complete until items **2–5** hold as well: in particular **§3.1** item **3** requires a **green** **`test`** job on **every** matrix Python, including default collection and pass of **`tests/integration/test_replayt_boundary.py`** after **`pip install -e ".[dev]"`** (see **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** §5.1). A collection or import failure on that module on any cell is a **§3.1** gap until fixed or **3.13** is explicitly deferred per the **Blocked** paragraph below.
 
 **Acceptance criteria** (one focused change set unless Mission Control splits work):
 
-1. **Workflow matrices (`test` and `supply-chain`):** **`.github/workflows/ci.yml`** includes **`"3.13"`** in each **`python-version:`** list that today lists **3.11** and **3.12**, and **`test`** / **`supply-chain`** matrices stay aligned (same Python set).
+1. **Workflow matrices (`test` and `supply-chain`):** **`.github/workflows/ci.yml`** includes **`"3.13"`** in each **`python-version:`** matrix list alongside **3.11** and **3.12**, and **`test`** / **`supply-chain`** matrices stay aligned (identical Python set).
 2. **`requires-python`:** **3.13** MUST remain within **`[project].requires-python`** (today **`>=3.11`**). Do not narrow **`requires-python`** in a way that drops **3.11** or **3.12** unless a separate backlog approves it.
 3. **Install + pytest bar:** On **3.13**, **`pip install -e ".[dev]"`** (§4) then **`pytest --cov=replayt_otel_span_exporter --cov-report=xml`** (§5) succeed end-to-end, including default collection of **`tests/integration/test_replayt_boundary.py`** when **`replayt`** is installed via **`[dev]`**.
 4. **`supply-chain` + `pip-audit`:** The **3.13** cell runs the same **`pip-audit`** invocation documented in the **Reference fingerprint** (including **`--ignore-vuln`** flags). Any **new** ignores for **3.13-only** transitives MUST be recorded in **[docs/DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)** with rationale in the same change set.
 5. **Compatibility doc:** Update **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §2 (**Python** row), §4 (matrix table), and §4.1 so integrators see **3.13** in the exercised set and any **3.13**-specific notes for **OpenTelemetry resolution**, **`replayt` / dev pins**, and **`pip-audit`** (cross-link **DEPENDENCY_AUDIT** for CVE policy).
 6. **Reference fingerprint (this doc):** Update the **Reference fingerprint** subsection under **Implementation notes for Builder / Maintainer** so matrix lines list **`3.11`**, **`3.12`**, and **`3.13`**, and refresh **Known drift** / **Otherwise** bullets if needed.
-7. **Contract test:** Update **`tests/test_compatibility_contract.py`** so the expected Python set matches **COMPATIBILITY.md** §4 and **`ci.yml`** (once **`ci.yml`** lists all three, that means extending the assertion to **`{"3.11", "3.12", "3.13"}`**). Do not leave docs and contract tests out of sync.
+7. **Contract test:** Update **`tests/test_compatibility_contract.py`** so **`_EXPECTED_CI_PYTHON_VERSIONS`** matches **COMPATIBILITY.md** §4 and every **`python-version:`** matrix in **`ci.yml`** (today **`frozenset({"3.11", "3.12", "3.13"})`**). Do not leave docs, workflow YAML, and contract tests out of sync.
 
-**Blocked / “when dependencies allow”:** If **`pip install -e ".[dev]"`**, **`pytest`**, or **`pip-audit`** cannot succeed on a new interpreter without policy changes this repo will not take in the same item, document the **blocker** (step, package, error class) under **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §4.1 and **do not** widen **`ci.yml`** until a follow-up unblocks it.
+**Blocked / “when dependencies allow”:** If **`pip install -e ".[dev]"`**, **`pytest`**, or **`pip-audit`** cannot succeed on **3.13** (or another new interpreter) without policy changes this repo will not take in the same item, document the **blocker** (step, package, error class) under **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §4.1 (and follow §4.1.2 there), **remove** that interpreter from **`ci.yml`** until a follow-up unblocks it, and update the **Reference fingerprint**, **`_EXPECTED_CI_PYTHON_VERSIONS`**, and §4 table in the same change set so documents stay internally consistent.
 
 ### 4. Dependencies from the project
 

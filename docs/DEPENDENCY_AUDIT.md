@@ -1,6 +1,6 @@
 # Dependency audit
 
-CI **`supply-chain`** runs `pip-audit --ignore-vuln CVE-2026-4539 --ignore-vuln CVE-2025-69872 --desc` after `pip install -e ".[dev]"`. PyPA **pip-audit** has no `--severity-high` flag; any reported vulnerability fails unless ignored here and in `.github/workflows/ci.yml`.
+CI **`supply-chain`** runs `pip-audit --ignore-vuln CVE-2026-4539 --ignore-vuln CVE-2025-69872 --desc` after `pip install -e ".[dev]"` on **each** matrix Python (today **3.11**, **3.12**, **3.13** — see **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §4). The same ignore list applies to every cell unless a **3.x-specific** transitive forces an additional documented ignore (**[docs/CI_SPEC.md](CI_SPEC.md)** §3.1 item **4**, **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §4.1.1). PyPA **pip-audit** has no `--severity-high` flag; any reported vulnerability fails unless ignored here and in `.github/workflows/ci.yml`.
 
 **Supported versions and CI alignment:** See **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** for the compatibility matrix, pin strategy, and how the **`test`** / **`supply-chain`** matrices relate to **`pyproject.toml`**. **OpenTelemetry** upper-bound vs float policy (why there is **no** **`<`** cap on runtime deps, how CI observes new releases, integrator pinning) is normative in **[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)**.
 
