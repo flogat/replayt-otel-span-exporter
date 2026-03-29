@@ -52,6 +52,17 @@ Mission Control **`dad27282-2904-4839-ba1c-070e8e3ba7c8`** (phase **2** spec lea
 | **`pytest`** contract (bounds, injection hardening, optional hook-path mirror) | Same spec **§6**–**§7**; explicit MC checklist **§9** |
 | **CI / suite mapping** | **[CI_SPEC.md](CI_SPEC.md)** §5 (failure-handling bullet) |
 
+## Backlog traceability — “Clarify OpenTelemetry upper-bound strategy in pyproject and COMPATIBILITY”
+
+Mission Control **`9b94e677-914a-471a-8499-071c1cb92455`** (phase **2** spec lead): **runtime** **`opentelemetry-api`** / **`opentelemetry-sdk`** upper-bound strategy (**none** on **1.x**), how **CI** proves compatibility on floating resolution, and what **integrators** should pin.
+
+| Acceptance theme | Where satisfied |
+| ---------------- | ---------------- |
+| **Policy** — lower bounds only, **no** **`<`** runtime cap | **[SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)** **§1**, **§1.2**, **§7** row **A**; **[COMPATIBILITY.md](COMPATIBILITY.md)** §2–§3.1 |
+| **CI proof** — **`test`** after **`pip install -e ".[dev]"`**; **`supply-chain`** is not the OTel API bar | Same spec **§4**; **[DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)** (runtime section + MC table); **[CI_SPEC.md](CI_SPEC.md)** §4–§5 |
+| **Integrator pins** — **API** + **SDK** together; floors vs app lockfiles | **[SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)** **§1.1**, **§7** row **C** |
+| **Compatibility matrix** (summary row) | [Compatibility matrix](#compatibility-matrix) — **OpenTelemetry** row |
+
 ## Users and problem
 
 **Integrators** running Python services with OpenTelemetry tracing want a **narrow, well-tested bridge** from the OTel SDK to **replayt-oriented** workflow data. Today that path is underspecified; this package provides an explicit **exporter skeleton** and **documented intermediate representation** so replayt consumers can adopt it without forking replayt core.

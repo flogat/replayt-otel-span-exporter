@@ -1,7 +1,8 @@
 """Contract tests: compatibility docs and CI stay aligned with pyproject.toml.
 
 See docs/COMPATIBILITY.md §6 (checklist), docs/CI_SPEC.md §5, and
-docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md §6.
+docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md §6 item 7 (automated contract) and §7
+(Mission Control ``9b94e677`` acceptance rows A–D).
 """
 
 from __future__ import annotations
@@ -106,7 +107,7 @@ def test_requires_python_named_in_compatibility_doc():
 
 
 def test_opentelemetry_runtime_deps_have_no_upper_bound_in_specifier():
-    """docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md §1 — no `<` caps on runtime OTel."""
+    """docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md §1.2 / §6 item 7 — no `<` in runtime OTel specifiers."""
     data = _load_pyproject()
     for dep in data["project"]["dependencies"]:
         req = Requirement(str(dep))
@@ -120,7 +121,7 @@ def test_opentelemetry_runtime_deps_have_no_upper_bound_in_specifier():
 
 
 def test_compatibility_and_dependency_audit_link_opentelemetry_policy_spec():
-    """SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md §6 — docs cross-link the normative spec."""
+    """SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md §6 items 1–2 / §7 row D — policy spec filename in COMPATIBILITY and DEPENDENCY_AUDIT."""
     compat = _COMPAT.read_text(encoding="utf-8")
     audit = _DEP_AUDIT.read_text(encoding="utf-8")
     assert _OTEL_POLICY_SPEC in compat

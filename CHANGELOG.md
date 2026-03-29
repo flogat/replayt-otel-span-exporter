@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- **OpenTelemetry upper-bound strategy (spec):** **[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)** — Mission Control **`9b94e677-914a-471a-8499-071c1cb92455`**, phase **2** (**Spec lead**): backlog **“Clarify OpenTelemetry upper-bound strategy in pyproject and COMPATIBILITY”** — **§1.1** integrator pinning, **§1.2** forbidden specifier patterns, **§4** stepwise CI proof vs **`pip-audit`**, tightened **§6** checklist (incl. contract tests), new **§7** acceptance table. **[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)** — MC traceability table, **§3.1** bullets (PEP 440 / resolved versions). **[docs/DEPENDENCY_AUDIT.md](docs/DEPENDENCY_AUDIT.md)** — MC table; runtime section clarifies **`supply-chain`** is not the OTel API compatibility proof. **[docs/CI_SPEC.md](docs/CI_SPEC.md)** — backlog traceability paragraph. **[docs/MISSION.md](docs/MISSION.md)** — traceability subsection + matrix alignment. **`pyproject.toml`** — OTel dependency comments aligned with policy and **`tests/test_compatibility_contract.py`**.
+
 ### Tests
 
 - **`tests/test_exporter.py`:** **SPEC_SPAN_EXPORT_FAILURE_HANDLING** §6 item **7** — **`on_export_commit`** failure logging mirrors §6 items **4**–**5** (1024 code-point cap and C0/C1 control stripping on **`exc_message`** / log message). Mission Control **`dad27282-2904-4839-ba1c-070e8e3ba7c8`**, phase **3** (**Builder**): **“Harden failure-path logging against log injection and oversized messages”**.
