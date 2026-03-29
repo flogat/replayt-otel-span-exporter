@@ -127,7 +127,7 @@ The SDK may call **`export`** multiple times for overlapping or retried work. Yo
 
 ### 5.1 Stdlib logging (integrator logger)
 
-The **§1.5** snippet is the smallest **`logging`** path: copy allow-listed keys, then **`Logger.info(..., extra=safe)`**. Downstream formatters may render **`extra`** as JSON for a SIEM. **Do not** log **`repr(prepared)`**, span attribute dicts, or exception text from span payloads.
+The **§1.5** snippet is the smallest **`logging`** path: copy allow-listed keys, then **`Logger.info(..., extra=safe)`**. Downstream formatters may render **`extra`** as JSON for a SIEM. **Do not** log **`repr(prepared)`**, **`PreparedSpanRecord.attributes`**, full span attribute dicts, or exception text from span payloads.
 
 ### 5.2 Queue → async writer (deferral)
 

@@ -165,7 +165,7 @@ This section and **[docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md](RECIPE_SPAN_EXP
 
 ### 10.1 Testable documentation acceptance (Spec gate / Build gate — backlog `29efde6c`)
 
-Verify by **documentation review** (no new **`pytest`** module is required for this backlog unless Mission Control adds a follow-on doc-contract item).
+Verify by **`pytest`**: **`tests/test_recipe_span_export_hooks_production_docs.py`** encodes items **1–3** below (recipe headings **§1.5**, **§2**, **§4**, **§5.1**, **§3**/**§5** reinforcement, **MISSION.md** scope + traceability, root **README.md**). Human review still applies to prose quality and example code.
 
 1. **`docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md`** **MUST** include:
    - **§1.5** (or a clearly titled equivalent) — a **minimal** end-to-end pattern: synchronous **`on_export_commit`** with **no** I/O, plus **`on_export_audit`** that copies **only** §5.2 allow-listed keys before hand-off to a sink.
