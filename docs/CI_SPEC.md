@@ -25,6 +25,17 @@ The rows below expand those three bullets into checks a human or gate phase can 
 
 **OpenTelemetry runtime pins:** Backlog **“Document OpenTelemetry upper-bound or float policy in pyproject and COMPATIBILITY”** — default install has **no** committed lockfile; **`opentelemetry-api`** / **`opentelemetry-sdk`** **float** to newest compatible **1.x** releases satisfying **`pyproject.toml`** lower bounds on each CI run. Normative policy and integrator guidance: **[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)**; compatibility matrix context: **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §3.1.
 
+**Optional GitHub Actions trusted publishing to PyPI** (backlog **“Add optional GitHub Actions trusted publishing for PyPI”**):
+
+| Backlog acceptance theme | Satisfied by (this doc) |
+| ------------------------ | ------------------------ |
+| Guarded workflow (**tag** and/or **manual dispatch**); no publish on ordinary branch pushes | [§8.0](#80-testable-acceptance-criteria-normative-backlog), [§8.1](#81-triggers-and-guards) |
+| **`python -m build`**, **`twine check`**, upload after checks pass | [§8.0](#80-testable-acceptance-criteria-normative-backlog), [§8.2](#82-build-check-and-upload-steps) |
+| **OIDC** trusted publishing; **no** long-lived PyPI tokens or passwords **in the repository** for the default PyPI path | [§8.0](#80-testable-acceptance-criteria-normative-backlog), [§8.3](#83-oidc-and-secrets-policy) |
+| GitHub Environment **`pypi`** and **PyPI** trusted-publisher settings aligned with the workflow file name | [§8.4](#84-github-environment-pypi-and-pypi-trusted-publisher-alignment) |
+| **`replayt`** stays off the publish job install path | [§8.6](#86-runtime-deps-and-replayt) |
+| Contract tests keep **`release.yml`** and this section aligned | [§8.0](#80-testable-acceptance-criteria-normative-backlog), **`tests/test_release_workflow_contract.py`** |
+
 ## Goals
 
 - Run automated tests on every relevant **push** and **pull_request** so regressions are caught before merge.
@@ -125,6 +136,27 @@ This section is the normative contract for **`.github/workflows/release.yml`**. 
 
 Implementation file: **`.github/workflows/release.yml`**. Contract tests: **`tests/test_release_workflow_contract.py`**.
 
+### 8.0 Testable acceptance criteria (normative backlog)
+
+**Backlog:** Add optional GitHub Actions trusted publishing for PyPI.
+
+**Objective:** Maintainers can publish **`dist/*`** to **PyPI** from GitHub Actions using **OIDC trusted publishing**, with the same **build** and **`twine check`** bar as **[docs/SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** §4, **without** storing PyPI passwords or long-lived API tokens in git or in repository **Secrets** for the **default** path documented here. The workflow is **optional** for merge health ([§7](#7-green-mainline-and-workflow-success)).
+
+**Acceptance criteria** (verify documentation, workflow YAML, and contract tests together):
+
+1. **Spec surface:** This section ([§8](#8-optional-release-workflow-oidc-trusted-publishing)) and subsections **§8.1–§8.7** remain the authoritative contract for optional release automation. Any intentional change to **`release.yml`** that diverges from them MUST update this doc and **`tests/test_release_workflow_contract.py`** in the same change set.
+2. **Workflow present:** **`.github/workflows/release.yml`** exists on the default branch and defines a job with id **`publish`** that performs the steps in [§8.2](#82-build-check-and-upload-steps). **`tests/test_release_workflow_contract.py`** asserts that id; rename the job only together with a spec and test update.
+3. **Guards — triggers:** The workflow runs on **`workflow_dispatch`** (maintainer-selected ref in the Actions UI) and on **`push`** of tags matching **`v*`** (for example **`v0.2.0a1`** for **`[project].version` `0.2.0a1`**). It MUST **not** publish on ordinary **branch** pushes that are not tag events as described in [§8.1](#81-triggers-and-guards).
+4. **Build and check:** Before upload, the job runs **`rm -rf dist`**, **`python -m build`** from the repository root, then **`twine check dist/*`** with a successful exit code.
+5. **Minimal install on the publish job:** The job installs **`pip`**, **`build`**, and **`twine`** only (documented floor: **`build>=1.2.0`**, **`twine>=5.0`**). It MUST **not** run **`pip install -e ".[dev]"`** or otherwise pull **`replayt`** on the publish runner ([§8.6](#86-runtime-deps-and-replayt)).
+6. **Upload — OIDC:** The job uses **`pypa/gh-action-pypi-publish`** at the **pinned commit SHA** stated in [§8.2](#82-build-check-and-upload-steps) (or a newer pin updated normatively in the same doc) to upload **`dist/*`** to **PyPI** via trusted publishing.
+7. **Permissions:** The publish job declares **`permissions: contents: read`** and **`permissions: id-token: write`** so GitHub can mint an OIDC token; it MUST **not** rely on a **`PYPI_API_TOKEN`** (or similar) repository secret for this default PyPI OIDC path. Workflow YAML MUST **not** embed PyPI **passwords** or **API tokens** for uploads on the documented OIDC path ([§8.3](#83-oidc-and-secrets-policy)).
+8. **GitHub Environment:** The publish job sets **`environment: name: pypi`** (exact spelling). Repository and **PyPI** trusted-publisher configuration MUST match [§8.4](#84-github-environment-pypi-and-pypi-trusted-publisher-alignment).
+9. **Concurrency:** **`concurrency`** uses group **`release-${{ github.workflow }}-${{ github.ref }}`** with **`cancel-in-progress: false`** ([§8.1](#81-triggers-and-guards)).
+10. **Contract tests:** **`tests/test_release_workflow_contract.py`** asserts that **`docs/CI_SPEC.md`** keeps the §8 heading structure documented in that module and that **`release.yml`** contains the triggers, permissions, environment name, **`publish`** job id, **`python -m pip install --upgrade pip`**, **`rm -rf dist`**, **`python -m build`**, **`twine check`**, the **§8.1** **concurrency** group string, **`gh-action-pypi-publish`** pin, **no** **`pip install -e ".[dev]"`**, and **no** repository **Secrets**-backed PyPI credential wiring on the OIDC path (for example **`PYPI_API_TOKEN`**, **`secrets.PYPI`**, **`TWINE_PASSWORD`**, or **`password: ${{ secrets.`**). Extend that test when new normative requirements are added to §8.
+
+**Verify (human / gate):** Compare **`.github/workflows/release.yml`** to [§8.2](#82-build-check-and-upload-steps) and [§8.4](#84-github-environment-pypi-and-pypi-trusted-publisher-alignment); run **`pytest tests/test_release_workflow_contract.py`**; confirm no PyPI credential literals or secret-referenced password upload steps exist on the OIDC path.
+
 ### 8.1 Triggers and guards
 
 - **`workflow_dispatch`:** Maintainers start a run from the Actions UI and choose the ref (tag or branch) to build and upload.
@@ -143,7 +175,7 @@ This sequence matches the pre-upload bar in **[docs/SPEC_FIRST_ALPHA_RELEASE.md]
 
 ### 8.3 OIDC and secrets policy
 
-- **Workflow permissions:** **`contents: read`** and **`id-token: write`** on the publish job so GitHub can mint an OIDC token for trusted publishing. Do **not** store a long-lived **PyPI API token** in repository **Secrets** for the default PyPI path documented here.
+- **Workflow permissions:** **`contents: read`** and **`id-token: write`** on the publish job so GitHub can mint an OIDC token for trusted publishing. Do **not** store a long-lived **PyPI API token** in repository **Secrets** for the default PyPI path documented here, and do **not** commit **passwords** or **tokens** in workflow YAML for that path — credentials stay in **PyPI** trusted-publisher configuration and short-lived OIDC exchange only.
 - **PyPI trusted publishing** exchanges that OIDC identity for a short-lived upload credential; configuration details live on PyPI’s trusted-publisher docs.
 - **Private indexes** (DevPI, Artifactory, etc.) often still need **long-lived credentials** or host-specific auth maintained outside this contract. OIDC as described here targets the **PyPI**-style flow.
 

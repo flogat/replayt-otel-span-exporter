@@ -17,6 +17,8 @@ def test_release_workflow_file_exists():
 def test_release_workflow_avoids_dev_install_and_runs_build_twine_check():
     yml = _RELEASE_WORKFLOW.read_text(encoding="utf-8")
     assert 'pip install -e ".[dev]"' not in yml
+    assert "python -m pip install --upgrade pip" in yml
+    assert "rm -rf dist" in yml
     assert "python -m build" in yml
     assert re.search(r"twine\s+check\s+dist", yml)
 
@@ -56,6 +58,23 @@ def test_release_workflow_declares_concurrency_no_cancel():
     yml = _RELEASE_WORKFLOW.read_text(encoding="utf-8")
     assert "concurrency:" in yml
     assert "cancel-in-progress: false" in yml
+    assert "group: release-${{ github.workflow }}-${{ github.ref }}" in yml
+
+
+def test_release_workflow_publish_job_id():
+    yml = _RELEASE_WORKFLOW.read_text(encoding="utf-8")
+    assert re.search(r"^  publish:\s*$", yml, re.MULTILINE), (
+        "docs/CI_SPEC.md §8.0 expects a publish job"
+    )
+
+
+def test_release_workflow_oidc_path_avoids_repository_pypi_secrets():
+    """§8.0 item 7 / §8.3: default PyPI path uses OIDC, not repo secrets for tokens."""
+    yml = _RELEASE_WORKFLOW.read_text(encoding="utf-8")
+    assert "PYPI_API_TOKEN" not in yml
+    assert "secrets.PYPI" not in yml
+    assert "TWINE_PASSWORD" not in yml
+    assert not re.search(r"password:\s*\$\{\{\s*secrets\.", yml)
 
 
 def test_ci_spec_documents_section_8_release_workflow():

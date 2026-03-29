@@ -23,6 +23,8 @@ This document refines the backlog item **“Publish first alpha release”** —
 
 **Related contracts:** Distribution metadata MUST stay consistent with **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** (Python / OpenTelemetry policy) and **`[project].name`** in **`pyproject.toml`** (**`replayt-otel-span-exporter`**). README integrator install prose MUST follow **[docs/SPEC_README_QUICK_START.md](SPEC_README_QUICK_START.md)** §2.1 once the package is available on an index. Default CI behavior and “green” definition remain **[docs/CI_SPEC.md](CI_SPEC.md)**; this backlog does **not** require a new CI job unless maintainers choose to add one in the same change set and document it there.
 
+**Related backlog — optional GitHub Actions / OIDC:** Backlog **“Add optional GitHub Actions trusted publishing for PyPI”** is normative in **[docs/CI_SPEC.md](CI_SPEC.md) [§8](CI_SPEC.md#8-optional-release-workflow-oidc-trusted-publishing)** (**`release.yml`**, **`tests/test_release_workflow_contract.py`**). Teams that claim **§4** pre-upload equivalence via automation MUST satisfy **[§8.0](CI_SPEC.md#80-testable-acceptance-criteria-normative-backlog)** there (guarded triggers, **`build`** + **`twine check`**, OIDC, no credentials in-repo).
+
 ## 0. Testable acceptance criteria (expanded backlog wording)
 
 The three backlog bullets are satisfied **only** when all of the following are true (cross-check [§7](#7-acceptance-checklist)):
