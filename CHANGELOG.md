@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`tests/test_compatibility_contract.py`:** asserts runtime **`opentelemetry-api`** / **`opentelemetry-sdk`** specifiers contain **no** **`<`** upper bound and that **[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)** and **[docs/DEPENDENCY_AUDIT.md](docs/DEPENDENCY_AUDIT.md)** link **[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)** (backlog **“Document OpenTelemetry upper-bound or float policy in pyproject and COMPATIBILITY”**, phase **3**).
+
 ### Documentation
 
 - **OpenTelemetry dependency policy:** **[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)** — backlog **“Document OpenTelemetry upper-bound or float policy in pyproject and COMPATIBILITY”**, phase **2**: lower bounds only (no runtime upper cap), how default **CI** observes new **1.x** releases via floating **`pip`** resolution, integrator pinning (**API** + **SDK** together). Updates **[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)** §2–§3 (**§3.1** float policy), **[docs/DEPENDENCY_AUDIT.md](docs/DEPENDENCY_AUDIT.md)** § Runtime, **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §4 + backlog traceability, **[docs/MISSION.md](docs/MISSION.md)** compatibility summary; **`pyproject.toml`** comments on runtime OTel deps.

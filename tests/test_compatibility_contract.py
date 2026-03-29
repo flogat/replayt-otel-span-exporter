@@ -1,6 +1,7 @@
 """Contract tests: compatibility docs and CI stay aligned with pyproject.toml.
 
-See docs/COMPATIBILITY.md §6 (checklist) and docs/CI_SPEC.md §5.
+See docs/COMPATIBILITY.md §6 (checklist), docs/CI_SPEC.md §5, and
+docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md §6.
 """
 
 from __future__ import annotations
@@ -9,11 +10,16 @@ import pathlib
 import re
 import tomllib
 
+from packaging.requirements import Requirement
+
 _ROOT = pathlib.Path(__file__).resolve().parents[1]
 _PYPROJECT = _ROOT / "pyproject.toml"
 _COMPAT = _ROOT / "docs" / "COMPATIBILITY.md"
 _SPEC_REPLAYT = _ROOT / "docs" / "SPEC_REPLAYT_INTEGRATION_TESTS.md"
+_DEP_AUDIT = _ROOT / "docs" / "DEPENDENCY_AUDIT.md"
 _CI = _ROOT / ".github" / "workflows" / "ci.yml"
+_OTEL_POLICY_SPEC = "SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md"
+_OTEL_RUNTIME_NAMES = frozenset({"opentelemetry-api", "opentelemetry-sdk"})
 _EXPECTED_CI_PYTHON_VERSIONS = frozenset({"3.11", "3.12", "3.13"})
 
 
@@ -79,3 +85,25 @@ def test_requires_python_named_in_compatibility_doc():
     compat = _COMPAT.read_text(encoding="utf-8")
     normalized_doc = compat.replace(" ", "")
     assert req.replace(" ", "") in normalized_doc
+
+
+def test_opentelemetry_runtime_deps_have_no_upper_bound_in_specifier():
+    """docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md §1 — no `<` caps on runtime OTel."""
+    data = _load_pyproject()
+    for dep in data["project"]["dependencies"]:
+        req = Requirement(str(dep))
+        if req.name not in _OTEL_RUNTIME_NAMES:
+            continue
+        spec_text = str(req.specifier)
+        assert "<" not in spec_text, (
+            f"{req.name} runtime dep must not use an upper bound (<) per {_OTEL_POLICY_SPEC}; "
+            f"got specifier {spec_text!r}"
+        )
+
+
+def test_compatibility_and_dependency_audit_link_opentelemetry_policy_spec():
+    """SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md §6 — docs cross-link the normative spec."""
+    compat = _COMPAT.read_text(encoding="utf-8")
+    audit = _DEP_AUDIT.read_text(encoding="utf-8")
+    assert _OTEL_POLICY_SPEC in compat
+    assert _OTEL_POLICY_SPEC in audit
