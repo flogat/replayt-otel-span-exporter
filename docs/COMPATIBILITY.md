@@ -10,6 +10,13 @@ This document refines the backlog item **“Document supported replayt versions 
 | Pin strategy and CI matrix described | [§3 Pin strategy](#3-pin-strategy), [§4 CI matrix](#4-ci-matrix-and-proven-contract) |
 | Links to replayt release tracking | [§5 Tracking replayt releases](#5-tracking-replayt-releases) |
 
+**Expand CI matrix to Python 3.13** (separate backlog):
+
+| Backlog acceptance theme | Satisfied by (this doc) |
+| ------------------------ | ------------------------ |
+| Documented **Python × CI** fingerprint including **3.13** | [§2](#2-compatibility-matrix), [§4](#4-ci-matrix-and-proven-contract), [§4.1](#41-python-313-matrix-expansion-operator-notes) |
+| Caveats for **pip-audit**, **`replayt`** dev pin, **OpenTelemetry** resolution on **3.13** | [§4.1.1](#411-when-313-is-in-ci) |
+
 Related specs: **[docs/CI_SPEC.md](CI_SPEC.md)** (workflow contract), **[docs/DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)** (audit and transitive risk), **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** (boundary API and minimum **`replayt`** for tests).
 
 ## 1. Roles of each dependency class
@@ -27,7 +34,7 @@ Values below match the repository **at the time this section was last revised**;
 
 | Component | Supported policy (this package) | Where enforced |
 | --------- | ------------------------------- | -------------- |
-| **Python** | **`>=3.11`** per **`[project].requires-python`** | **`pyproject.toml`**; CI exercises **3.11** and **3.12** only (see §4). |
+| **Python** | **`>=3.11`** per **`[project].requires-python`** | **`pyproject.toml`**; default CI exercises **3.11**, **3.12**, and **3.13** (see §4). |
 | **opentelemetry-api** | Lower bound **`>=1.0.0`** (compatible line with SDK) | **`pyproject.toml`** **`[project].dependencies`**; **[docs/DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)** § Runtime. |
 | **opentelemetry-sdk** | Lower bound **`>=1.0.0`** | Same as API. |
 | **replayt** | **Test/dev only:** lower bound **`>=0.4.25`** on **`dev`** extra | **`pyproject.toml`** **`[project.optional-dependencies].dev`**; boundary contract in **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** §7. |
@@ -50,12 +57,24 @@ Default CI is specified in **[docs/CI_SPEC.md](CI_SPEC.md)**. Summary:
 | Dimension | Value |
 | --------- | ----- |
 | **Workflow** | **`.github/workflows/ci.yml`** |
-| **Python versions** | **3.11** and **3.12** (matrix on **`test`** and **`supply-chain`**) |
+| **Python versions** | **3.11**, **3.12**, and **3.13** (same matrix on **`test`** and **`supply-chain`**) |
 | **Install** | `python -m pip install --upgrade pip` then **`pip install -e ".[dev]"`** |
 | **Tests** | **`pytest --cov=replayt_otel_span_exporter --cov-report=xml`** from repo root (full collection, including **`tests/integration/test_replayt_boundary.py`** when **`replayt`** is installed) |
 | **Supply chain** | **`pip-audit`** with ignores documented in **[docs/DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)** |
 
 Every matrix cell runs the **same** install and **pytest** command unless **[docs/CI_SPEC.md](CI_SPEC.md)** is explicitly revised. That is how **supported Python × declared dev dependencies** stay aligned.
+
+## 4.1 Python 3.13 matrix expansion (operator notes)
+
+**Normative requirements** (matrices, pytest, **`pip-audit`**, contract tests) live in **[docs/CI_SPEC.md](CI_SPEC.md)** §3.1. This section is the **compatibility-facing** place for **3.13** notes so integrators and operators see **OpenTelemetry** / **`replayt`** / audit context next to the matrix.
+
+### 4.1.1 When 3.13 is in CI
+
+Keep this short; CVE policy and ignore rationale stay in **[docs/DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)**.
+
+- **OpenTelemetry resolution:** **`pip install -e ".[dev]"`** on **3.13** pulls **opentelemetry-api** and **opentelemetry-sdk** satisfying the same **`>=1.0.0`** bounds as on **3.11** / **3.12** (resolver output can differ by minor release day; integrators rely on **`requires-python`** and published **`Requires-Dist`**).
+- **`replayt` (dev extra):** CI still proves **≥** the minimum in **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** §7; **`tests/integration/test_replayt_boundary.py`** is part of default **`pytest`** collection on **3.13** like the other matrix cells.
+- **`pip-audit`:** The **`supply-chain`** job uses the same **`--ignore-vuln CVE-2026-4539`** and **`CVE-2025-69872`** flags on **3.13** as on **3.11** / **3.12**; no extra **3.13-only** ignores at this revision.
 
 ## 5. Tracking replayt releases
 
@@ -71,7 +90,7 @@ Upstream **source** or **changelog** URLs may appear on the PyPI sidebar as **Pr
 
 ## 6. Verifiable checklist (Spec / Build / review)
 
-1. **Matrix** — §2 table matches **`pyproject.toml`** and the Python matrix in **`.github/workflows/ci.yml`**.
+1. **Matrix** — §2 table matches **`pyproject.toml`** and the Python matrix in **`.github/workflows/ci.yml`**. When the matrix or **3.13** notes change, update §4.1.1 in the same pass.
 2. **Pins** — Any change to **`replayt`**, OpenTelemetry, or **`requires-python`** updates §2–§4 here, **`docs/DEPENDENCY_AUDIT.md`**, and **[docs/CI_SPEC.md](CI_SPEC.md)** reference fingerprint when applicable.
 3. **Boundary** — **`SPEC_REPLAYT_INTEGRATION_TESTS.md`** §7 **minimum replayt** stays in sync with the **`dev`** extra lower bound.
 4. **Links** — §5 URLs remain valid; adjust if PyPI layout changes.

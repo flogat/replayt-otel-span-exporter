@@ -14,6 +14,7 @@ _PYPROJECT = _ROOT / "pyproject.toml"
 _COMPAT = _ROOT / "docs" / "COMPATIBILITY.md"
 _SPEC_REPLAYT = _ROOT / "docs" / "SPEC_REPLAYT_INTEGRATION_TESTS.md"
 _CI = _ROOT / ".github" / "workflows" / "ci.yml"
+_EXPECTED_CI_PYTHON_VERSIONS = frozenset({"3.11", "3.12", "3.13"})
 
 
 def _load_pyproject() -> dict:
@@ -61,14 +62,14 @@ def test_replayt_dev_pin_matches_compatibility_and_replayt_spec():
 def test_ci_default_path_installs_dev_extra_and_python_matrix():
     workflow = _CI.read_text(encoding="utf-8")
     assert 'pip install -e ".[dev]"' in workflow
-    matrices = re.findall(
-        r'python-version:\s*\[\s*"([^"]+)"\s*,\s*"([^"]+)"\s*\]',
-        workflow,
-    )
-    assert matrices, "ci.yml should declare python-version matrix entries"
-    for a, b in matrices:
-        assert {a, b} == {"3.11", "3.12"}, (
-            f"expected matrix {{3.11, 3.12}} per docs/COMPATIBILITY.md §4, got {{{a}, {b}}}"
+    blocks = re.findall(r"python-version:\s*\[([^\]]+)\]", workflow)
+    assert blocks, "ci.yml should declare python-version matrix entries"
+    for block in blocks:
+        versions = set(re.findall(r'"([0-9]+\.[0-9]+)"', block))
+        assert versions == _EXPECTED_CI_PYTHON_VERSIONS, (
+            "expected matrix "
+            f"{sorted(_EXPECTED_CI_PYTHON_VERSIONS)} per docs/COMPATIBILITY.md §4, "
+            f"got {sorted(versions)}"
         )
 
 

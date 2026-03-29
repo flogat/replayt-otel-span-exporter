@@ -50,7 +50,7 @@ These bullets are the **mission-level summary**; **[CI_SPEC.md](CI_SPEC.md)** is
 - **Tests command (default CI):** from the repository root,  
   `pytest --cov=replayt_otel_span_exporter --cov-report=xml`  
   so **all** collected tests under **`tests/`** run on every matrix cell unless **[CI_SPEC.md](CI_SPEC.md)** is explicitly revised (see §5–§6 there).
-- **Python matrix:** versions must satisfy **`[project].requires-python`** (currently **≥ 3.11**); CI currently exercises **3.11** and **3.12** (see **[CI_SPEC.md](CI_SPEC.md)** §3 and the **Reference fingerprint** subsection under **Implementation notes for Builder / Maintainer**).
+- **Python matrix:** versions must satisfy **`[project].requires-python`** (currently **≥ 3.11**); CI exercises **3.11**, **3.12**, and **3.13** on every matrix cell (see **Reference fingerprint** in **[CI_SPEC.md](CI_SPEC.md)**). If a future interpreter cannot be added without policy changes, **[COMPATIBILITY.md](COMPATIBILITY.md)** §4.1 records the deferral until unblocked.
 - **Workflow success:** a **green** change is a successful run of **every** job in **`.github/workflows/ci.yml`** (today at least **`test`** and **`supply-chain`**); see **[CI_SPEC.md](CI_SPEC.md)** §7.
 - **Spec-to-suite mapping (what CI is expected to prove):**
   - **[SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** — exporter IR, **`ReplaytSpanExporter`** behavior, and skeleton test contract (e.g. **`tests/test_exporter.py`**, **`tests/test_records.py`**).
@@ -78,7 +78,7 @@ These bullets are the **mission-level summary**; **[CI_SPEC.md](CI_SPEC.md)** is
 
 | Component | Policy (summary) |
 | --------- | ---------------- |
-| **Python** | **`requires-python`** in **`pyproject.toml`** (currently **≥ 3.11**); CI matrix (**3.11** / **3.12**) is described in **[CI_SPEC.md](CI_SPEC.md)** and **[COMPATIBILITY.md](COMPATIBILITY.md)** §4. |
+| **Python** | **`requires-python`** in **`pyproject.toml`** (currently **≥ 3.11**); CI matrix (**3.11** / **3.12** / **3.13**) is described in **[CI_SPEC.md](CI_SPEC.md)** and **[COMPATIBILITY.md](COMPATIBILITY.md)** §4–§4.1. |
 | **OpenTelemetry** | **`opentelemetry-api`** and **`opentelemetry-sdk`** lower bounds in **`pyproject.toml`**; rationale in **`DEPENDENCY_AUDIT.md`**. |
 | **replayt** | **Not** a runtime dependency unless a backlog promotes it. **Dev / CI** lower bound on the **`dev`** extra; boundary and minimum version in **[SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** §7. |
 
