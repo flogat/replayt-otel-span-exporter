@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`tests/test_recipe_span_export_hooks_production_docs.py`:** encodes **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md)** **§10.1** (recipe **§1.5** / **§2** / **§4** / **§5.1** / **§3**–**§5**, **MISSION.md**, root **README**). Mission Control **`29efde6c-c106-43ca-a17a-1623d53145f5`**, phase **3** (**Builder**): **“Document integrator cookbook: approval hook + audit in production services”**.
+
+### Documentation
+
+- **Integrator cookbook (spec):** Mission Control **`29efde6c-c106-43ca-a17a-1623d53145f5`** — **[docs/MISSION.md](docs/MISSION.md)** backlog traceability subsection; **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md)** **§10.1** testable doc acceptance and checklist **§9** item **8** alignment; **[docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md](docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md)** **§1.5** minimal pattern, **§5.1** / **§5.2** sink split, **`logging`** deferral note in **§2**. Phase **2** (spec lead): **“Document integrator cookbook: approval hook + audit in production services”**.
+
+- **Integrator cookbook (§10.1 automation):** **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md)** **§10.1** — **`pytest`** contract via **`tests/test_recipe_span_export_hooks_production_docs.py`**; **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §5; **[docs/MISSION.md](docs/MISSION.md)** spec-to-suite and success criteria. **[docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md](docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md)** **§5.1** explicitly forbids logging **`PreparedSpanRecord.attributes`**. Phase **3** (**Builder**), same backlog id.
+
 ### Changed
 
 - **`tests/integration/test_replayt_boundary.py`:** §4.6 reads the **`replayt`** line from **`[project.optional-dependencies].dev`** by **normalized** dependency name (**`replayt`**), requires **exactly one** such line, and still compares **`importlib.metadata.version("replayt")`** with **`Requirement.specifier.contains(..., prereleases=True)`** (no second hard-coded minimum). Backlog **“Integration test: replayt pin drift and boundary failure modes”** (`da6412b4-2b98-44cf-82a1-70fbc12c777c`), phase **3**.

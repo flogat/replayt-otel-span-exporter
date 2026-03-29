@@ -12,6 +12,42 @@ This document is an **integrator-facing cookbook** for optional **`ReplaytSpanEx
 - When both are set, **`on_export_audit`** is invoked **synchronously** with a small event carrying **§5.2** fields only.
 - Audit payloads **MUST NOT** include **`PreparedSpanRecord.attributes`** or other arbitrary attribute-derived strings (spec **§5.2**).
 
+## 1.5 Minimal pattern (snapshot + audit logging)
+
+Use this when you only need a **policy snapshot** and **structured audit lines** (JSON formatter, syslog, SIEM agent on stdout, and so on). It stays synchronous inside the hook and **never** ships **`prepared`**, **`PreparedSpanRecord`**, or **`attributes`**.
+
+```python
+import logging
+
+# Integrator-owned logger — wire handlers/filters outside the hook (JSON, redaction, sampling).
+audit_logger = logging.getLogger("my_service.replayt_span_export_audit")
+
+# Updated from normal app code (HTTP handlers, async tasks, config reload). Do not mutate from inside hooks.
+_allow_export = True
+
+
+def on_export_commit(prepared, *, span_count: int) -> str:
+    return "allow" if _allow_export else "deny"
+
+
+_ALLOWED_AUDIT_KEYS = frozenset({
+    "decision",
+    "prepared_count",
+    "span_count",
+    "trace_id",
+    "span_id",
+    "workflow_id",
+    "step_id",
+})
+
+
+def on_export_audit(event: dict) -> None:
+    safe = {k: event[k] for k in _ALLOWED_AUDIT_KEYS if k in event}
+    audit_logger.info("replayt_span_export_policy", extra=safe)
+```
+
+Prefer the **`ExportGate`**-style indirection in **§2** when multiple threads update policy. When using **`Logger.info(..., extra=...)`**, ensure **`extra`** keys do not collide with reserved **`logging.LogRecord`** attribute names; the spec **§5.2** allow-listed field names are safe on supported Python versions.
+
 ## 2. Async-safe patterns
 
 The OpenTelemetry Python SDK invokes **`export`** from a worker thread. Your hooks therefore run on that thread while holding the exporter mutex. Treat them like a **critical section**:
@@ -19,9 +55,10 @@ The OpenTelemetry Python SDK invokes **`export`** from a worker thread. Your hoo
 1. **Do not block** on network I/O, disk, or locks held by code that waits on tracing.
 2. **Do not** call **`await`** inside the hook; hooks are not async functions in this contract.
 3. **Read policy from an already-resolved snapshot** (for example an atomic flag, a versioned config struct updated elsewhere, or a precomputed decision table) instead of performing remote policy checks inside the hook.
-4. **Defer heavy or async work** by enqueueing a **minimal** payload for a background worker:
-   - From **`on_export_audit`**, push a **`dict`** (or your ORM row) that contains **only** keys you copied from the allow list (**§3** below).
+4. **Defer heavy or async work** by handing off a **minimal** payload from **`on_export_audit`**:
+   - Push a **`dict`** (or your ORM row) that contains **only** keys you copied from the allow list (**§3** below).
    - Prefer **`queue.SimpleQueue`** from the hook thread (the OpenTelemetry SDK usually calls **`export`** from a worker thread, which often has **no** running asyncio loop). To hand work to asyncio code on **another** thread, keep a reference to **that** loop and use **`loop.call_soon_threadsafe(...)`** from the hook; do **not** call **`asyncio.get_running_loop()`** inside the hook unless you know this thread owns the loop. Avoid unbounded growth (drop or sample under overload if your org policy allows, and document that behavior).
+   - Alternatively, use stdlib **`logging`** per **§5.1**: handlers and formatters run **after** the hook returns; keep **`extra`** strictly allow-listed (no **`prepared`** / attribute maps).
 
 **Anti-pattern:** Calling **`requests.post`**, opening a database transaction that waits on locks, or **`await remote_allow()`** inside **`on_export_commit`** — these stall tracing and can deadlock.
 
@@ -86,7 +123,15 @@ The SDK may call **`export`** multiple times for overlapping or retried work. Yo
   rather than hashing attribute payloads.
 - If the same batch is retried and your hook returns the same decision, duplicate audit rows may still occur; dedupe in the sink or accept at-least-once semantics and document retention.
 
-## 5. End-to-end sketch (queue → async writer)
+## 5. Sink examples
+
+### 5.1 Stdlib logging (integrator logger)
+
+The **§1.5** snippet is the smallest **`logging`** path: copy allow-listed keys, then **`Logger.info(..., extra=safe)`**. Downstream formatters may render **`extra`** as JSON for a SIEM. **Do not** log **`repr(prepared)`**, **`PreparedSpanRecord.attributes`**, full span attribute dicts, or exception text from span payloads.
+
+### 5.2 Queue → async writer (deferral)
+
+When audit delivery needs **async** I/O, enqueue **only** the copied allow-listed dict from **`on_export_audit`** (still synchronous), then drain from a task or thread you own.
 
 ```python
 import asyncio
