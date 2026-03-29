@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`tests/test_release_workflow_contract.py`:** extended assertions for **`docs/CI_SPEC.md`** §8.0 / **`release.yml`** — **`publish`** job id, **`rm -rf dist`**, **`python -m pip install --upgrade pip`**, **concurrency** group string, and OIDC path **without** repository PyPI token / **`password: ${{ secrets.`** wiring. **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §8.0 item **10** lists the contract. Backlog **“Add optional GitHub Actions trusted publishing for PyPI”**, phase **3**.
+
 - **`tests/test_beta_stable_promotion_docs.py`:** default **`pytest`** smoke for **`docs/SPEC_BETA_AND_STABLE_PROMOTION.md`** (§2–§5 headings, semver tables) and **`docs/ROADMAP.md`** (links to **MISSION** and **first alpha** spec). Recorded in **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §5. Backlog **“Define beta/1.0 promotion criteria and public API stability promises”**, phase **3**.
 
 - **`scripts/otel_to_prepared_demo.py`** and **`scripts/README.md`:** runnable OpenTelemetry → **`PreparedSpanRecord`** demo (**`replayt.workflow_id`** / **`replayt.step_id`**, labeled stdout); no **`replayt`** import. **`tests/test_scripts_otel_prepared_demo.py`** runs the script in a subprocess (exit **0** + field checks). Spec: **[docs/SPEC_SCRIPTS_OTEL_PREPARED_DEMO.md](docs/SPEC_SCRIPTS_OTEL_PREPARED_DEMO.md)**; backlog **“Ship a runnable scripts/ demo beyond the README snippet test harness”**, phase **3**.
