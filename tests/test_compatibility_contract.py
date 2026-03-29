@@ -81,7 +81,7 @@ def test_ci_default_path_installs_dev_extra_and_python_matrix():
 
 
 def test_ci_spec_reference_fingerprint_matrix_matches_contract():
-    """docs/CI_SPEC.md §3.1 item 6 — Reference fingerprint lists the same Python set as ci.yml."""
+    """docs/CI_SPEC.md §3.1 items 6–7 — Reference fingerprint matrix lines match _EXPECTED_CI_PYTHON_VERSIONS / ci.yml."""
     text = _CI_SPEC.read_text(encoding="utf-8")
     anchor = "### Reference fingerprint"
     start = text.index(anchor)
