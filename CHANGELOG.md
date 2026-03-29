@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **[docs/MISSION.md](docs/MISSION.md)** spec-to-suite bullet and **[docs/SPEC_REFERENCE_DOCUMENTATION.md](docs/SPEC_REFERENCE_DOCUMENTATION.md)** section 8 now match **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §5: default **`pytest`** runs **`tests/test_reference_documentation.py`** (local checks only; phase **5** architecture review).
 - **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §5 documents **`tests/test_reference_documentation.py`** and the **`docs/reference-documentation/`** tree alongside default **`pytest`** discovery.
 - **`[project].readme`** in **`pyproject.toml`** points at **`README.md`** so sdist/wheel metadata includes the long description (cleaner **`twine check`**).
 - **`tests/test_release_metadata.py`**: asserts **CHANGELOG** has a dated **`## [<version>] - YYYY-MM-DD`** heading matching **`[project].version`** and a **`[Unreleased]`** section (per that spec §3).

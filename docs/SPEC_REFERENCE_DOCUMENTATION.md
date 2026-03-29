@@ -99,8 +99,8 @@ Until the Builder lands the folder, the README **MAY** keep wording that the che
 
 ## 8. CI and automated tests (normative)
 
-- **Default CI** (see **[docs/CI_SPEC.md](CI_SPEC.md)** §5) **does not** need to run **`pytest`** (or other automation) against **`docs/reference-documentation/`** solely for this backlog.
-- **Optional follow-up:** A later backlog **MAY** add non-network or allow-listed **link hygiene** checks; if so, update **[docs/CI_SPEC.md](CI_SPEC.md)** §5 in the **same** change set.
+- **Default CI** (see **[docs/CI_SPEC.md](CI_SPEC.md)** §5) runs **`tests/test_reference_documentation.py`** with the full suite. That module performs **local** checks (no outbound HTTP): folder **README** sections for licensing, scope, and refresh policy; stub index disclaimers, canonical **`https://`** links, and keywords tied to §5; total tree size vs §4.2 guidance; and that **CI_SPEC** still names the test module.
+- **Optional follow-up:** A later backlog **MAY** add non-network or allow-listed **link liveness** checks; if so, update **[docs/CI_SPEC.md](CI_SPEC.md)** §5 in the **same** change set.
 
 ## 9. Verifiable acceptance checklist
 
