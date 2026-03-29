@@ -40,6 +40,18 @@ Mission Control **`29efde6c-c106-43ca-a17a-1623d53145f5`** (phase **2** spec lea
 | **Normative hook + allow list** (contracts) | **[SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)** **§4–§5**, **§10** |
 | **Discoverability** from mission scope | [Scope](#scope) table row (approval / audit hooks + recipe); root **[README.md](../README.md)** — **Optional approval hook** |
 
+## Backlog traceability — “Harden failure-path logging against log injection and oversized messages”
+
+Mission Control **`dad27282-2904-4839-ba1c-070e8e3ba7c8`** (phase **2** spec lead): **ERROR**-path logging safety (untrusted exception text, length limits, redaction alignment, tests).
+
+| Acceptance theme | Where satisfied |
+| ---------------- | ---------------- |
+| **Inventory** of stdlib **`logging`** call sites and **approval-hook ERROR parity** | **[SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** **§5.5** |
+| **Untrusted strings**, **C0/C1** stripping, **1024** / **256** code-point caps | Same spec **§5.2**–**§5.4** |
+| **Redaction table** — no fork of **`attribute_key_is_sensitive`** on failure paths | Same spec **§5.1**; **[SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)** §3.1 (IR context) |
+| **`pytest`** contract (bounds, injection hardening, optional hook-path mirror) | Same spec **§6**–**§7**; explicit MC checklist **§9** |
+| **CI / suite mapping** | **[CI_SPEC.md](CI_SPEC.md)** §5 (failure-handling bullet) |
+
 ## Users and problem
 
 **Integrators** running Python services with OpenTelemetry tracing want a **narrow, well-tested bridge** from the OTel SDK to **replayt-oriented** workflow data. Today that path is underspecified; this package provides an explicit **exporter skeleton** and **documented intermediate representation** so replayt consumers can adopt it without forking replayt core.
@@ -83,7 +95,7 @@ These bullets are the **mission-level summary**; **[CI_SPEC.md](CI_SPEC.md)** is
 - **Workflow success:** a **green** change is a successful run of **every** job in **`.github/workflows/ci.yml`** (today at least **`test`** and **`supply-chain`**); see **[CI_SPEC.md](CI_SPEC.md)** §7.
 - **Spec-to-suite mapping (what CI is expected to prove):**
   - **[SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** — exporter IR, **`ReplaytSpanExporter`** behavior, and skeleton test contract (e.g. **`tests/test_exporter.py`**, **`tests/test_records.py`**).
-  - **[SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** — export failure logging, batch semantics, redaction on failure paths, bounded untrusted strings and log-injection hardening (**§5.4**; plus associated tests **§6–§7**, including **§6** items **4–6** for the audit backlog).
+  - **[SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** — export failure logging, batch semantics, redaction on failure paths, bounded untrusted strings and log-injection hardening (**§5.4**–**§5.5**; tests **§6**–**§7** and MC **`dad27282`** checklist **§9**; **§6** items **4–6** required, item **7** recommended for approval-hook **ERROR** templates).
   - **[SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)** — **`workflow_id`** / **`step_id`** and **`[REDACTED]`** attribute handling (see that spec §5).
   - **[SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** — replayt import boundary, **`PreparedSpanRecord`** → replayt payload contract, and reliable collection after **`pip install -e ".[dev]"`**; **`tests/integration/test_replayt_boundary.py`** MUST be collected by default **`pytest`** when **`replayt`** is on the path (see that spec §3–§5, §5.1, and §7).
   - **`tests/integration/test_opentelemetry_api_usage.py`** — OpenTelemetry trace API smoke only (no **`replayt`**), per **[CI_SPEC.md](CI_SPEC.md)** §5.

@@ -2,7 +2,7 @@
 
 This document refines the backlog item **“Add error handling and logging for span export failures”** into testable requirements. **Production code and tests** belong in **`src/replayt_otel_span_exporter/`** and **`tests/`**; this file is the contract for what “done” means for that item.
 
-A follow-on backlog, **“Audit exporter logging for injection and oversized fields on failure paths”**, **tightens** §5–§7 with **normative** caps on untrusted strings, **C0 / C1 control-character** handling for log fields, and **explicit** tests ([§6](#6-test-contract-builder) items 4–6) so centralized log pipelines stay safe. **§5.4** and those tests are **blocking** for that backlog’s **Build gate** once this revision is merged.
+Mission Control backlog **`dad27282-2904-4839-ba1c-070e8e3ba7c8`** — **“Harden failure-path logging against log injection and oversized messages”** — is the **authoritative** umbrella for **normative** caps on untrusted strings, **C0 / C1** control-character handling in **library-built** log fields, **redaction-table** alignment on failure paths, and **automated tests** so **ERROR** records stay safe for centralized log pipelines. (That work was also described informally as **“Audit exporter logging for injection and oversized fields on failure paths”**; the two names refer to the **same** contract in §5–§7.) **§5.4**, [§6](#6-test-contract-builder) (items **4–6** minimum; see item **7** for hook-path coverage), and [§7](#7-verifiable-acceptance-checklist) are **blocking** for that backlog’s **Build gate**.
 
 It **extends** **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** (especially §2.2–§2.3). Where the two conflict after this backlog lands, **this document wins** for logging, redaction, and integrator-visible failure documentation until a follow-on spec reconciles them.
 
@@ -13,7 +13,8 @@ It **extends** **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELET
 | Errors are logged with context | [§3 Logging contract](#3-logging-contract), [§7 Verifiable acceptance checklist](#7-verifiable-acceptance-checklist) |
 | Failure surfaces are documented | [§4 Integrator-visible failure surfaces](#4-integrator-visible-failure-surfaces), [§8 Documentation deliverables](#8-documentation-deliverables) |
 | No secrets leaked in logs | [§5 Secrets, attributes, and redaction](#5-secrets-attributes-and-redaction), [§7 Checklist](#7-verifiable-acceptance-checklist) |
-| **Audit: cap / sanitize third-party exception text; length limits; redaction alignment; tests** (backlog **“Audit exporter logging for injection and oversized fields on failure paths”**) | [§5.2](#52-third-party-exception-messages-and-untrusted-strings)–[§5.4](#54-bounded-string-fields-and-log-injection-hardening), [§6](#6-test-contract-builder), [§7](#7-verifiable-acceptance-checklist) |
+| **`dad27282` / hardening backlog:** audit **`replayt_otel_span_exporter`** logging for **untrusted third-party exception text**, **length limits** on interpolated / **`extra=`** string fields, **consistency** with the sensitivity key table (**`attribute_key_is_sensitive`**); **tests** (where feasible) so **ERROR** records are pipeline-safe | [§5.1](#51-prohibited-content-in-export-failure-logs)–[§5.4](#54-bounded-string-fields-and-log-injection-hardening), [§5.5](#55-logging-surface-inventory-maintainer), [§6](#6-test-contract-builder), [§7](#7-verifiable-acceptance-checklist), [§9](#9-mission-control-dad27282--explicit-acceptance-criteria) |
+| **Audit: cap / sanitize third-party exception text; length limits; redaction alignment; tests** (informal title, same as **`dad27282`**) | [§5.2](#52-third-party-exception-messages-and-untrusted-strings)–[§5.4](#54-bounded-string-fields-and-log-injection-hardening), [§6](#6-test-contract-builder), [§7](#7-verifiable-acceptance-checklist) |
 
 ## Goals
 
@@ -115,6 +116,16 @@ For **every** untrusted string copied into the **user-visible** parts of a failu
 
 **Rationale:** Prevents oversized fields from blowing up log storage and reduces **log injection** (fake severity lines, CRLF splits) when third-party or integrator data is echoed into **`stdout`** / JSON encoders / SIEM parsers.
 
+### 5.5 Logging surface inventory (maintainer)
+
+For **hardening** and **code review**, treat **every** stdlib **`logging`** call site under **`src/replayt_otel_span_exporter/`** as in scope for §3–§5 (even if a path is not strictly an **“export failure”** in §1).
+
+- **As of this spec revision**, the only module that emits records is **`exporter.py`**: **`replayt_otel_span_exporter.exporter`** (**ERROR** via **`_log_export_failure`** / **`_log_approval_hook_failure`**) and **`replayt_otel_span_exporter.exporter.audit`** (**INFO** for allow-listed audit events per **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)**).
+- **`records.py`** and **`redaction.py`** do **not** log; they participate in **redaction** rules that **failure** logs **must** remain consistent with (§5.1).
+- If a future change adds loggers elsewhere, update this subsection in the **same** change set and extend §6 / §7 if new fields can carry untrusted text.
+
+**Approval-hook ERROR parity (normative):** Any **`logging.ERROR`** record emitted because **`on_export_commit`** raised or returned an invalid value **MUST** apply the **same** §5.2–§5.4 sanitization to **`str(exception)`** (and any other untrusted strings in **`msg`** / string **`extra=`**) as the record-preparation failure path. Both paths **SHOULD** funnel through **one** internal helper pair (for example **`_sanitize_log_string`** + a small **`_log_*_failure`** wrapper) so caps cannot drift.
+
 ## 6. Test contract (Builder)
 
 Tests **MUST** prove:
@@ -125,6 +136,7 @@ Tests **MUST** prove:
 4. **Exception message bound:** Force a failure with an exception whose **`str()`** exceeds **`1024`** code points; assert the **sanitized** exception substring present in the **message** or documented **`extra`** fields is **at most** **`1024`** characters (or that content beyond the limit does not appear verbatim—e.g. suffix probe).
 5. **Control / injection hardening:** Force a failure with an exception message containing **LF** (**U+000A**), **CR** (**U+000D**), and at least one **C1** control (for example **`U+0085` NEL**). Assert **U+000A**, **U+000D**, and **U+0085** from that synthetic payload do **not** appear in the **sanitized** **message** / documented **`extra`** string fields (they **MAY** appear inside **`logging`**’s traceback attachment from **`exc_info`**—the test **SHOULD** target the structured fields or **record.msg** / **record.getMessage()** rather than the full **`caplog.text`** if tracebacks would confuse the assertion).
 6. **Span name bound:** When the failure path logs **span name**, use a name longer than **`256`** code points; assert the **logged** name segment is **at most** **`256`** code points (or that the excess does not appear).
+7. **Approval-hook failure path (recommended):** Repeat **at least one** of the scenarios from items **4** or **5** with an exception raised from **`on_export_commit`** (not from **`prepared_span_record_from_readable`**), and assert the same bounds / absence of raw control characters in the **hook** failure record’s **`exc_message`** and primary **`msg`** (per §5.5). **Rationale:** **`_log_approval_hook_failure`** is a separate template from **`_log_export_failure`**; a focused test prevents silent regression if one call site stops using the shared sanitizer. If the Builder relies solely on shared-helper coverage from items **4–5**, the PR **MUST** cite §5.5 and the single sanitizer entry point in the maintainer notes—**Spec gate** may still ask for item **7** before **Build gate** if reviewers want end-to-end proof on both templates.
 
 Existing skeleton tests for **`shutdown`** / **`force_flush`** remain; add focused tests in **`tests/test_exporter.py`** (or a dedicated module if the suite is split) without bypassing default **`pytest`** discovery.
 
@@ -136,8 +148,9 @@ Use this checklist in **Spec gate**, **Build gate**, and PR review for this back
 2. A **documented** **`logging`** logger under **`replayt_otel_span_exporter.*`** emits **ERROR** (or documented **WARNING**) with **`exc_info`** for that failure path.
 3. Log context includes **batch size** and, when feasible, **failing span index** and **trace_id** / **span_id** in hex—without dumping full attribute maps (§3, §5).
 4. **Redaction** rules from §5 are implemented centrally (**`attribute_key_is_sensitive`** for key policy) and covered by tests ([§6](#6-test-contract-builder) item 3).
-5. **Untrusted strings** on failure paths satisfy §5.4 (truncation + control stripping) and are covered by tests ([§6](#6-test-contract-builder) items 4–6).
+5. **Untrusted strings** on failure paths satisfy §5.4 (truncation + control stripping) and are covered by tests ([§6](#6-test-contract-builder) items 4–6); **approval-hook** ERROR paths satisfy §5.5 and, unless exempted per §6 item **7** maintainer note, are covered by §6 item **7**.
 6. **[§8 Documentation deliverables](#8-documentation-deliverables)** are present and linked from **[README.md](../README.md)** or the package overview.
+7. **[§9](#9-mission-control-dad27282--explicit-acceptance-criteria)** — all bullets satisfied for Mission Control **`dad27282`**.
 
 ## 8. Documentation deliverables
 
@@ -145,6 +158,18 @@ The Builder **MUST**:
 
 - Add a short **“Export failures”** (or equivalent) subsection to **`README.md`** stating: failures surface as **`SpanExportResult.FAILURE`**, **logs** use the **`replayt_otel_span_exporter`** logger hierarchy, **sensitive span attributes are not logged** on failure, and **exception text / span names are bounded and control-stripped** for log-pipeline safety—pointing to **this spec** for field names, redaction rules, and numeric limits (§5.4).
 - Cross-link this spec from **`docs/SPEC_OTEL_EXPORTER_SKELETON.md`** §2.3 (already required by skeleton maintenance when this backlog completes).
+
+## 9. Mission Control `dad27282` — explicit acceptance criteria
+
+The backlog body asks for an **audit** of **`replayt_otel_span_exporter`** logging, **untrusted** exception text handling, **length** limits, **redaction-table** consistency, and **tests** for safe **ERROR** lines. The following are **testable** completions (for **Spec gate**, **Build gate**, and PR review):
+
+1. **Coverage of failure paths:** Every **`logging.ERROR`** emitted by this package for **unexpected** failures during **`export`** (record preparation, approval hook, or audit emission failure that uses the export-failure logger) follows §3, §5.1, §5.2–§5.4, and §5.5.
+2. **No duplicate sensitivity policy:** Any check for **sensitive attribute keys** on failure paths uses **`attribute_key_is_sensitive`** (or a documented delegating wrapper), same as §5.1.
+3. **Bounded, control-stripped untrusted strings:** Exception messages and span names (and any other integrator- or third-party-sourced strings placed in **`msg`** or string **`extra=`** on those **ERROR** paths) meet §5.4 numeric limits and C0/C1 stripping before emission.
+4. **Automated proof:** §6 items **1–6** pass in default **`pytest`**; §6 item **7** is implemented **or** the PR documents the shared-sanitizer rationale per item **7**.
+5. **Operator docs:** README **Export failures** (§8) mentions **pipeline-safe** bounds and points integrators at this spec for field names and limits.
+
+**Out of scope for `dad27282` (unless a later backlog says otherwise):** Redesign of **`INFO`** audit records (**`exporter.audit`**) beyond what **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)** and **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)** already require for **`workflow_id`** / **`step_id`** / identifiers; changing **`exc_info`** / traceback attachment; non-stdlib logging backends.
 
 ## Implementation notes for Builder / Maintainer
 

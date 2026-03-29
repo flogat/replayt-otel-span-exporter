@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- **Export failure logging (spec):** **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** — Mission Control **`dad27282-2904-4839-ba1c-070e8e3ba7c8`**, phase **2** (**Spec lead**): backlog **`dad27282`** named as authoritative umbrella for injection/size hardening; **§5.5** logging surface inventory and approval-hook **ERROR** parity; **§6** item **7** (hook-path test recommendation); **§7** checklist item for **§9**; new **§9** explicit MC acceptance criteria and out-of-scope note. **[docs/MISSION.md](docs/MISSION.md)** — traceability subsection + spec-to-suite bullet. **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §5 — aligned failure-handling sentence.
+
 ### Added
 
 - **`tests/test_recipe_span_export_hooks_production_docs.py`:** encodes **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md)** **§10.1** (recipe **§1.5** / **§2** / **§4** / **§5.1** / **§3**–**§5**, **MISSION.md**, root **README**). Mission Control **`29efde6c-c106-43ca-a17a-1623d53145f5`**, phase **3** (**Builder**): **“Document integrator cookbook: approval hook + audit in production services”**.
