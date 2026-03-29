@@ -62,7 +62,7 @@ Use this checklist in **Spec gate**, **Build gate**, and PR review for the **“
 3. **`replayt`** appears only in **optional** dependencies (or **`dev`**) in **`pyproject.toml`**, not in **`[project].dependencies`**, unless mission scope is explicitly updated elsewhere.
 4. **`docs/DEPENDENCY_AUDIT.md`** includes a **Test / integration: replayt** row with the version policy and rationale.
 5. §7 **Implemented boundary** is filled in with concrete modules, symbols, and minimum version — no placeholders left at merge.
-6. Default CI (**[docs/CI_SPEC.md](CI_SPEC.md)**) runs **`pytest`** in a way that collects the new tests on every **Python** version in the **`ci.yml`** matrix (**3.11**, **3.12**, and **3.13**) without extra flags.
+6. Default CI (**[docs/CI_SPEC.md](CI_SPEC.md)**) runs **`pytest`** in a way that collects the new tests on every **Python** version in the **`ci.yml`** matrix (see **Reference fingerprint** there) without extra flags.
 
 ## 7. Implemented boundary (concrete API under test)
 
