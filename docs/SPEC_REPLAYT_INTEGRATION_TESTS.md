@@ -126,5 +126,5 @@ The bullets below record the API exercised by **`tests/integration/test_replayt_
 ## Implementation notes for Builder / Maintainer
 
 - Prefer **stable, documented** replayt APIs over private attributes; if only unstable hooks exist, document the risk in **`docs/DEPENDENCY_AUDIT.md`** and keep the boundary test narrow.
-- If replayt’s packaging or API diverges between Python versions, align with the CI matrix in **`docs/CI_SPEC.md`** or extend the matrix in the same change.
+- If replayt’s packaging or API diverges between Python versions, **match** the CI matrix in **`docs/CI_SPEC.md`** or extend the matrix in the same change.
 - When this spec and **`docs/MISSION.md`** diverge from **`pyproject.toml`** or CI, update **code and docs** in the same maintenance pass.
