@@ -94,7 +94,7 @@ The backlog is **not** satisfied by manual runs alone.
 - The test MUST **not** `import replayt`.
 - The test MUST run under **`pip install -e ".[dev]"`** like other unit tests.
 
-**CI mapping:** **[docs/CI_SPEC.md](CI_SPEC.md)** §5 lists this module once it exists.
+**CI mapping:** **[docs/CI_SPEC.md](CI_SPEC.md)** §5 records the test module name (**`tests/test_scripts_otel_prepared_demo.py`** unless renamed in the same maintenance pass as that sentence).
 
 ## 7. Non-goals (this backlog)
 
