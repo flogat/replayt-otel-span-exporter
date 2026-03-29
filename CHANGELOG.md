@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **CI:** **`test`** and **`supply-chain`** jobs in **`.github/workflows/ci.yml`** run on **Python 3.13** as well as **3.11** and **3.12** (backlog **“Expand CI matrix to Python 3.13 with documented compatibility fingerprint”**, phase **3** build). **`tests/test_compatibility_contract.py`**, **[README.md](README.md)** (CI summary), **[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)** §2 / §4 / §4.1.1, **[docs/CI_SPEC.md](docs/CI_SPEC.md)** reference fingerprint, **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](docs/SPEC_REPLAYT_INTEGRATION_TESTS.md)** §6, and **[docs/MISSION.md](docs/MISSION.md)** matrix summary match the expanded matrix.
+
 ### Documentation
 
-- **Python 3.13 CI matrix (spec):** **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §3.1 — normative acceptance criteria for adding **3.13** to **`test`** / **`supply-chain`**, **`pip-audit`** / **DEPENDENCY_AUDIT** alignment, **COMPATIBILITY** fingerprint, and **`tests/test_compatibility_contract.py`**; **[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)** §4.1 — **3.13** notes and optional **Deferred** subsection; cross-links from **[docs/MISSION.md](docs/MISSION.md)** and **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](docs/SPEC_REPLAYT_INTEGRATION_TESTS.md)** §6 (backlog **“Expand CI matrix to Python 3.13 with documented compatibility fingerprint”**, phase **2** spec).
+- **Python 3.13 CI matrix (spec):** **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §3.1 — normative acceptance criteria for adding **3.13** to **`test`** / **`supply-chain`**, **`pip-audit`** / **DEPENDENCY_AUDIT** alignment, **COMPATIBILITY** fingerprint, and **`tests/test_compatibility_contract.py`**; **[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)** §4.1 — **3.13** notes; cross-links from **[docs/MISSION.md](docs/MISSION.md)** and **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](docs/SPEC_REPLAYT_INTEGRATION_TESTS.md)** §6 (backlog **“Expand CI matrix to Python 3.13 with documented compatibility fingerprint”**, phase **2** spec).
 
 - **`docs/reference-documentation/`**: folder **README** (licensing, scope, refresh policy) plus stub indexes **[opentelemetry-python.md](docs/reference-documentation/opentelemetry-python.md)** and **[replayt.md](docs/reference-documentation/replayt.md)** with canonical **`https://`** links and maintainer summaries (backlog **“Populate `docs/reference-documentation/` for offline replayt and OTel context”**, phase **3** build).
 - **[README.md](README.md)**: **Reference documentation** section states the tree is present; project layout table row updated for **`docs/reference-documentation/`**.

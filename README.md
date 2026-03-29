@@ -86,7 +86,7 @@ Without a hook, behavior matches the default path above. Full rules: **[docs/SPE
 
 ## Continuous integration
 
-**`.github/workflows/ci.yml`** runs on **push** and **pull_request** to **`master`** and **`mc/**`**. The **`test`** job installs with **`pip install -e ".[dev]"`**, runs **`pytest`** with coverage on Python **3.11** and **3.12**, and uploads coverage; the **`supply-chain`** job runs **`pip-audit`** on the same matrix. Optional **PyPI** uploads use **`.github/workflows/release.yml`** (OIDC trusted publishing; **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §8). See **[docs/CI_SPEC.md](docs/CI_SPEC.md)** for full acceptance criteria, the definition of a “green” run, and maintainer notes.
+**`.github/workflows/ci.yml`** runs on **push** and **pull_request** to **`master`** and **`mc/**`**. The **`test`** job installs with **`pip install -e ".[dev]"`**, runs **`pytest`** with coverage on Python **3.11**, **3.12**, and **3.13**, and uploads coverage; the **`supply-chain`** job runs **`pip-audit`** on the same matrix. Optional **PyPI** uploads use **`.github/workflows/release.yml`** (OIDC trusted publishing; **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §8). See **[docs/CI_SPEC.md](docs/CI_SPEC.md)** for full acceptance criteria, the definition of a “green” run, and maintainer notes.
 
 ## Export failures
 
