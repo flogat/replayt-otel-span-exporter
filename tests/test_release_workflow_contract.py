@@ -32,7 +32,9 @@ def test_release_workflow_permissions_oidc_and_pypa_publish():
     yml = _RELEASE_WORKFLOW.read_text(encoding="utf-8")
     assert re.search(r"id-token:\s*write", yml)
     assert re.search(r"contents:\s*read", yml)
-    assert "pypa/gh-action-pypi-publish@release/v1" in yml
+    assert (
+        "pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e" in yml
+    )
 
 
 def test_release_workflow_environment_pypi():

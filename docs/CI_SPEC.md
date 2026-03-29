@@ -102,7 +102,7 @@ Implementation file: **`.github/workflows/release.yml`**. Contract tests: **`tes
 - **Install (publish job only):** **`python -m pip install --upgrade pip`**, then **`pip install "build>=1.2.0" "twine>=5.0"`**. Do **not** run **`pip install -e ".[dev]"`** on the publish job: the release runner must not pull **`replayt`** or other **`[dev]`** pins ([§8.6](#86-runtime-deps-and-replayt)).
 - **Build:** **`rm -rf dist`**, then **`python -m build`** from the repository root (sdist + wheel).
 - **Check:** **`twine check dist/*`** MUST succeed before upload.
-- **Upload:** **`pypa/gh-action-pypi-publish@release/v1`** uploads **`dist/*`** to **PyPI** using OIDC (see [§8.3](#83-oidc-and-secrets-policy)).
+- **Upload:** **`pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e`** (pinned commit; corresponds to **`release/v1`** at pin time) uploads **`dist/*`** to **PyPI** using OIDC (see [§8.3](#83-oidc-and-secrets-policy)).
 
 This sequence matches the pre-upload bar in **[docs/SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** §4 for teams that use this automation path.
 
@@ -170,7 +170,7 @@ When **`pyproject.toml`** changes **`requires-python`** or dev dependencies, upd
 - **`test`**: **`actions/checkout@v3`**, **`actions/setup-python@v4`**, matrix **`python-version: ["3.11", "3.12"]`**, **`tomllib`** parse of **`pyproject.toml`**, **`pip install -e ".[dev]"`**, **`pytest --cov=replayt_otel_span_exporter --cov-report=xml`**, **`codecov/codecov-action@v3`** with **`./coverage.xml`** and **`fail_ci_if_error: false`**.
 - **`supply-chain`**: same Python matrix, checkout/setup/validate/install, then **`pip-audit --ignore-vuln CVE-2026-4539 --ignore-vuln CVE-2025-69872 --desc`**.
 - **`[project.optional-dependencies].dev`** includes **`build`** and **`twine`** so **`tests/test_release_packaging.py`** can run **`python -m build`** and **`twine check`** in CI.
-- **§8 release / OIDC:** **`.github/workflows/release.yml`** — **`workflow_dispatch`** and **`push`** of tags **`v*`**; **`concurrency`** group **`release-${{ github.workflow }}-${{ github.ref }}`** with **`cancel-in-progress: false`**; job **`publish`** uses GitHub Environment **`pypi`**, **`permissions: contents: read`** and **`id-token: write`**, **`actions/checkout@v3`**, **`actions/setup-python@v4`** with **`python-version: "3.12"`**, **`pip install "build>=1.2.0" "twine>=5.0"`** (no **`pip install -e ".[dev]"`**), **`rm -rf dist`**, **`python -m build`**, **`twine check dist/*`**, then **`pypa/gh-action-pypi-publish@release/v1`** to **PyPI** (no TestPyPI job in-repo; maintainers may add a parallel trusted publisher + environment if needed per §8.4).
+- **§8 release / OIDC:** **`.github/workflows/release.yml`** — **`workflow_dispatch`** and **`push`** of tags **`v*`**; **`concurrency`** group **`release-${{ github.workflow }}-${{ github.ref }}`** with **`cancel-in-progress: false`**; job **`publish`** uses GitHub Environment **`pypi`**, **`permissions: contents: read`** and **`id-token: write`**, **`actions/checkout@v3`**, **`actions/setup-python@v4`** with **`python-version: "3.12"`**, **`pip install "build>=1.2.0" "twine>=5.0"`** (no **`pip install -e ".[dev]"`**), **`rm -rf dist`**, **`python -m build`**, **`twine check dist/*`**, then **`pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e`** to **PyPI** (no TestPyPI job in-repo; maintainers may add a parallel trusted publisher + environment if needed per §8.4).
 
 Update this subsection when jobs, pins, or commands diverge.
 

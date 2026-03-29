@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **`.github/workflows/release.yml`**: optional **PyPI** publish via **OIDC** (trusted publishing): guarded **`workflow_dispatch`** and **`v*`** tag pushes, GitHub Environment **`pypi`**, **`python -m build`** + **`twine check`**, build-tooling-only install (no **`[dev]`**), **`pypa/gh-action-pypi-publish`**. Documented in **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §8 Reference fingerprint.
+- **`.github/workflows/release.yml`**: optional **PyPI** publish via **OIDC** (trusted publishing): guarded **`workflow_dispatch`** and **`v*`** tag pushes, GitHub Environment **`pypi`**, **`python -m build`** + **`twine check`**, build-tooling-only install (no **`[dev]`**), **`pypa/gh-action-pypi-publish`** pinned to commit **`ed0c539`**. Documented in **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §8 Reference fingerprint.
 - **`tests/test_release_workflow_contract.py`**: asserts **`release.yml`** matches **§8** (triggers, permissions, environment name, build/twine steps, no dev install) and **`docs/CI_SPEC.md`** contains normative **§8** subsections (OIDC, environment **`pypi`**, rollback).
 - **`tests/test_readme_integrator_install.py`**: README **`pip install replayt-otel-span-exporter==<version>`** matches **`[project].version`**, documents **`--pre`** for alphas, and **`[project].readme`** is set (**[docs/SPEC_README_QUICK_START.md](docs/SPEC_README_QUICK_START.md)** §2.1).
 - **`tests/test_release_packaging.py`**: after **`python -m build`** and **`twine check`**, installs the built wheel into a **fresh venv** and asserts **`importlib.metadata`**, **`__version__`**, and **no `replayt`** on the minimal install path (per that spec §4–§5).
