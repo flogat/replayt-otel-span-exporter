@@ -4,7 +4,7 @@ Revise as the project matures. Defaults below are minimal—expand with rules fo
 
 1. **Explicit contracts** — Document supported replayt (and third-party framework) versions; test integration boundaries.
 2. **Small public surfaces** — Prefer narrow APIs and documented extension points.
-3. **Observable automation** — Local scripts and CI produce clear logs and exit codes.
+3. **Observable automation** — Local scripts and CI produce clear logs and exit codes. Contributor-facing runnable demos under **`scripts/`** (for example **`scripts/otel_to_prepared_demo.py`**) follow **[docs/SPEC_SCRIPTS_OTEL_PREPARED_DEMO.md](SPEC_SCRIPTS_OTEL_PREPARED_DEMO.md)**.
 4. **Consumer-side maintenance** — Compatibility shims and pins live **here**; upstream changes are tracked with tests
    and changelog notes.
 5. **Not a lever on core** — This repo does not exist to steer replayt core; propose upstream changes through normal

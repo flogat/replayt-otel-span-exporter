@@ -71,6 +71,8 @@ rec = records[0]
 print(rec.name, rec.trace_id)
 ```
 
+Runnable **`scripts/`** demo (same pipeline, labeled stdout, no **`replayt`**): see **[scripts/README.md](scripts/README.md)** — **`python scripts/otel_to_prepared_demo.py`** from the repo root after **`pip install -e ".[dev]"`**.
+
 **PreparedSpanRecord** values are the hand-off for replayt-oriented workflows: this package prepares span-shaped data for downstream consumers without importing **`replayt`**. The concrete **`replayt`** import boundary in CI is **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](docs/SPEC_REPLAYT_INTEGRATION_TESTS.md)** (section 7) and **`tests/integration/test_replayt_boundary.py`** when **`replayt`** is installed via the **`dev`** extra.
 
 ### Optional approval hook
@@ -120,6 +122,7 @@ local tooling entries. Adapt or remove optional directories to match your team�
 | `docs/COMPATIBILITY.md` | Supported versions matrix, pin strategy, CI alignment, replayt release links |
 | `docs/SPEC_REFERENCE_DOCUMENTATION.md` | Contract for optional `docs/reference-documentation/` (stubs, snapshots, folder README) |
 | `docs/reference-documentation/` | Upstream context indexes (OpenTelemetry Python, replayt); see folder **README** |
+| `scripts/README.md` | Contributor scripts (OTel → **`PreparedSpanRecord`** demo invocation) |
 | `src/replayt_otel_span_exporter/` | Python package (import `replayt_otel_span_exporter`) |
 | `pyproject.toml` | Package metadata |
 | `.gitignore` | Ignores `path/` (doc placeholders), `.orchestrator/`, `.cursor/skills/`, and `AGENTS.md` (local tooling) |
