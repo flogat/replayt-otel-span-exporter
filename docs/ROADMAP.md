@@ -9,7 +9,7 @@ This document orients **maintainers**, **integrators**, and **Mission Control** 
 | **Alpha** | `0.2.0a1` | Early index verification; contract may still tighten per specs and **CHANGELOG**. See **[docs/SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)**. |
 | **Beta** | `0.3.0b1` | **Feature-complete** intent for the target line; **`__all__`** and **`PreparedSpanRecord`** §3 fields treated as **frozen** except documented additive **MINOR**-style changes and fixes. See **SPEC_BETA_AND_STABLE_PROMOTION** §2.2. |
 | **Release candidate** | `1.0.0rc1` | Optional; use when maintainers want a **last** prerelease before **1.0**. Same changelog and semver rules as other prereleases. |
-| **Stable** | `1.0.0` | **SemVer** applies to **`__all__`**, **`PreparedSpanRecord`**, and **`ReplaytSpanExporter`** per **SPEC_BETA_AND_STABLE_PROMOTION** §3. |
+| **Stable** | `1.0.0` | **SemVer** applies to **`__all__`**, **`PreparedSpanRecord`**, and **`ReplaytSpanExporter`** per **SPEC_BETA_AND_STABLE_PROMOTION** §3. **Removal** of promised API follows **§6** (deprecation period, **CHANGELOG**, **`DeprecationWarning`** where applicable). |
 
 ## Where to read next
 
@@ -24,6 +24,7 @@ This document orients **maintainers**, **integrators**, and **Mission Control** 
 | Backlog item | Roadmap anchor |
 | ------------ | -------------- |
 | **Define beta/1.0 promotion criteria and public API stability promises** | This file + **[docs/SPEC_BETA_AND_STABLE_PROMOTION.md](SPEC_BETA_AND_STABLE_PROMOTION.md)** |
+| **Post-alpha roadmap: beta or 1.0 criteria and deprecation policy** (MC **`e9115fe4-6d8f-44b7-97e1-008a1a8cf478`**) | **[docs/SPEC_BETA_AND_STABLE_PROMOTION.md](SPEC_BETA_AND_STABLE_PROMOTION.md)** §2–§7.1, this file, **[docs/MISSION.md](MISSION.md)** traceability |
 | **Publish first alpha release** / **Close first alpha** | **[docs/SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** |
 | **Add optional GitHub Actions trusted publishing for PyPI** | **[docs/CI_SPEC.md](CI_SPEC.md)** §8 (**`release.yml`**, OIDC, **`tests/test_release_workflow_contract.py`**) |
 | **Ship a minimal runnable example package or scripts/ recipe** (MC **`21487c24-8d58-4085-896c-4a6bad8d0af4`**) | **[docs/SPEC_SCRIPTS_OTEL_PREPARED_DEMO.md](SPEC_SCRIPTS_OTEL_PREPARED_DEMO.md)** |
