@@ -16,6 +16,13 @@ It **extends** **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELET
 | Implementation includes necessary hooks | [§4 Hook contract](#4-hook-contract-normative), [§6 Verifiable acceptance checklist](#6-verifiable-acceptance-checklist) |
 | UX is clear for stakeholders | [§2 Concepts](#2-concepts-and-stakeholders), [§5 Audit visibility](#5-audit-visibility-and-redaction-normative), [§7 Documentation deliverables](#7-documentation-deliverables) |
 
+**Document integrator cookbook: approval hook + audit in production services** (Mission Control **`29efde6c-c106-43ca-a17a-1623d53145f5`**):
+
+| Backlog acceptance theme | Satisfied by (this doc + recipe) |
+| ------------------------ | -------------------------------- |
+| Cookbook content and examples | **[docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md](RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md)** — see [§10](#10-integrator-cookbook-on_export_commit-and-on_export_audit-in-production-informative) and **§10.1** below |
+| Mission / README discoverability | **[docs/MISSION.md](MISSION.md)** backlog traceability subsection for this id; root **`README.md`** **Optional approval hook** |
+
 ## 1. Goals
 
 - Give **integrators** an optional, **in-process** way to **gate** whether a batch of **`PreparedSpanRecord`** values is **committed** to the exporter buffer (the hand-off surface described in the skeleton spec).
@@ -123,7 +130,7 @@ The Builder **MUST** update:
 
 - **`README.md`** — Short subsection or bullet under exporter usage: optional approval hook, **SUCCESS on deny**, and pointer to this spec.
 - **`docs/MISSION.md`** and **`docs/CI_SPEC.md`** — Spec-to-suite mapping when tests land (see §8).
-- **`docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md`** — Integrator cookbook (informative): async-safe patterns, idempotency guidance, and examples that forward audit data using only §5.2 allow-listed fields (see §10).
+- **`docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md`** — Integrator cookbook (informative): async-safe patterns, idempotency guidance, and examples that forward audit data using only §5.2 allow-listed fields (see **§10** and testable checklist **§10.1**).
 
 ## 8. Test contract (Builder)
 
@@ -148,7 +155,7 @@ Use this checklist in **Spec gate**, **Build gate**, and PR review.
 5. Threading: hook runs under the exporter’s buffer lock.
 6. README and mission / CI spec cross-links updated per §7.
 7. Automated tests cover §8 scenarios.
-8. **Integrator cookbook** — **[docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md](RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md)** exists, is linked from **§10** and the **[docs/MISSION.md](MISSION.md)** scope table, and addresses async-safe hook usage, idempotency for audit emission, and allow-list-only forwarding (no persistence of full prepared attribute maps).
+8. **Integrator cookbook** — **[docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md](RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md)** meets **§10.1** (file review); linked from **§10** and the **[docs/MISSION.md](MISSION.md)** scope table; **[docs/MISSION.md](MISSION.md)** includes the backlog traceability subsection for Mission Control **`29efde6c-c106-43ca-a17a-1623d53145f5`**.
 
 ## 10. Integrator cookbook: `on_export_commit` and `on_export_audit` in production (informative)
 
@@ -156,11 +163,24 @@ This section and **[docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md](RECIPE_SPAN_EXP
 
 **Read next:** **[RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md](RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md)** — async-safe patterns, idempotency when writing audit events to an integrator-owned sink, and copy-only examples that never store or ship **`PreparedSpanRecord.attributes`** or arbitrary attribute strings.
 
-### Backlog acceptance criteria (spec phase — “Integrator cookbook”)
+### 10.1 Testable documentation acceptance (Spec gate / Build gate — backlog `29efde6c`)
+
+Verify by **documentation review** (no new **`pytest`** module is required for this backlog unless Mission Control adds a follow-on doc-contract item).
+
+1. **`docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md`** **MUST** include:
+   - **§1.5** (or a clearly titled equivalent) — a **minimal** end-to-end pattern: synchronous **`on_export_commit`** with **no** I/O, plus **`on_export_audit`** that copies **only** §5.2 allow-listed keys before hand-off to a sink.
+   - **§2** (async-safe patterns) — states hooks **MUST NOT** use **`await`** or blocking network / disk I/O under the exporter lock; names at least one deferral mechanism (**`queue.SimpleQueue`**, **`loop.call_soon_threadsafe`**, and/or stdlib **`logging`**).
+   - **§4** (idempotency) — states **`export`** / audit may run **more than once** for related work; dedupe keys **MUST** use allow-listed fields **plus** integrator-generated correlation (**not** hashes of attribute payloads or full **`prepared`** dumps).
+   - **§5.1** — an example that emits audit events via **stdlib `logging`** on an **integrator-owned** logger using **only** the copied allow-listed mapping (**no** **`repr(prepared)`**, **`PreparedSpanRecord.attributes`**, or arbitrary attribute strings).
+   - **§3** and **§5** — reinforce that **`prepared`**, **`PreparedSpanRecord`**, and attribute maps **MUST NOT** be persisted or forwarded to external systems.
+2. **`docs/MISSION.md`** **MUST** link the recipe from the **[Scope](MISSION.md#scope)** **approval / audit hooks** row (as today) **and** include the **Backlog traceability** subsection titled **“Document integrator cookbook: approval hook + audit in production services”** naming Mission Control id **`29efde6c-c106-43ca-a17a-1623d53145f5`**.
+3. Root **`README.md`** **MUST** retain the **Optional approval hook** subsection with pointers to this spec and the recipe.
+
+### Backlog acceptance criteria (summary — “Integrator cookbook”)
 
 | Criterion | Evidence |
 | --------- | -------- |
-| Async-safe patterns documented | Recipe explains synchronous hook contract vs async application code; no blocking I/O or **`await`** inside hooks; recommended snapshots / queues. |
-| Idempotency guidance | Recipe describes duplicate / overlapping **`export`** calls and safe deduplication strategies using only allow-listed fields (and optional integrator-generated correlation). |
-| Audit sink examples use allow list only | Recipe shows explicit field copying or **`TypedDict`**-style handling aligned with §5.2; **forbids** persisting or forwarding **`prepared`** sequences or full attribute maps. |
-| Discoverable from mission scope | **[docs/MISSION.md](MISSION.md)** scope table links to the recipe and this §10. |
+| Async-safe patterns documented | Recipe **§2**; minimal pattern **§1.5**. |
+| Idempotency guidance | Recipe **§4**. |
+| Audit sink examples use allow list only | Recipe **§3**, **§5**; stdlib **`logging`** example **§5.1**. |
+| Discoverable from mission scope | **[docs/MISSION.md](MISSION.md)** scope table + traceability subsection; this **§10**. |

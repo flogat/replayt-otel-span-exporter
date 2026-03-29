@@ -28,6 +28,18 @@ After a **first alpha** is verified on an index (**[SPEC_FIRST_ALPHA_RELEASE.md]
 | **Optional hooks** evolution | Same doc §5 |
 | Integrator / MC **roadmap** alignment | **[ROADMAP.md](ROADMAP.md)** |
 
+## Backlog traceability — “Document integrator cookbook: approval hook + audit in production services”
+
+Mission Control **`29efde6c-c106-43ca-a17a-1623d53145f5`** (phase **2** spec lead): integrator-facing guidance for **`on_export_commit`** / **`on_export_audit`** in production.
+
+| Acceptance theme | Where satisfied |
+| ---------------- | ---------------- |
+| **Minimal async-safe pattern** and hook constraints | **[RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md](RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md)** §1.5–§2 |
+| **Idempotency** and duplicate **`export`** / audit semantics | Same recipe **§4** |
+| **Audit sink examples** without persisting full prepared **attributes** | Same recipe **§3**, **§5** (stdlib **`logging`** and queue deferral) |
+| **Normative hook + allow list** (contracts) | **[SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)** **§4–§5**, **§10** |
+| **Discoverability** from mission scope | [Scope](#scope) table row (approval / audit hooks + recipe); root **[README.md](../README.md)** — **Optional approval hook** |
+
 ## Users and problem
 
 **Integrators** running Python services with OpenTelemetry tracing want a **narrow, well-tested bridge** from the OTel SDK to **replayt-oriented** workflow data. Today that path is underspecified; this package provides an explicit **exporter skeleton** and **documented intermediate representation** so replayt consumers can adopt it without forking replayt core.
