@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
+- **Reference documentation (spec):** **[docs/SPEC_REFERENCE_DOCUMENTATION.md](docs/SPEC_REFERENCE_DOCUMENTATION.md)** — backlog **“Seed `docs/reference-documentation/` with replayt + OTel snapshot markdown”**, phase **2**: backlog traceability for Mission Control item **dda05c31-9820-45d0-9e56-e58625f1686f**; **§4.3** stub-only index files vs optional verbatim snapshots and coupling to **`tests/test_reference_documentation.py`**; **§9.0** testable acceptance checklist; directory presence rule aligned with two index files (**§2**). **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §5 — pointer to **§9.0** / **§4.3**.
+
 - **Optional PyPI trusted publishing (spec):** **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §8 — backlog **“Add optional GitHub Actions trusted publishing for PyPI”**, phase **2**: backlog traceability table, normative **[§8.0](docs/CI_SPEC.md#80-testable-acceptance-criteria-normative-backlog)** acceptance checklist (guarded **`workflow_dispatch`** / **`v*`** tags, **`python -m build`**, **`twine check`**, OIDC **`id-token`**, GitHub Environment **`pypi`**, no long-lived PyPI tokens or embedded passwords in-repo for the default path). Cross-links from **[docs/SPEC_FIRST_ALPHA_RELEASE.md](docs/SPEC_FIRST_ALPHA_RELEASE.md)** (related backlog) and **[docs/ROADMAP.md](docs/ROADMAP.md)** (backlog traceability). **§8.3** clarifies credential posture.
 
 - **Optional PyPI trusted publishing (spec, §8.0 item 2):** §8.0 item **2** requires the **`publish`** job id in **`release.yml`**, matching **`tests/test_release_workflow_contract.py`** (phase **5** architecture review).

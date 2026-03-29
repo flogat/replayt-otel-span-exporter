@@ -1,15 +1,16 @@
 # Specification: `docs/reference-documentation/` (replayt and OpenTelemetry context)
 
-This document refines the backlog item **“Populate `docs/reference-documentation/` for offline replayt and OTel context”** into testable requirements. **Creating the directory, markdown files, and upstream links** belongs in phase **3** (Builder); this file is the contract for what “done” means.
+This document refines reference-documentation backlogs into testable requirements, including **“Seed `docs/reference-documentation/` with replayt + OTel snapshot markdown”** (Mission Control item **`dda05c31-9820-45d0-9e56-e58625f1686f`**) and the earlier wording **“Populate `docs/reference-documentation/` for offline replayt and OTel context.”** **Creating or changing directory contents** (except incidental README/spec cross-links) belongs in phase **3** (Builder); this file is the contract for what “done” means.
 
 ## Backlog traceability
 
 | Original backlog wording | Satisfied by (this doc) |
 | ------------------------ | ------------------------ |
-| Bounded markdown snapshots **or** stub index pages with deep links | [§4 Content strategies](#4-content-strategies-normative) |
-| Upstream **replayt** and **OpenTelemetry Python** integration context from the tree | [§5 Topical coverage](#5-topical-coverage-normative) |
-| Short **README** in the folder: **licensing**, **scope**, **refresh policy** | [§3 Folder README](#3-folder-readme-normative) |
-| Optional folder (README today says it may be absent) | [§2 Directory and presence](#2-directory-and-presence-normative) |
+| **Seed** folder with **bounded**, **license-appropriate** markdown (**snapshots** and/or **deep links + local stubs**) | [§4 Content strategies](#4-content-strategies-normative), [§6 Licensing and attribution](#6-licensing-and-attribution-normative), [§9.0](#90-backlog-seed-reference-documentation-normative) |
+| **replayt** + **OpenTelemetry Python** integration context **from the tree** | [§5 Topical coverage](#5-topical-coverage-normative), §4.1 |
+| Short **README** in the folder: **licensing**, **scope (in/out)**, **refresh policy** | [§3 Folder README](#3-folder-readme-normative) |
+| Optional folder (root README may still describe absence until Builder lands content) | [§2 Directory and presence](#2-directory-and-presence-normative), [§7 Cross-links from root `README`](#7-cross-links-from-root-readme-normative) |
+| Stub vs verbatim layout and **CI test** coupling | [§4.3](#43-index-files-vs-verbatim-snapshot-files-normative), [§8](#8-ci-and-automated-tests-normative) |
 
 **Related contracts:** Material MUST stay consistent with **[docs/MISSION.md](MISSION.md)** (this repo prepares spans for replayt-oriented workflows; **`replayt`** is not a runtime library dependency), **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** (import boundary and dev pin), **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** (**`ReadableSpan`** → **`PreparedSpanRecord`**), **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** (where to track **replayt** and OpenTelemetry releases), and **[docs/DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md)** (“Not a lever on core”).
 
@@ -22,7 +23,7 @@ This document refines the backlog item **“Populate `docs/reference-documentati
 ## 2. Directory and presence (normative)
 
 - All material for this backlog lives under **`docs/reference-documentation/`** at the repository root (same path the root **`README.md`** already names in the project layout table).
-- After the Builder completes this backlog, the directory **MUST** exist and **MUST NOT** be empty: it contains at least **`README.md`** per §3 and at least one additional **`.md`** file per §4–§5.
+- After the Builder completes this backlog, the directory **MUST** exist and **MUST NOT** be empty: it contains **`README.md`** per §3 and at least **two** additional **`.md`** files that satisfy §4.1 (**OpenTelemetry** index + **replayt** index), unless a future spec revision explicitly merges those roles into fewer files with the same topical coverage.
 - The folder remains **documentation-only**: no **`import`** hooks, no runtime code paths, no changes to **`[project].dependencies`** solely to satisfy this spec.
 
 ## 3. Folder README (normative)
@@ -66,6 +67,15 @@ The Builder **MAY** mix both strategies below; the combination MUST satisfy §5.
 - **Bounds:** Per-file **verbatim** third-party text SHOULD stay under **~800 lines** and **~60 KiB** (UTF-8) unless maintainers explicitly justify a larger excerpt in the folder README §3.3 refresh notes for that revision. The **entire** **`docs/reference-documentation/`** tree SHOULD stay under **~300 KiB** total unless a maintainer documents why a one-time larger drop was needed (for example a single upstream LICENSE copy).
 - Snapshots MUST be **trimmed** to passages that help this integration (for example **`SpanExporter`** interface description, export result semantics) — not whole upstream guides.
 
+### 4.3 Index files vs verbatim snapshot files (normative)
+
+The backlog title mentions **snapshot** markdown; **§4.1 stub indexes** (deep links + maintainer summaries, no verbatim upstream copy) **fully satisfy** the backlog when combined with §3 and §5 — **snapshots** (§4.2) are **optional** unless a separate backlog makes them mandatory.
+
+**Coupling to `tests/test_reference_documentation.py`:** As of the normative contract, that module requires the sentences **`## Licensing and attribution`**, **`## Scope (in / out)`**, and **`## Refresh policy`** (case-insensitive) in the folder **README**, and requires **`opentelemetry-python.md`** and **`replayt.md`** each to contain the exact line **`No third-party verbatim excerpts in this file.`** plus canonical **`https://`** links and §5 keywords. Therefore:
+
+- **Preferred (no test edits):** Keep **`opentelemetry-python.md`** and **`replayt.md`** **stub-only**. Place any **verbatim** upstream excerpts in **additional** **`.md`** files (same directory or a subdirectory such as **`snapshots/`**), each with a §6 attribution block. The existing total-size assertion applies to **all** **`*.md`** under **`docs/reference-documentation/`**.
+- **Alternative:** Embed verbatim text in **`opentelemetry-python.md`** and/or **`replayt.md`**. The Builder **MUST** update **`tests/test_reference_documentation.py`** in the **same** change set: drop or replace the stub-only line assertion for affected paths and add checks that §6 **attribution** fields (**`Source:`**, **`License:`**, snapshot date) appear in every file that contains verbatim upstream text.
+
 ## 5. Topical coverage (normative)
 
 Collectively, the markdown files in **`docs/reference-documentation/`** MUST make the following discoverable **from the tree** (by in-file text or by links opened from the index pages):
@@ -99,10 +109,22 @@ Until the Builder lands the folder, the README **MAY** keep wording that the che
 
 ## 8. CI and automated tests (normative)
 
-- **Default CI** (see **[docs/CI_SPEC.md](CI_SPEC.md)** §5) runs **`tests/test_reference_documentation.py`** with the full suite. That module performs **local** checks (no outbound HTTP): folder **README** sections for licensing, scope, and refresh policy; stub index disclaimers, canonical **`https://`** links, and keywords tied to §5; total tree size vs §4.2 guidance; and that **CI_SPEC** still names the test module.
+- **Default CI** (see **[docs/CI_SPEC.md](CI_SPEC.md)** §5) runs **`tests/test_reference_documentation.py`** with the full suite. That module performs **local** checks (no outbound HTTP): folder **README** sections for licensing, scope, and refresh policy; stub index disclaimers, canonical **`https://`** links, and keywords tied to §5; total tree size vs §4.2 guidance; and that **CI_SPEC** still names the test module. Behavior is aligned with **§4.3** (stub-only index files vs verbatim in separate files vs test updates).
 - **Optional follow-up:** A later backlog **MAY** add non-network or allow-listed **link liveness** checks; if so, update **[docs/CI_SPEC.md](CI_SPEC.md)** §5 in the **same** change set.
 
 ## 9. Verifiable acceptance checklist
+
+### 9.0 Backlog: seed `docs/reference-documentation/` (normative)
+
+These criteria restate the Mission Control backlog **“Seed `docs/reference-documentation/` with replayt + OTel snapshot markdown”** (**dda05c31-9820-45d0-9e56-e58625f1686f**) body into **testable** requirements. **Conformance** is demonstrated by **`tests/test_reference_documentation.py`** (no outbound HTTP), manual inspection of **`docs/reference-documentation/`**, and root **`README.md`** §7 when the folder is first landed.
+
+1. **`docs/reference-documentation/README.md`** satisfies **§3** (licensing and attribution; scope **in / out**; refresh policy), including explicit **out of scope** language so this folder does not replace **COMPATIBILITY** or **MISSION**.
+2. **OpenTelemetry Python** and **replayt** each have a dedicated index **`.md`** under the folder satisfying **§4.1** and **§5** (canonical **`https://`** links, maintainer-written “why this matters” prose, and discoverability of exporter / triage / dev-only **replayt** story).
+3. **License-appropriate content:** Any **verbatim** upstream text satisfies **§4.2** and **§6**; **stub-only** trees state the no-verbatim posture per **§3.1** and the index disclaimer per **§6** (last paragraph).
+4. **Bounded size:** The tree respects **§4.2** size guidance (enforced in CI by total **`*.md`** size under **`docs/reference-documentation/`**).
+5. Root **`README.md`** satisfies **§7** once the folder is present (reference section + project layout row for this spec).
+
+**Note:** If the checkout **already** satisfies §9.2 before this backlog starts, the Builder’s remaining work may be **verification only**, optional **§4.2** excerpts in **additional** files, or **README** tweaks — still subject to **§4.3** and CI.
 
 ### 9.1 Spec lead (reference-documentation backlog — contract landed)
 
