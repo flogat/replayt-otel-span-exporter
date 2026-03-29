@@ -59,7 +59,7 @@ Do not rely on a hand-maintained `requirements-ci.txt` unless the project later 
 
 **`pytest`** is run from the repository root so all collected tests run. Today tests live under **`tests/`**; if **`tests/integration/`** or similar is added later, it remains part of default discovery unless explicitly excluded.
 
-**Current layout (informative):** The suite includes module smoke, dependency checks (e.g. **`tests/test_init.py`**, **`tests/test_dependencies.py`**, **`tests/test_compatibility_contract.py`** for **`pyproject.toml`** / **`docs/COMPATIBILITY.md`** / **`ci.yml`** alignment, **`tests/test_release_metadata.py`** for PEP 440 **alpha** **`[project].version`**, changelog headings, and **`tests/test_release_packaging.py`** for **`python -m build`**, **`twine check`**, and clean-venv wheel install smoke per **[docs/SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** §2–§5), exporter skeleton coverage (**`tests/test_exporter.py`**, **`tests/test_records.py`**, **`tests/test_redaction.py`**) per **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** §4 and the **§6 verifiable acceptance checklist**, export failure behavior and tests per **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** **§6** and **§7**, triage metadata and attribute redaction tests per **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)** §5, optional **approval / audit hook** tests per **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)** §8 in **`tests/test_exporter.py`**, and **`tests/integration/`** for API-boundary checks. **`tests/integration/test_opentelemetry_api_usage.py`** covers the OpenTelemetry trace API only. **`tests/integration/test_replayt_boundary.py`** imports **`replayt`** per **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)**; other integration files that call **`replayt`** MUST follow the same spec. **README usage example:** **`tests/test_readme_usage_example.py`** loads **`tests/readme_usage_example_snippet.py`** per **[docs/SPEC_README_QUICK_START.md](SPEC_README_QUICK_START.md)** §4; if either filename changes, update this sentence in the same maintenance pass. **`tests/test_readme_integrator_install.py`** guards integrator **`pip install`** lines and **`[project].readme`** for release metadata (**[docs/SPEC_README_QUICK_START.md](SPEC_README_QUICK_START.md)** §2.1). CI runs the full **`pytest`** command in §5 with an install that includes **`replayt`** via the **`dev`** extra (see that spec). New tests stay in default **`pytest`** discovery unless this doc is updated. Treat this as the minimal “unit + integration” bar (see §6).
+**Current layout (informative):** The suite includes module smoke, dependency checks (e.g. **`tests/test_init.py`**, **`tests/test_dependencies.py`**, **`tests/test_compatibility_contract.py`** for **`pyproject.toml`** / **`docs/COMPATIBILITY.md`** / **`ci.yml`** alignment, **`tests/test_release_workflow_contract.py`** for **`release.yml`** / §8 optional OIDC release workflow, **`tests/test_release_metadata.py`** for PEP 440 **alpha** **`[project].version`**, changelog headings, and **`tests/test_release_packaging.py`** for **`python -m build`**, **`twine check`**, and clean-venv wheel install smoke per **[docs/SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** §2–§5), exporter skeleton coverage (**`tests/test_exporter.py`**, **`tests/test_records.py`**, **`tests/test_redaction.py`**) per **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** §4 and the **§6 verifiable acceptance checklist**, export failure behavior and tests per **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** **§6** and **§7**, triage metadata and attribute redaction tests per **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)** §5, optional **approval / audit hook** tests per **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)** §8 in **`tests/test_exporter.py`**, and **`tests/integration/`** for API-boundary checks. **`tests/integration/test_opentelemetry_api_usage.py`** covers the OpenTelemetry trace API only. **`tests/integration/test_replayt_boundary.py`** imports **`replayt`** per **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)**; other integration files that call **`replayt`** MUST follow the same spec. **README usage example:** **`tests/test_readme_usage_example.py`** loads **`tests/readme_usage_example_snippet.py`** per **[docs/SPEC_README_QUICK_START.md](SPEC_README_QUICK_START.md)** §4; if either filename changes, update this sentence in the same maintenance pass. **`tests/test_readme_integrator_install.py`** guards integrator **`pip install`** lines and **`[project].readme`** for release metadata (**[docs/SPEC_README_QUICK_START.md](SPEC_README_QUICK_START.md)** §2.1). CI runs the full **`pytest`** command in §5 with an install that includes **`replayt`** via the **`dev`** extra (see that spec). New tests stay in default **`pytest`** discovery unless this doc is updated. Treat this as the minimal “unit + integration” bar (see §6).
 
 **CI command (must stay equivalent unless this doc is updated):** after install,
 
@@ -84,6 +84,63 @@ and ensure CI runs the full suite (or document a deliberate subset in this file)
 
 **Codecov:** Upload uses **`fail_ci_if_error: false`** so missing tokens or fork PRs do not fail the workflow; coverage still uploads when Codecov accepts the report.
 
+## 8. Optional release workflow (OIDC trusted publishing)
+
+This section is the normative contract for **`.github/workflows/release.yml`**. The workflow is **optional**: it does **not** count toward [§7](#7-green-mainline-and-workflow-success) unless the organization adds the **`Release`** workflow (or a job from it) as a **required** check. Default merge health remains **`.github/workflows/ci.yml`**.
+
+Implementation file: **`.github/workflows/release.yml`**. Contract tests: **`tests/test_release_workflow_contract.py`**.
+
+### 8.1 Triggers and guards
+
+- **`workflow_dispatch`:** Maintainers start a run from the Actions UI and choose the ref (tag or branch) to build and upload.
+- **`push` of tags `v*`:** Pushing a version tag (for example **`v0.2.0a1`** for **`[project].version` `0.2.0a1`**) triggers a publish run for that ref.
+- Ordinary branch pushes (without a matching tag event) do **not** publish.
+- **`concurrency`:** Group **`release-${{ github.workflow }}-${{ github.ref }}`** with **`cancel-in-progress: false`** so two runs for the same ref are not interleaved; a newer run may queue instead of canceling an in-flight publish.
+
+### 8.2 Build, check, and upload steps
+
+- **Install (publish job only):** **`python -m pip install --upgrade pip`**, then **`pip install "build>=1.2.0" "twine>=5.0"`**. Do **not** run **`pip install -e ".[dev]"`** on the publish job: the release runner must not pull **`replayt`** or other **`[dev]`** pins ([§8.6](#86-runtime-deps-and-replayt)).
+- **Build:** **`rm -rf dist`**, then **`python -m build`** from the repository root (sdist + wheel).
+- **Check:** **`twine check dist/*`** MUST succeed before upload.
+- **Upload:** **`pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e`** (pinned commit; corresponds to **`release/v1`** at pin time) uploads **`dist/*`** to **PyPI** using OIDC (see [§8.3](#83-oidc-and-secrets-policy)).
+
+This sequence matches the pre-upload bar in **[docs/SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** §4 for teams that use this automation path.
+
+### 8.3 OIDC and secrets policy
+
+- **Workflow permissions:** **`contents: read`** and **`id-token: write`** on the publish job so GitHub can mint an OIDC token for trusted publishing. Do **not** store a long-lived **PyPI API token** in repository **Secrets** for the default PyPI path documented here.
+- **PyPI trusted publishing** exchanges that OIDC identity for a short-lived upload credential; configuration details live on PyPI’s trusted-publisher docs.
+- **Private indexes** (DevPI, Artifactory, etc.) often still need **long-lived credentials** or host-specific auth maintained outside this contract. OIDC as described here targets the **PyPI**-style flow.
+
+### 8.4 GitHub Environment `pypi` and PyPI trusted publisher alignment
+
+- **GitHub Environment name:** **`pypi`** (exact spelling). The publish job sets **`environment: name: pypi`**.
+- **Repository settings:** Create an environment named **`pypi`**. Add **protection rules** if the org wants a human gate (required reviewers, wait timer, deployment branches) before the job runs and OIDC is minted.
+- **On PyPI:** Register a **trusted publisher** for this repository that references:
+  - the **GitHub repository** (owner/name),
+  - workflow file **`release.yml`**,
+  - the **GitHub Environment** **`pypi`**.  
+  Names MUST match the workflow and settings above or uploads will fail at the registry.
+
+### 8.5 Optional TestPyPI lane
+
+This repository does **not** define a second job for **TestPyPI** in **`release.yml`**. If maintainers want a dry-run index, add a parallel trusted publisher + GitHub Environment (for example **`testpypi`**) and either a separate workflow file or an additional job, and extend **`tests/test_release_workflow_contract.py`** in the same change.
+
+### 8.6 Runtime deps and replayt
+
+**`replayt`** MUST remain only under **`[project.optional-dependencies]`** (for example the **`dev`** extra), not under **`[project].dependencies`**. The publish job’s minimal install ([§8.2](#82-build-check-and-upload-steps)) keeps **`replayt`** off the release runner and keeps the uploaded distributions aligned with runtime metadata.
+
+### 8.7 Rollback and recovery expectations
+
+| Situation | Recommended response |
+| --------- | -------------------- |
+| **Wrong files uploaded** | **Yank** the affected files on PyPI (or unpublish per index policy); cut a **new** version (bump **`[project].version`** and **CHANGELOG**) and publish from a **new tag** after fixing the tree. Do not reuse the same version for different artifacts. |
+| **Bad release tag points at broken commit** | Move maintenance forward: fix on **`master`**, tag a **new** patch/prerelease version, and publish that tag. Optionally delete the erroneous tag locally and on the remote only if the team agrees (deleting tags does not remove published wheels). |
+| **Run triggered by mistake** | **Disable** or **restrict** the **`pypi`** environment (remove approval, lock deployments), cancel the workflow if still running, and avoid pushing tags until the workflow is corrected. |
+| **OIDC / trusted-publisher mismatch** | Fix **PyPI** trusted-publisher settings or **GitHub** environment/workflow file name so they match [§8.4](#84-github-environment-pypi-and-pypi-trusted-publisher-alignment); no repo secret is required for the PyPI OIDC path. |
+
+These steps are operator guidance; registry and org policy may impose extra requirements.
+
 ## Optional jobs (recommended, not part of the minimal three backlog bullets)
 
 These align with **[docs/DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md)** (“Observable automation”) and existing docs:
@@ -97,7 +154,7 @@ If the workflow runs **`pytest --cov=...`** or uploads coverage (e.g. Codecov), 
 
 ## Non-goals (this backlog)
 
-- **Release publishing automation** in this workflow file (the **“Set up CI pipeline”** backlog does not require upload jobs or PyPI secrets). Requirements for the **“Publish first alpha release”** backlog live in **[docs/SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)**; if maintainers add a **`release`** or **`publish`** job later, update this document’s **Reference fingerprint** and §7 in the same change.
+- **Release publishing automation inside `ci.yml`:** The **“Set up CI pipeline”** backlog does not require upload jobs in the default PR workflow. Optional PyPI automation lives in **`release.yml`** and [§8](#8-optional-release-workflow-oidc-trusted-publishing). Release content requirements stay in **[docs/SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)**.
 - Deployment or secret-dependent integration tests against live services beyond **`pip-audit`** / install steps already described.
 - Defining replayt upstream release policy (see mission and design docs).
 
@@ -113,10 +170,12 @@ When **`pyproject.toml`** changes **`requires-python`** or dev dependencies, upd
 - **`test`**: **`actions/checkout@v3`**, **`actions/setup-python@v4`**, matrix **`python-version: ["3.11", "3.12"]`**, **`tomllib`** parse of **`pyproject.toml`**, **`pip install -e ".[dev]"`**, **`pytest --cov=replayt_otel_span_exporter --cov-report=xml`**, **`codecov/codecov-action@v3`** with **`./coverage.xml`** and **`fail_ci_if_error: false`**.
 - **`supply-chain`**: same Python matrix, checkout/setup/validate/install, then **`pip-audit --ignore-vuln CVE-2026-4539 --ignore-vuln CVE-2025-69872 --desc`**.
 - **`[project.optional-dependencies].dev`** includes **`build`** and **`twine`** so **`tests/test_release_packaging.py`** can run **`python -m build`** and **`twine check`** in CI.
+- **§8 release / OIDC:** **`.github/workflows/release.yml`** — **`workflow_dispatch`** and **`push`** of tags **`v*`**; **`concurrency`** group **`release-${{ github.workflow }}-${{ github.ref }}`** with **`cancel-in-progress: false`**; job **`publish`** uses GitHub Environment **`pypi`**, **`permissions: contents: read`** and **`id-token: write`**, **`actions/checkout@v3`**, **`actions/setup-python@v4`** with **`python-version: "3.12"`**, **`pip install "build>=1.2.0" "twine>=5.0"`** (no **`pip install -e ".[dev]"`**), **`rm -rf dist`**, **`python -m build`**, **`twine check dist/*`**, then **`pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e`** to **PyPI** (no TestPyPI job in-repo; maintainers may add a parallel trusted publisher + environment if needed per §8.4).
 
 Update this subsection when jobs, pins, or commands diverge.
 
 ### Known drift
 
 - **Lint job:** Recommended in [Optional jobs](#optional-jobs-recommended-not-part-of-the-minimal-three-backlog-bullets) but **not** implemented as its own job; **`ruff`** remains available via **`[dev]`** for local use.
+- **Release workflow:** [§8](#8-optional-release-workflow-oidc-trusted-publishing) is implemented as **`release.yml`** (optional; not part of §7 merge gate unless required checks are added).
 - **Otherwise:** The **test** matrix matches **`requires-python`** (**3.11** and **3.12**), **`pytest-cov`** is in **`[project.optional-dependencies].dev`**, and **`pytest --cov`** matches §5. Update this subsection whenever **`pyproject.toml`** or **`.github/workflows/ci.yml`** diverges from the acceptance criteria above.

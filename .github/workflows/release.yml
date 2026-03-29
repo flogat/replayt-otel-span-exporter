@@ -1,0 +1,58 @@
+# Optional PyPI publish via OIDC trusted publishing (docs/CI_SPEC.md §8).
+#
+# Triggers (guarded — no publish on ordinary branch pushes):
+#   - workflow_dispatch: pick ref in Actions UI; use for maintainer-driven releases.
+#   - push of tags matching v* (e.g. v0.2.0a1 for [project].version 0.2.0a1).
+#
+# GitHub Environment `pypi`: enable required reviewers / protection rules if your org
+# needs a human gate before OIDC minting. Approver: maintainer after version bump
+# and CHANGELOG for that version are merged (see docs/SPEC_FIRST_ALPHA_RELEASE.md).
+#
+# PyPI: add a trusted publisher for this repo, workflow file release.yml, and
+# environment name `pypi` (per docs/CI_SPEC.md §8.4).
+
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Install build tooling only
+        run: |
+          python -m pip install --upgrade pip
+          pip install "build>=1.2.0" "twine>=5.0"
+
+      - name: Clean dist and build sdist/wheel
+        run: |
+          rm -rf dist
+          python -m build
+
+      - name: Twine check
+        run: twine check dist/*
+
+      # Pinned SHA = tip of release/v1 at pin time; bump with care (supply chain).
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e
