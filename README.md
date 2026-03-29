@@ -13,8 +13,11 @@ This project builds on **[replayt](https://pypi.org/project/replayt/)**. Read
 
 ## Reference documentation (optional)
 
-This checkout does not yet include [`docs/reference-documentation/`](docs/reference-documentation/). You can add markdown
-copies of upstream replayt documentation there for offline review or agent context.
+This checkout may not yet include [`docs/reference-documentation/`](docs/reference-documentation/). When present, that
+tree holds stub index pages and/or bounded markdown excerpts for **OpenTelemetry Python** and **replayt** integration
+context. **Builder contract:** **[docs/SPEC_REFERENCE_DOCUMENTATION.md](docs/SPEC_REFERENCE_DOCUMENTATION.md)** (folder
+**README**: licensing, scope, refresh policy). Until the Builder lands the directory, use specs under **`docs/`** and
+**[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)** for upstream links.
 
 ## Quick start
 
@@ -118,6 +121,7 @@ local tooling entries. Adapt or remove optional directories to match your teamâ€
 | `docs/DESIGN_PRINCIPLES.md` | Design and integration principles |
 | `docs/CI_SPEC.md` | CI triggers, Python matrix, install path, and test expectations |
 | `docs/COMPATIBILITY.md` | Supported versions matrix, pin strategy, CI alignment, replayt release links |
+| `docs/SPEC_REFERENCE_DOCUMENTATION.md` | Contract for optional `docs/reference-documentation/` (stubs, snapshots, folder README) |
 | `docs/reference-documentation/` | Optional markdown snapshot for contributors (when present) |
 | `src/replayt_otel_span_exporter/` | Python package (import `replayt_otel_span_exporter`) |
 | `pyproject.toml` | Package metadata |

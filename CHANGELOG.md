@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- **[docs/SPEC_REFERENCE_DOCUMENTATION.md](docs/SPEC_REFERENCE_DOCUMENTATION.md)**: backlog **“Populate `docs/reference-documentation/` for offline replayt and OTel context”** — normative contract for optional stub indexes, bounded snapshots, folder **README** (licensing, scope, refresh policy), size bounds, and acceptance checklists (phase **2** spec).
+
 ### Added
 
 - **`.github/workflows/release.yml`**: optional **PyPI** publish via **OIDC** (trusted publishing): guarded **`workflow_dispatch`** and **`v*`** tag pushes, GitHub Environment **`pypi`**, **`python -m build`** + **`twine check`**, build-tooling-only install (no **`[dev]`**), **`pypa/gh-action-pypi-publish`** pinned to commit **`ed0c539`**. Documented in **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §8 Reference fingerprint.

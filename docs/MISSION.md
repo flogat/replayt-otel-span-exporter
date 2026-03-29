@@ -37,6 +37,7 @@ For implementation contracts, use the spec files linked from the [Scope](#scope)
 | **`opentelemetry-api`** + **`opentelemetry-sdk`** as declared dependencies | Full replayt workflow execution, storage backends, or network export |
 | Optional **approval / audit hooks** for **`ReplaytSpanExporter`** per **[SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)** (integrator policy gate; not an in-repo UI) | Interactive approval products, persistent audit stores, or **replayt** runtime dependency for gating |
 | **First alpha (and later) PyPI / private-index publishing** — versioning, changelog, artifact upload, and install verification per **[SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** | Organization-wide release platforms, signing policy beyond normal **`twine`** usage, or changing **replayt** runtime dependency policy without a separate backlog |
+| Optional **`docs/reference-documentation/`** — bounded upstream context and index pages per **[SPEC_REFERENCE_DOCUMENTATION.md](SPEC_REFERENCE_DOCUMENTATION.md)** | Full mirrors of upstream documentation sites; substituting this folder for **[COMPATIBILITY.md](COMPATIBILITY.md)** or **[MISSION.md](MISSION.md)** policy |
 | Unit/integration tests described in the specs below | Performance SLAs and advanced batching semantics |
 
 **Exception — replayt integration tests:** **[SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** allows declaring **`replayt`** under **`[project.optional-dependencies]`** (for example bundled into **`dev`**) so CI can prove the boundary. That does **not** by itself add **`replayt`** to **`[project].dependencies`** for library users.
@@ -60,6 +61,7 @@ These bullets are the **mission-level summary**; **[CI_SPEC.md](CI_SPEC.md)** is
   - **[SPEC_README_QUICK_START.md](SPEC_README_QUICK_START.md)** — README quick start, usage example, and CI proof via **`tests/test_readme_usage_example.py`** and **`tests/readme_usage_example_snippet.py`** (names recorded in **[CI_SPEC.md](CI_SPEC.md)** §5).
   - **[SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)** — optional **`ReplaytSpanExporter`** **`on_export_commit`** / **`on_export_audit`**, **`SpanExportResult.SUCCESS`** on policy denial, audit allow-list, and tests in **`tests/test_exporter.py`** per that spec §8.
   - **[SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** — first **alpha** prerelease to PyPI or a private index: PEP 440 **alpha** **`[project].version`**, **[CHANGELOG.md](../CHANGELOG.md)** release section, upload, and §5 install verification (optional **GitHub Actions** / OIDC: **[CI_SPEC.md](CI_SPEC.md) [§8](CI_SPEC.md#8-optional-release-workflow-oidc-trusted-publishing)** and **`release.yml`**).
+  - **[SPEC_REFERENCE_DOCUMENTATION.md](SPEC_REFERENCE_DOCUMENTATION.md)** — optional **`docs/reference-documentation/`** tree for contributor / agent context; **no** default **`pytest`** contract unless **[CI_SPEC.md](CI_SPEC.md)** §5 is extended for link or doc checks.
 - **Supply chain:** **`supply-chain`** job expectations and **`pip-audit`** ignore rules live in **[DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)** and **[CI_SPEC.md](CI_SPEC.md)** (optional jobs §).
 
 ## Success criteria
@@ -89,7 +91,7 @@ When pins or CI versions change, update **`COMPATIBILITY.md`** in the same maint
 | **Maintainers** | This file, **[CI_SPEC.md](CI_SPEC.md)**, **`DEPENDENCY_AUDIT.md`**, **[SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** (alpha / publish checklist), release notes in **[CHANGELOG.md](../CHANGELOG.md)** |
 | **Integrators** | Stable adapter surface, **[COMPATIBILITY.md](COMPATIBILITY.md)**, **[SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)**, README overview |
 | **Governance / compliance** (when applicable) | **[SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)** audit allow-list, **[SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** redaction, **[SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)** triage fields |
-| **Contributors** | README quick start, specs under **`docs/`**, tests under **`tests/`** |
+| **Contributors** | README quick start, specs under **`docs/`**, optional **`docs/reference-documentation/`** per **[SPEC_REFERENCE_DOCUMENTATION.md](SPEC_REFERENCE_DOCUMENTATION.md)**, tests under **`tests/`** |
 
 Extend audience rows in **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md)** when new stakeholder types appear.
 
