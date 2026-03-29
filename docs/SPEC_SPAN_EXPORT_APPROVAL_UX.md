@@ -121,6 +121,7 @@ The Builder **MUST** update:
 
 - **`README.md`** — Short subsection or bullet under exporter usage: optional approval hook, **SUCCESS on deny**, and pointer to this spec.
 - **`docs/MISSION.md`** and **`docs/CI_SPEC.md`** — Spec-to-suite mapping when tests land (see §8).
+- **`docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md`** — Integrator cookbook (informative): async-safe patterns, idempotency guidance, and examples that forward audit data using only §5.2 allow-listed fields (see §10).
 
 ## 8. Test contract (Builder)
 
@@ -145,3 +146,19 @@ Use this checklist in **Spec gate**, **Build gate**, and PR review.
 5. Threading: hook runs under the exporter’s buffer lock.
 6. README and mission / CI spec cross-links updated per §7.
 7. Automated tests cover §8 scenarios.
+8. **Integrator cookbook** — **[docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md](RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md)** exists, is linked from **§10** and the **[docs/MISSION.md](MISSION.md)** scope table, and addresses async-safe hook usage, idempotency for audit emission, and allow-list-only forwarding (no persistence of full prepared attribute maps).
+
+## 10. Integrator cookbook: `on_export_commit` and `on_export_audit` in production (informative)
+
+This section and **[docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md](RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md)** are **informative** guidance for integrators. **§4–§5** remain the normative hook and audit contract.
+
+**Read next:** **[RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md](RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md)** — async-safe patterns, idempotency when writing audit events to an integrator-owned sink, and copy-only examples that never store or ship **`PreparedSpanRecord.attributes`** or arbitrary attribute strings.
+
+### Backlog acceptance criteria (spec phase — “Integrator cookbook”)
+
+| Criterion | Evidence |
+| --------- | -------- |
+| Async-safe patterns documented | Recipe explains synchronous hook contract vs async application code; no blocking I/O or **`await`** inside hooks; recommended snapshots / queues. |
+| Idempotency guidance | Recipe describes duplicate / overlapping **`export`** calls and safe deduplication strategies using only allow-listed fields (and optional integrator-generated correlation). |
+| Audit sink examples use allow list only | Recipe shows explicit field copying or **`TypedDict`**-style handling aligned with §5.2; **forbids** persisting or forwarding **`prepared`** sequences or full attribute maps. |
+| Discoverable from mission scope | **[docs/MISSION.md](MISSION.md)** scope table links to the recipe and this §10. |

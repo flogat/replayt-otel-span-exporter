@@ -5,7 +5,7 @@
 This project builds on **[replayt](https://pypi.org/project/replayt/)**. Read
 **[docs/REPLAYT_ECOSYSTEM_IDEA.md](docs/REPLAYT_ECOSYSTEM_IDEA.md)** for positioning options, then
 **[docs/MISSION.md](docs/MISSION.md)** for scope and goals. Backlog-driven contracts live in specs such as
-**[docs/SPEC_OTEL_EXPORTER_SKELETON.md](docs/SPEC_OTEL_EXPORTER_SKELETON.md)**, **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** (logging and redaction on export failure), **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](docs/SPEC_EXPORT_TRIAGE_METADATA.md)** (**`workflow_id`** / **`step_id`** triage fields and **`[REDACTED]`** sensitive attribute values on prepared records), **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md)** (optional integrator approval hook and audit visibility for span export), and **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](docs/SPEC_REPLAYT_INTEGRATION_TESTS.md)** (replayt boundary contract; tests in **`tests/integration/test_replayt_boundary.py`**), and **[docs/SPEC_FIRST_ALPHA_RELEASE.md](docs/SPEC_FIRST_ALPHA_RELEASE.md)** (first **alpha** PyPI or private-index publish: versioning, changelog, verification).
+**[docs/SPEC_OTEL_EXPORTER_SKELETON.md](docs/SPEC_OTEL_EXPORTER_SKELETON.md)**, **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** (logging and redaction on export failure), **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](docs/SPEC_EXPORT_TRIAGE_METADATA.md)** (**`workflow_id`** / **`step_id`** triage fields and **`[REDACTED]`** sensitive attribute values on prepared records), **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md)** (optional integrator approval hook and audit visibility for span export), **[docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md](docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md)** (production patterns for those hooks), and **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](docs/SPEC_REPLAYT_INTEGRATION_TESTS.md)** (replayt boundary contract; tests in **`tests/integration/test_replayt_boundary.py`**), and **[docs/SPEC_FIRST_ALPHA_RELEASE.md](docs/SPEC_FIRST_ALPHA_RELEASE.md)** (first **alpha** PyPI or private-index publish: versioning, changelog, verification).
 
 ## Design principles
 
@@ -82,7 +82,7 @@ to the OpenTelemetry SDK (policy outcome, not a transport failure) and does not 
 batch. Optional **`on_export_audit`** receives a small typed event with allow-listed fields
 (decision, counts, first-record ids, **`workflow_id`** / **`step_id`** when present); it runs
 only together with **`on_export_commit`** (passing **`on_export_audit`** alone has no effect).
-Without a hook, behavior matches the default path above. Full rules: **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md)**.
+Without a hook, behavior matches the default path above. Full rules: **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md)**. For async-safe deferral, idempotent audit emission, and forwarding only allow-listed audit fields (not full prepared attribute maps), see **[docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md](docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md)**.
 
 ## Continuous integration
 
@@ -114,6 +114,7 @@ local tooling entries. Adapt or remove optional directories to match your team�
 | `docs/SPEC_REPLAYT_INTEGRATION_TESTS.md` | Replayt integration boundary — scenarios, pins, CI, `test_replayt_boundary.py` |
 | `docs/SPEC_README_QUICK_START.md` | README quick start, usage example, and CI proof (`test_readme_usage_example.py`) — Builder contract |
 | `docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md` | Optional approval hook, audit signals, and tests for `ReplaytSpanExporter` — Builder contract |
+| `docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md` | Integrator cookbook: production use of `on_export_commit` / `on_export_audit` (async-safe, idempotency, allow-list audit) |
 | `docs/DESIGN_PRINCIPLES.md` | Design and integration principles |
 | `docs/CI_SPEC.md` | CI triggers, Python matrix, install path, and test expectations |
 | `docs/COMPATIBILITY.md` | Supported versions matrix, pin strategy, CI alignment, replayt release links |
