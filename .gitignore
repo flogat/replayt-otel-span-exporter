@@ -7,9 +7,10 @@ __pycache__/
 *$py.class
 *.so
 .Python
-build/
+# Root-only sdist/wheel dirs (avoid hiding nested docs/examples/*/dist)
+/build/
 develop-eggs/
-dist/
+/dist/
 downloads/
 eggs/
 .eggs/
@@ -36,3 +37,6 @@ ENV/
 .coverage
 htmlcov/
 coverage.xml
+
+# Node / npm (nested examples or JS tooling)
+node_modules/
