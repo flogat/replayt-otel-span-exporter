@@ -1,6 +1,6 @@
 # Specification: Replayt integration tests
 
-This document refines the backlog item **“Add replayt integration tests”** into testable requirements. **Production code and tests** belong in **`src/replayt_otel_span_exporter/`** and **`tests/`**; this file is the contract for what “done” means for that item.
+This document refines the backlog items **“Add replayt integration tests”** and **“Strengthen replayt boundary tests for pin bumps and contract drift”** into testable requirements. **Production code and tests** belong in **`src/replayt_otel_span_exporter/`** and **`tests/`**; this file is the contract for what “done” means for those items.
 
 It complements **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** (OTel → **`PreparedSpanRecord`**) by defining how the suite proves compatibility at the **replayt** import boundary. It does **not** require replayt as a **runtime** dependency for library users unless a later backlog promotes that.
 
@@ -12,10 +12,20 @@ It complements **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELET
 | Tests run successfully with **`pytest`** | [§5 Local and CI invocation](#5-local-and-ci-invocation) |
 | CI configuration includes these tests | [§5 Local and CI invocation](#5-local-and-ci-invocation), **[docs/CI_SPEC.md](CI_SPEC.md)** §5 |
 
+**Strengthen replayt boundary tests for pin bumps and contract drift:**
+
+| Theme | Satisfied by (this doc) |
+| ----- | ------------------------ |
+| How **`replayt`** version bumps are validated in CI | [§5.1](#51-how-replayt-pin-bumps-are-validated-in-ci-normative), **[docs/CI_SPEC.md](CI_SPEC.md)** §5, **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §3–§4 |
+| Import and IR / payload contract regressions | [§4.4](#44-import-surface-contract), [§4.5](#45-prepared-span-record--replayt-payload-contract), [§7](#7-implemented-boundary-concrete-api-under-test) |
+| Reliable **`pytest`** collection after **`pip install -e ".[dev]"`** | [§3](#3-placement-and-discovery), [§4.4](#44-import-surface-contract), [§6](#6-verifiable-acceptance-checklist) |
+
 ## 1. Goals
 
 - Exercise **at least one documented replayt public API** using data that originates from a real OpenTelemetry SDK span flowing through **`ReplaytSpanExporter`** (see skeleton spec §4).
 - Keep failures **actionable**: if replayt changes its consumer contract, CI should point to the boundary test and the pinned version policy.
+- Make **pin bumps** safe: when maintainers raise the **`replayt`** lower bound on the **`dev`** extra, default CI MUST prove that imports, **`PreparedSpanRecord`** shape, and the chosen replayt API still align (see §5.1).
+- Keep **default collection** honest: with the documented **`dev`** install, **`pytest`** MUST collect **`tests/integration/test_replayt_boundary.py`** without import-time surprises that only appear mid-run (see §3 and §4.4).
 
 ## 2. Definitions
 
@@ -26,6 +36,8 @@ It complements **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELET
 
 - New tests MUST live under **`tests/integration/`** with filenames that make the intent obvious (for example **`test_replayt_boundary.py`**).
 - Tests MUST be collected by the **default** **`pytest`** invocation from the repository root (no extra path arguments required for CI). If the project later introduces markers, **`pytest.mark.replayt`** MAY be added for **optional** local filtering; **CI MUST still run the full suite** (including replayt tests) on every matrix cell unless **[docs/CI_SPEC.md](CI_SPEC.md)** is explicitly revised with a justified subset.
+- **Collection reliability (`pip install -e ".[dev]"`):** After the documented dev install, importing **`tests.integration.test_replayt_boundary`** MUST succeed whenever **`replayt`** resolves for that environment. The Builder MUST NOT wrap **`import replayt`** (or required submodules) in **`pytest.importorskip`**, broad **`try` / `except ImportError`** that turns missing replayt into **skipped** tests, or other patterns that let the default CI job **skip** the boundary module while still exiting **0**. Missing **`replayt`** on a machine **without** the **`dev`** extra is expected to fail at **install** or **collection** with a clear error — not a silent pass.
+- **Import layout:** Required **`replayt`** symbols used by the suite SHOULD be imported at **module level** in **`test_replayt_boundary.py`** (or a thin companion module collected with it) so **renamed modules, removed exports, or incompatible transitive pins** surface as **collection errors** (`pytest` exit code **2**) or **import errors** with stack traces that name **`replayt`**, not as unrelated assertion failures deep inside a test body.
 
 ## 4. Minimum test scenarios
 
@@ -46,6 +58,21 @@ The Builder MUST implement **all** of the following. Exact assertion shapes foll
 
 - Missing **`replayt`** on the install path MUST surface as a **failed** install or **import error** during test collection or execution — **not** a silent skip — unless the repository adopts a **documented** optional CI job (not the default today). Default policy: **`replayt`** is required for the standard **`dev`** / CI install.
 
+### 4.4 Import surface contract
+
+- The integration module MUST **import every replayt entry point** listed in §7 **Public entry point(s)** (modules / types / callables the test relies on) at import or collection time, consistent with §3.
+- If upstream **moves or renames** a required symbol, CI MUST fail until maintainers update §7, **`docs/DEPENDENCY_AUDIT.md`**, and the test imports in the **same** change set (see §5.1 maintenance pass).
+
+### 4.5 PreparedSpanRecord → replayt payload contract
+
+- The **`dict`** (or equivalent structure) passed into replayt MUST include at least the keys documented in §7 **Data passed across the boundary**, with values consistent with **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** for **`PreparedSpanRecord`** (**`trace_id`**, **`span_id`**, **`name`**, **`kind`**, timestamps, **`attributes`**, **`workflow_id`**, **`step_id`**) and **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)** for triage fields.
+- The Builder MUST add or tighten assertions so that **wrong types, missing keys, or accidental mutation** of the payload fails the test (regression signal for IR or exporter drift, not only replayt-side changes).
+- Where **`attributes`** is passed, the test MUST reflect **mapping** semantics the exporter actually produces (for example **`dict(rec.attributes)`** or the type **`ReplaytSpanExporter`** exposes) so shallow-copy / mutation bugs are caught.
+
+### 4.6 Installed `replayt` version sanity (recommended)
+
+- The suite SHOULD assert that the **installed** **`replayt`** distribution version satisfies the **same** lower bound as **`[project.optional-dependencies].dev`** in **`pyproject.toml`** (for example via **`importlib.metadata.version("replayt")`** compared to the documented minimum in §7), so resolver or environment drift does not silently run against an **older** replayt than policy while still importing a subset of APIs.
+
 ## 5. Local and CI invocation
 
 - **`[project].dependencies`** MUST remain free of **`replayt`** for this backlog unless a separate item promotes it to runtime (see **[docs/MISSION.md](MISSION.md)** scope table).
@@ -53,16 +80,27 @@ The Builder MUST implement **all** of the following. Exact assertion shapes foll
 - The documented install path for contributors and CI MUST install **`replayt`** without a second manual step. Today that means extending the **`pip install -e ".[dev]"`** line (or the equivalent documented in **[docs/CI_SPEC.md](CI_SPEC.md)**) so the integration tests always run in **`pytest`** on PRs and pushes.
 - When pins change, update **`docs/DEPENDENCY_AUDIT.md`** and **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** in the same maintenance pass (see §6 checklist).
 
+### 5.1 How `replayt` pin bumps are validated in CI (normative)
+
+Default CI does **not** use a separate “replayt only” job: the boundary is proven by the same bar as the rest of the suite.
+
+1. **Install:** On every **Python** matrix cell in **`.github/workflows/ci.yml`**, the **`test`** job runs **`pip install -e ".[dev]"`** per **[docs/CI_SPEC.md](CI_SPEC.md)** §4 so **`replayt`** resolves according to **`pyproject.toml`** **`[project.optional-dependencies].dev`** (lower bound + resolver).
+2. **Collection + run:** The job then runs **`pytest --cov=replayt_otel_span_exporter --cov-report=xml`** from the repository root per **[docs/CI_SPEC.md](CI_SPEC.md)** §5. That command MUST **collect** **`tests/integration/test_replayt_boundary.py`** and execute its tests successfully. A **collection error** (exit code **2**) or **failed** boundary test blocks merge like any other test failure.
+3. **What a bump proves:** Raising or lowering the **`replayt`** lower bound in **`pyproject.toml`** is valid only if the above steps stay green on **all** matrix Pythons. That is the project’s primary signal that §7 APIs, §4 payload shape, and **replayt**’s types still agree.
+4. **Maintenance pass when the pin or boundary changes:** In one coherent change set (or linked PRs per team policy), update **`pyproject.toml`** **`dev`** **`replayt`** specifier, §7 (**minimum version**, **public entry point(s)**, **data passed across the boundary** if needed), **`docs/DEPENDENCY_AUDIT.md`** (Test / integration: **replayt** row), **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §2 / §3 as applicable, and **[docs/CI_SPEC.md](CI_SPEC.md)** **Reference fingerprint** if install commands or matrix wording change. Do not merge a pin-only edit that leaves §7 or **COMPATIBILITY** describing a different minimum.
+
 ## 6. Verifiable acceptance checklist
 
-Use this checklist in **Spec gate**, **Build gate**, and PR review for the **“Add replayt integration tests”** backlog.
+Use this checklist in **Spec gate**, **Build gate**, and PR review for **replayt** integration and **boundary hardening** backlogs.
 
 1. At least one file under **`tests/integration/`** imports **`replayt`** and is named so reviewers can find it quickly.
 2. §4.1 and §4.2 scenarios are covered by automated tests; failures clearly indicate OTel/IR vs replayt-boundary issues where practical.
-3. **`replayt`** appears only in **optional** dependencies (or **`dev`**) in **`pyproject.toml`**, not in **`[project].dependencies`**, unless mission scope is explicitly updated elsewhere.
-4. **`docs/DEPENDENCY_AUDIT.md`** includes a **Test / integration: replayt** row with the version policy and rationale.
-5. §7 **Implemented boundary** is filled in with concrete modules, symbols, and minimum version — no placeholders left at merge.
-6. Default CI (**[docs/CI_SPEC.md](CI_SPEC.md)**) runs **`pytest`** in a way that collects the new tests on every **Python** version in the **`ci.yml`** matrix (see **Reference fingerprint** there) without extra flags.
+3. §4.4–§4.6: import surface and **`PreparedSpanRecord`** → replayt payload contracts are covered as specified (§4.6 is recommended but SHOULD be implemented unless a short justification is recorded in **`docs/DEPENDENCY_AUDIT.md`**).
+4. §3 **Collection reliability:** no **`importorskip`** / silent skip for **`replayt`** on the default **`dev`** / CI path; module-level imports fail fast when §7 entry points break.
+5. **`replayt`** appears only in **optional** dependencies (or **`dev`**) in **`pyproject.toml`**, not in **`[project].dependencies`**, unless mission scope is explicitly updated elsewhere.
+6. **`docs/DEPENDENCY_AUDIT.md`** includes a **Test / integration: replayt** row with the version policy and rationale.
+7. §7 **Implemented boundary** is filled in with concrete modules, symbols, and minimum version — no placeholders left at merge.
+8. Default CI (**[docs/CI_SPEC.md](CI_SPEC.md)**) runs **`pytest`** in a way that collects **`tests/integration/test_replayt_boundary.py`** on every **Python** version in the **`ci.yml`** matrix (see **Reference fingerprint** there) without extra flags; see §5.1 for pin-bump interpretation.
 
 ## 7. Implemented boundary (concrete API under test)
 
@@ -75,6 +113,7 @@ The bullets below record the API exercised by **`tests/integration/test_replayt_
   - **`replayt.workflow.Workflow`** — minimal one-step workflow for the smoke run.
   - **`replayt.persistence.sqlite.SQLiteStore`** — durable store implementation used only so **`Runner`** can complete a real run (file-backed temp DB in tests).
   - **`replayt.testing.DryRunLLMClient`** — no-network LLM client so the workflow run does not need API keys.
+  - **`replayt.types.LogMode`** — passed to **`Runner`** as **`log_mode`** (for example **`LogMode.redacted`**) so CI logs stay bounded.
 - **Data passed across the boundary:** A plain **`dict`** built from **`PreparedSpanRecord`** (**`trace_id`**, **`span_id`**, **`name`**, **`kind`**, **`start_time_unix_nano`**, **`end_time_unix_nano`**, **`attributes`**, **`workflow_id`**, **`step_id`**) is written with **`RunContext.set("otel_span", ...)`** inside **`Runner`**’s **`before_step`** callback; the step handler reads it with **`get`** and asserts equality. **`workflow_id`** / **`step_id`** mirror the record fields (each may be **`None`**). **`tests/integration/test_replayt_boundary.py`** covers this shape per **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)**.
 - **What “success” means at the boundary:** No **`ContextSchemaError`** or type errors from replayt; the step sees the same mapping; **`Runner.run()`** returns **`RunResult`** with **`status == "completed"`**.
 
@@ -87,5 +126,5 @@ The bullets below record the API exercised by **`tests/integration/test_replayt_
 ## Implementation notes for Builder / Maintainer
 
 - Prefer **stable, documented** replayt APIs over private attributes; if only unstable hooks exist, document the risk in **`docs/DEPENDENCY_AUDIT.md`** and keep the boundary test narrow.
-- If replayt’s packaging or API diverges between Python versions, align with the CI matrix in **`docs/CI_SPEC.md`** or extend the matrix in the same change.
+- If replayt’s packaging or API diverges between Python versions, **match** the CI matrix in **`docs/CI_SPEC.md`** or extend the matrix in the same change.
 - When this spec and **`docs/MISSION.md`** diverge from **`pyproject.toml`** or CI, update **code and docs** in the same maintenance pass.
