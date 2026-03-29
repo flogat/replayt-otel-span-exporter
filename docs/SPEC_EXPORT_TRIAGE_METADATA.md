@@ -82,7 +82,7 @@ The mapper **SHOULD** build the serialized attribute dict first, then apply §3.
 
 ### 3.4 DEBUG / logging
 
-**`SPEC_SPAN_EXPORT_FAILURE_HANDLING`** already forbids dumping full attribute maps on failure logs. This spec **does not** authorize logging raw pre-redaction attributes at **INFO** or higher. **`DEBUG`** traces, if added later, **MUST** still respect §3.2 unless a future spec explicitly relaxes that.
+**`SPEC_SPAN_EXPORT_FAILURE_HANDLING`** already forbids dumping full attribute maps on failure logs and (§5.4) **requires** truncation and control stripping for untrusted strings on failure paths. This spec **does not** authorize logging raw pre-redaction attributes at **INFO** or higher. **`DEBUG`** traces, if added later, **MUST** still respect §3.2 unless a future spec explicitly relaxes that.
 
 ## 4. Relationship to other specs
 

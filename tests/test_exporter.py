@@ -300,6 +300,96 @@ def test_exporter_approval_hook_failure_returns_failure_no_partial_append(caplog
     assert errors
     assert "approval hook" in errors[0].getMessage().lower()
     assert errors[0].exc_info is not None
+    assert getattr(errors[0], "exc_message") == "hook exploded"
+
+
+def test_exporter_failure_log_truncates_exception_message_to_1024_code_points(
+    caplog, monkeypatch
+):
+    """SPEC_SPAN_EXPORT_FAILURE_HANDLING §6 item 4 — exception text capped in msg/extra."""
+    from replayt_otel_span_exporter import exporter as exporter_mod
+
+    tail = "TAIL_MARKER_EXPORT_FAIL"
+    long_body = "M" * 1024 + tail
+
+    def _fail(_span):
+        raise RuntimeError(long_body)
+
+    monkeypatch.setattr(exporter_mod, "prepared_span_record_from_readable", _fail)
+
+    caplog.set_level(logging.ERROR, logger="replayt_otel_span_exporter.exporter")
+    exporter = ReplaytSpanExporter()
+    assert exporter.export([MagicMock()]) is SpanExportResult.FAILURE
+
+    errors = [r for r in caplog.records if r.levelno == logging.ERROR]
+    exc_message = getattr(errors[0], "exc_message")
+    assert len(exc_message) <= exporter_mod._MAX_LOG_EXCEPTION_MESSAGE_CHARS
+    assert tail not in exc_message
+    primary = errors[0].getMessage()
+    assert tail not in primary
+    assert len(primary) <= len("Span export failed while preparing records: ") + 1024
+
+
+def test_exporter_failure_log_strips_lf_cr_and_c1_from_exception_in_msg_and_extra(
+    caplog, monkeypatch
+):
+    """SPEC_SPAN_EXPORT_FAILURE_HANDLING §6 item 5 — controls absent from msg/extra (not traceback)."""
+    from replayt_otel_span_exporter import exporter as exporter_mod
+
+    poison = "preamble\nmiddle\r\u0085end"
+
+    def _fail(_span):
+        raise RuntimeError(poison)
+
+    monkeypatch.setattr(exporter_mod, "prepared_span_record_from_readable", _fail)
+
+    caplog.set_level(logging.ERROR, logger="replayt_otel_span_exporter.exporter")
+    exporter = ReplaytSpanExporter()
+    assert exporter.export([MagicMock()]) is SpanExportResult.FAILURE
+
+    errors = [r for r in caplog.records if r.levelno == logging.ERROR]
+    rec = errors[0]
+    exc_message = getattr(rec, "exc_message")
+    primary = rec.getMessage()
+    assert "\n" not in exc_message
+    assert "\r" not in exc_message
+    assert "\u0085" not in exc_message
+    assert "\n" not in primary
+    assert "\r" not in primary
+    assert "\u0085" not in primary
+
+
+def test_exporter_failure_log_truncates_span_name_to_256_code_points(
+    caplog, monkeypatch
+):
+    """SPEC_SPAN_EXPORT_FAILURE_HANDLING §6 item 6 — logged span name capped."""
+    from replayt_otel_span_exporter import exporter as exporter_mod
+
+    long_prefix = "S" * 256
+    unique_suffix = "UNIQUE_SPAN_NAME_SUFFIX_9931"
+    long_name = long_prefix + unique_suffix
+
+    def _fail(_span):
+        raise RuntimeError("mapper failed")
+
+    monkeypatch.setattr(exporter_mod, "prepared_span_record_from_readable", _fail)
+
+    caplog.set_level(logging.ERROR, logger="replayt_otel_span_exporter.exporter")
+    collector = _ReadableSpanCollector()
+    provider = TracerProvider()
+    provider.add_span_processor(collector)
+    tracer = provider.get_tracer(__name__)
+    with tracer.start_as_current_span(long_name):
+        pass
+
+    exporter = ReplaytSpanExporter()
+    assert exporter.export(collector.spans) is SpanExportResult.FAILURE
+
+    errors = [r for r in caplog.records if r.levelno == logging.ERROR]
+    logged_name = getattr(errors[0], "span_name")
+    assert len(logged_name) <= exporter_mod._MAX_LOG_SPAN_NAME_CHARS
+    assert unique_suffix not in logged_name
+    assert logged_name == long_prefix
 
 
 def test_exporter_approval_shutdown_does_not_invoke_hook():
