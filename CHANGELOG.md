@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Export failure logging:** Exception messages and span names in **`ReplaytSpanExporter`** failure logs are **C0 / C1 control-stripped** (replaced with spaces) and **truncated** to **1024** and **256** Unicode code points respectively, with matching **`exc_message`** / **`span_name`** string fields in log **`extra`**; see **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** §5.4. Backlog **“Audit exporter logging for injection and oversized fields on failure paths”**, phase **3** build.
+
 ### Documentation
 
 - **Export failure logging (spec audit):** **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** — backlog **“Audit exporter logging for injection and oversized fields on failure paths”**, phase **2** spec: normative **`attribute_key_is_sensitive`** alignment for key checks (**§5.1**), untrusted exception / span-name handling (**§5.2**), **§5.4** truncation (**1024** / **256** code points) and **C0 / C1** control stripping, expanded **§6** test contract (items **4–6**) and **§7** checklist; cross-links from **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](docs/SPEC_EXPORT_TRIAGE_METADATA.md)** **§3.4**, **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §5, and **[docs/MISSION.md](docs/MISSION.md)** spec-to-suite mapping.

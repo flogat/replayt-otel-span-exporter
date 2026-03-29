@@ -17,6 +17,11 @@ from replayt_otel_span_exporter.records import (
 )
 from replayt_otel_span_exporter.redaction import attribute_key_is_sensitive
 
+# Log-pipeline bounds for untrusted strings (Unicode code points); see
+# docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md §5.4.
+_MAX_LOG_EXCEPTION_MESSAGE_CHARS = 1024
+_MAX_LOG_SPAN_NAME_CHARS = 256
+
 _LOGGER = logging.getLogger(__name__)
 _AUDIT_LOGGER = logging.getLogger(f"{__name__}.audit")
 
@@ -50,6 +55,29 @@ class ExportAuditCallback(Protocol):
         ...
 
 
+def _sanitize_log_string(value: str | None, max_chars: int) -> str:
+    """Strip C0/C1 controls (replace with space), then truncate by code points.
+
+    Used for exception text, span names, and other integrator-supplied strings
+    placed in export-failure log lines or string ``extra=`` fields. Stack traces
+    from ``exc_info`` are not passed through this helper. See
+    **docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md** §5.4.
+    """
+    if not value:
+        return ""
+    out_chars: list[str] = []
+    for ch in value:
+        o = ord(ch)
+        if o <= 0x1F or 0x7F <= o <= 0x9F:
+            out_chars.append(" ")
+        else:
+            out_chars.append(ch)
+    s = "".join(out_chars)
+    if len(s) > max_chars:
+        s = s[:max_chars]
+    return s
+
+
 def _build_audit_event(
     decision: Literal["allow", "deny"],
     prepared: Sequence[PreparedSpanRecord],
@@ -78,13 +106,16 @@ def _log_approval_hook_failure(
     span_count: int,
     prepared_count: int,
 ) -> None:
+    exc_message = _sanitize_log_string(str(exc), _MAX_LOG_EXCEPTION_MESSAGE_CHARS)
     extra: dict[str, object] = {
         "span_count": span_count,
         "prepared_count": prepared_count,
         "exc_type": type(exc).__name__,
+        "exc_message": exc_message,
     }
     _LOGGER.error(
-        "Span export failed in approval hook",
+        "Span export failed in approval hook: %s",
+        exc_message,
         extra=extra,
         exc_info=exc,
     )
@@ -98,9 +129,11 @@ def _log_export_failure(
     span: object | None,
 ) -> None:
     """Emit ERROR with exception info and safe structured fields (no attribute maps)."""
+    exc_message = _sanitize_log_string(str(exc), _MAX_LOG_EXCEPTION_MESSAGE_CHARS)
     extra: dict[str, object] = {
         "span_count": span_count,
         "exc_type": type(exc).__name__,
+        "exc_message": exc_message,
     }
     if failed_span_index is not None:
         extra["failed_span_index"] = failed_span_index
@@ -112,7 +145,9 @@ def _log_export_failure(
         else:
             extra["trace_id"] = format_trace_id(0)
             extra["span_id"] = format_span_id(0)
-        extra["span_name"] = span.name
+        extra["span_name"] = _sanitize_log_string(
+            span.name or "", _MAX_LOG_SPAN_NAME_CHARS
+        )
         extra["span_kind"] = span.kind.name
         attrs = span.attributes
         if attrs:
@@ -120,7 +155,8 @@ def _log_export_failure(
                 attribute_key_is_sensitive(str(k)) for k in attrs
             )
     _LOGGER.error(
-        "Span export failed while preparing records",
+        "Span export failed while preparing records: %s",
+        exc_message,
         extra=extra,
         exc_info=exc,
     )
