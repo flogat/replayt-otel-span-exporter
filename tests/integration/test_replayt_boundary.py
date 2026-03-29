@@ -40,12 +40,24 @@ _BOUNDARY_PAYLOAD_KEYS = frozenset(
 
 
 def _pyproject_replayt_requirement() -> Requirement:
+    """§4.6 — single policy string from pyproject (normalized name must be replayt, exactly once)."""
     root = Path(__file__).resolve().parents[2]
     with (root / "pyproject.toml").open("rb") as f:
         data = tomllib.load(f)
     dev = data["project"]["optional-dependencies"]["dev"]
-    line = next(d for d in dev if d.strip().lower().startswith("replayt"))
-    return Requirement(line)
+    matches: list[Requirement] = []
+    for entry in dev:
+        raw = entry.strip()
+        if not raw or raw.startswith("#"):
+            continue
+        req = Requirement(raw)
+        if req.name == "replayt":
+            matches.append(req)
+    assert len(matches) == 1, (
+        "expected exactly one line in [project.optional-dependencies].dev whose "
+        f"normalized dependency name is replayt, found {len(matches)}"
+    )
+    return matches[0]
 
 
 def _assert_boundary_payload_matches_record(
@@ -83,9 +95,8 @@ def _assert_boundary_payload_matches_record(
 
 
 def test_installed_replayt_satisfies_pyproject_lower_bound():
-    """§4.6 — installed replayt must match the dev extra specifier (pin / env drift guard)."""
+    """§4.6 — installed replayt must satisfy the dev extra Requirement (pin / env drift guard)."""
     req = _pyproject_replayt_requirement()
-    assert req.name == "replayt"
     installed = Version(distribution_version("replayt"))
     assert req.specifier.contains(installed, prereleases=True)
 
