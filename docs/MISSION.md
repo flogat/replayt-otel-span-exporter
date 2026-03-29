@@ -79,7 +79,7 @@ These bullets are the **mission-level summary**; **[CI_SPEC.md](CI_SPEC.md)** is
 | Component | Policy (summary) |
 | --------- | ---------------- |
 | **Python** | **`requires-python`** in **`pyproject.toml`** (currently **≥ 3.11**); CI matrix (**3.11** / **3.12** / **3.13**) is described in **[CI_SPEC.md](CI_SPEC.md)** and **[COMPATIBILITY.md](COMPATIBILITY.md)** §4–§4.1. |
-| **OpenTelemetry** | **`opentelemetry-api`** and **`opentelemetry-sdk`** lower bounds in **`pyproject.toml`**; rationale in **`DEPENDENCY_AUDIT.md`**. |
+| **OpenTelemetry** | **`opentelemetry-api`** and **`opentelemetry-sdk`** — **lower bounds only** in **`pyproject.toml`** (no runtime **`<`** cap); **CI** floats to newest compatible **1.x** on each **`pip install -e ".[dev]"`**. Policy and integrator pinning: **[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)**; audit context: **[docs/DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)**. |
 | **replayt** | **Not** a runtime dependency unless a backlog promotes it. **Dev / CI** lower bound on the **`dev`** extra; boundary and minimum version in **[SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** §7. |
 
 When pins or CI versions change, update **`COMPATIBILITY.md`** in the same maintenance pass as **`pyproject.toml`** and **`CI_SPEC.md`** (reference fingerprint).
