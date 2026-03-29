@@ -68,7 +68,7 @@ These names are the **canonical** integration surface for the backlog item; Buil
 ### 2.3 Error handling
 
 - **`export`** MUST NOT raise into the SDK for **normal** callback usage: unexpected errors during transformation SHOULD be caught and surfaced as **`SpanExportResult.FAILURE`** so a buggy exporter does not tear down the application’s tracing thread. Document any intentional propagation of exceptions.
-- **Logging, redaction, and documented failure surfaces** for export failures are specified in **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)**. Treat that spec’s **§7** checklist as part of exporter “done” for failure UX.
+- **Logging, redaction, and documented failure surfaces** for export failures are specified in **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)**. Treat that spec’s **§7** checklist and **§9** (explicit acceptance criteria where they apply) as part of exporter “done” for failure UX.
 - **Required tests:** a controlled test that forces transformation to fail (for example a stub span or monkeypatched mapper) **MUST** assert **`export`** returns **`SpanExportResult.FAILURE`** without raising. The suite **MUST** also satisfy **`SPEC_SPAN_EXPORT_FAILURE_HANDLING.md`** §6 (logging and redaction assertions).
 
 ## 3. Prepared span records (“replayt-oriented”)
