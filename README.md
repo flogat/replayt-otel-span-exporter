@@ -20,7 +20,18 @@ copies of upstream replayt documentation there for offline review or agent conte
 
 ### Library users (integrators)
 
-This package targets **Python 3.11+** (`requires-python` in **`pyproject.toml`**). The **`replayt-otel-span-exporter`** wheel is **not on PyPI yet**; clone the repository and use **Contributors and CI parity** until a release is published. After publish, install with **`pip install replayt-otel-span-exporter`** (no **`replayt`** dependency required for the runtime install or the **Usage** example below). Version and pin detail: **[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)**.
+This package targets **Python 3.11+** (`requires-python` in **`pyproject.toml`**). The PyPI project is **[replayt-otel-span-exporter](https://pypi.org/project/replayt-otel-span-exporter/)**; the first alpha in the changelog is **`0.2.0a1`**. If that version is not listed on the project page yet, use **Contributors and CI parity** below from a clone until upload finishes.
+
+After the wheel and sdist for **`0.2.0a1`** appear on the index, install with an explicit pin (same pattern as **[docs/SPEC_FIRST_ALPHA_RELEASE.md](docs/SPEC_FIRST_ALPHA_RELEASE.md)** §5):
+
+```bash
+python -m pip install --upgrade pip
+pip install replayt-otel-span-exporter==0.2.0a1
+```
+
+Prereleases are not chosen by unpinned **`pip install replayt-otel-span-exporter`**; to track the latest alpha without a pin, use **`pip install --pre replayt-otel-span-exporter`**.
+
+Runtime install pulls **OpenTelemetry** only, not **`replayt`**; that matches the **Usage** example below. Pin policy and matrix: **[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)**.
 
 ### Contributors and CI parity
 
