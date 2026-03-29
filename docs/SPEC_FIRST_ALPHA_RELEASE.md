@@ -139,6 +139,6 @@ When the package is **actually** available on the chosen index:
 
 ## 8. Non-goals (this backlog)
 
-- Declaring API stability or **1.0** semantics.
+- Declaring **beta** / **1.0** promotion criteria or **SemVer** tables for **`PreparedSpanRecord`** / **`ReplaytSpanExporter`** — see **[docs/SPEC_BETA_AND_STABLE_PROMOTION.md](SPEC_BETA_AND_STABLE_PROMOTION.md)** and **[docs/ROADMAP.md](ROADMAP.md)**.
 - Changing OpenTelemetry or **replayt** pin policy beyond what **`pyproject.toml`** already states (separate maintenance items).
 - Fixing unrelated test failures (for example integration collection issues); the **Tester** phase owns the suite. If **§5** verification is blocked by a packaging bug, fix that in the **Builder** scope for this item.

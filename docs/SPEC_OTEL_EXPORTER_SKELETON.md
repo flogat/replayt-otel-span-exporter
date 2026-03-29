@@ -28,6 +28,8 @@ These names are the **canonical** integration surface for the backlog item; Buil
 
 **`replayt_otel_span_exporter.__all__`** MUST list **only** integrator-facing symbols: **`ReplaytSpanExporter`**, **`PreparedSpanRecord`**, and **`__version__`**. Helpers such as **`prepared_span_record_from_readable`** and **`serialize_attribute_value`** live in **`records`** and MAY remain **omitted** from **`__all__`** as long as their behavior is covered by tests (exporter pipeline tests and/or focused unit tests).
 
+**Stability and semver:** After the first **alpha** is verified on an index, **beta** / **stable** promotion rules and **SemVer** expectations for **`__all__`**, **`PreparedSpanRecord`** §3 fields, and **`ReplaytSpanExporter`** §2.2–§2.3 are normative in **[docs/SPEC_BETA_AND_STABLE_PROMOTION.md](SPEC_BETA_AND_STABLE_PROMOTION.md)** (summary **[docs/ROADMAP.md](ROADMAP.md)**).
+
 ## Goals
 
 - Provide a **small, explicit** Python API that plugs into the **OpenTelemetry Python SDK** tracing pipeline as a **`SpanExporter`**, so spans can be collected and **normalized into a replayt-oriented representation** without yet depending on the **`replayt`** distribution.

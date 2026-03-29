@@ -14,6 +14,20 @@ This document is the **north star** for maintainers and integrators: problem, sc
 
 For implementation contracts, use the spec files linked from the [Scope](#scope) and [Test and CI expectations](#test-and-ci-expectations) sections.
 
+## Release phases and API stability (beta / 1.0)
+
+After a **first alpha** is verified on an index (**[SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** §5), promotion to **beta** or **1.0**, **semver** expectations for **`PreparedSpanRecord`** and **`ReplaytSpanExporter`**, **changelog** discipline, and **optional hook** evolution are defined in **[SPEC_BETA_AND_STABLE_PROMOTION.md](SPEC_BETA_AND_STABLE_PROMOTION.md)**. A short phase-oriented index for maintainers and Mission Control lives in **[ROADMAP.md](ROADMAP.md)**.
+
+## Backlog traceability — “Define beta/1.0 promotion criteria and public API stability promises”
+
+| Acceptance theme | Where satisfied |
+| ---------------- | ---------------- |
+| Beta / 1.0 **promotion checklists** | **[SPEC_BETA_AND_STABLE_PROMOTION.md](SPEC_BETA_AND_STABLE_PROMOTION.md)** §2 |
+| **Semver** for **`PreparedSpanRecord`** / **`ReplaytSpanExporter`** | Same doc §3 |
+| **Changelog** discipline | Same doc §4 |
+| **Optional hooks** evolution | Same doc §5 |
+| Integrator / MC **roadmap** alignment | **[ROADMAP.md](ROADMAP.md)** |
+
 ## Users and problem
 
 **Integrators** running Python services with OpenTelemetry tracing want a **narrow, well-tested bridge** from the OTel SDK to **replayt-oriented** workflow data. Today that path is underspecified; this package provides an explicit **exporter skeleton** and **documented intermediate representation** so replayt consumers can adopt it without forking replayt core.
@@ -37,6 +51,7 @@ For implementation contracts, use the spec files linked from the [Scope](#scope)
 | **`opentelemetry-api`** + **`opentelemetry-sdk`** as declared dependencies | Full replayt workflow execution, storage backends, or network export |
 | Optional **approval / audit hooks** for **`ReplaytSpanExporter`** per **[SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)** (integrator policy gate; not an in-repo UI). Production-oriented patterns (async-safe use, audit sink examples, idempotency) live in **[RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md](RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md)**, summarized in that spec **§10**. | Interactive approval products, persistent audit stores, or **replayt** runtime dependency for gating |
 | **First alpha (and later) PyPI / private-index publishing** — versioning, changelog, artifact upload, and install verification per **[SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** | Organization-wide release platforms, signing policy beyond normal **`twine`** usage, or changing **replayt** runtime dependency policy without a separate backlog |
+| **Beta / stable promotion, semver, and public API stability** — criteria after alpha verification, **`__all__`** / IR / exporter semver tables, changelog rules, optional hook evolution per **[SPEC_BETA_AND_STABLE_PROMOTION.md](SPEC_BETA_AND_STABLE_PROMOTION.md)**; phase summary **[ROADMAP.md](ROADMAP.md)** | Calendar-based or download-count gates; automated promotion jobs unless a backlog adds them to **[CI_SPEC.md](CI_SPEC.md)** |
 | Optional **`docs/reference-documentation/`** — bounded upstream context and index pages per **[SPEC_REFERENCE_DOCUMENTATION.md](SPEC_REFERENCE_DOCUMENTATION.md)** | Full mirrors of upstream documentation sites; substituting this folder for **[COMPATIBILITY.md](COMPATIBILITY.md)** or **[MISSION.md](MISSION.md)** policy |
 | Runnable **`scripts/`** OpenTelemetry → **`PreparedSpanRecord`** demo per **[SPEC_SCRIPTS_OTEL_PREPARED_DEMO.md](SPEC_SCRIPTS_OTEL_PREPARED_DEMO.md)** | **`console_scripts`** / PyPI-packaged CLIs for the demo, **`replayt`** imports in the script, or substituting this script for the README snippet CI contract (**[SPEC_README_QUICK_START.md](SPEC_README_QUICK_START.md)** §4) |
 | Unit/integration tests described in the specs below | Performance SLAs and advanced batching semantics |
@@ -72,6 +87,7 @@ These bullets are the **mission-level summary**; **[CI_SPEC.md](CI_SPEC.md)** is
 - **Public API** remains small and listed explicitly (**`__all__`**); extension points are documented in the spec and design principles.
 - **Changelog** records user-visible API and dependency changes under **Unreleased** until release (**[CHANGELOG.md](../CHANGELOG.md)** at repo root).
 - **First alpha release** (backlogs **“Publish first alpha release”** and **“Close first alpha: upload, verify SPEC_FIRST_ALPHA section 5, align README install prose”**): **`[project].version`** is a PEP 440 **alpha** prerelease, **CHANGELOG** contains a dated section for that version, **`python -m build`** + **`twine check`** precede upload per **[SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** §4, artifacts are on the chosen index, **§5 verification** and **[§5.2](SPEC_FIRST_ALPHA_RELEASE.md#52-release-handoff-record-normative)** handoff fields pass, and README / compatibility prose updated per that spec §6 when the index is live.
+- **Beta / 1.0 and API stability** (backlog **“Define beta/1.0 promotion criteria and public API stability promises”**): promotion checklists, semver rules, changelog discipline, and optional hook evolution per **[SPEC_BETA_AND_STABLE_PROMOTION.md](SPEC_BETA_AND_STABLE_PROMOTION.md)**; maintainers and Mission Control use **[ROADMAP.md](ROADMAP.md)** for phase alignment.
 - **CI** on the default integration branch remains **green** per **[CI_SPEC.md](CI_SPEC.md)** §7 for the documented install path and **`pytest`** command.
 
 ## Compatibility matrix
@@ -90,7 +106,7 @@ When pins or CI versions change, update **`COMPATIBILITY.md`** in the same maint
 
 | Audience | Needs |
 | -------- | ----- |
-| **Maintainers** | This file, **[CI_SPEC.md](CI_SPEC.md)**, **`DEPENDENCY_AUDIT.md`**, **[SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** (alpha / publish checklist), release notes in **[CHANGELOG.md](../CHANGELOG.md)** |
+| **Maintainers** | This file, **[CI_SPEC.md](CI_SPEC.md)**, **`DEPENDENCY_AUDIT.md`**, **[SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** (alpha / publish checklist), **[ROADMAP.md](ROADMAP.md)** / **[SPEC_BETA_AND_STABLE_PROMOTION.md](SPEC_BETA_AND_STABLE_PROMOTION.md)** (beta / stable / semver), release notes in **[CHANGELOG.md](../CHANGELOG.md)** |
 | **Integrators** | Stable adapter surface, **[COMPATIBILITY.md](COMPATIBILITY.md)**, **[SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)**, README overview; when using approval / audit hooks, **[RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md](RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md)** |
 | **Governance / compliance** (when applicable) | **[SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)** audit allow-list, **[RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md](RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md)** (sink-friendly patterns), **[SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** redaction, **[SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)** triage fields |
 | **Contributors** | README quick start, specs under **`docs/`**, optional **`docs/reference-documentation/`** per **[SPEC_REFERENCE_DOCUMENTATION.md](SPEC_REFERENCE_DOCUMENTATION.md)**, tests under **`tests/`** |
