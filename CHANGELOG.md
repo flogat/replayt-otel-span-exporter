@@ -9,10 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
+- **`docs/reference-documentation/`**: folder **README** (licensing, scope, refresh policy) plus stub indexes **[opentelemetry-python.md](docs/reference-documentation/opentelemetry-python.md)** and **[replayt.md](docs/reference-documentation/replayt.md)** with canonical **`https://`** links and maintainer summaries (backlog **“Populate `docs/reference-documentation/` for offline replayt and OTel context”**, phase **3** build).
+- **[README.md](README.md)**: **Reference documentation** section states the tree is present; project layout table row updated for **`docs/reference-documentation/`**.
 - **[docs/SPEC_REFERENCE_DOCUMENTATION.md](docs/SPEC_REFERENCE_DOCUMENTATION.md)**: backlog **“Populate `docs/reference-documentation/` for offline replayt and OTel context”** — normative contract for optional stub indexes, bounded snapshots, folder **README** (licensing, scope, refresh policy), size bounds, and acceptance checklists (phase **2** spec).
 
 ### Added
 
+- **`tests/test_reference_documentation.py`**: contract checks for the reference-documentation folder **README**, stub pages, **`https://`** links, and total tree size vs **[docs/SPEC_REFERENCE_DOCUMENTATION.md](docs/SPEC_REFERENCE_DOCUMENTATION.md)** guidance.
 - **`.github/workflows/release.yml`**: optional **PyPI** publish via **OIDC** (trusted publishing): guarded **`workflow_dispatch`** and **`v*`** tag pushes, GitHub Environment **`pypi`**, **`python -m build`** + **`twine check`**, build-tooling-only install (no **`[dev]`**), **`pypa/gh-action-pypi-publish`** pinned to commit **`ed0c539`**. Documented in **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §8 Reference fingerprint.
 - **`tests/test_release_workflow_contract.py`**: asserts **`release.yml`** matches **§8** (triggers, permissions, environment name, build/twine steps, no dev install) and **`docs/CI_SPEC.md`** contains normative **§8** subsections (OIDC, environment **`pypi`**, rollback).
 - **`tests/test_readme_integrator_install.py`**: README **`pip install replayt-otel-span-exporter==<version>`** matches **`[project].version`**, documents **`--pre`** for alphas, and **`[project].readme`** is set (**[docs/SPEC_README_QUICK_START.md](docs/SPEC_README_QUICK_START.md)** §2.1).
@@ -21,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §5 documents **`tests/test_reference_documentation.py`** and the **`docs/reference-documentation/`** tree alongside default **`pytest`** discovery.
 - **`[project].readme`** in **`pyproject.toml`** points at **`README.md`** so sdist/wheel metadata includes the long description (cleaner **`twine check`**).
 - **`tests/test_release_metadata.py`**: asserts **CHANGELOG** has a dated **`## [<version>] - YYYY-MM-DD`** heading matching **`[project].version`** and a **`[Unreleased]`** section (per that spec §3).
 

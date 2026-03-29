@@ -11,13 +11,9 @@ This project builds on **[replayt](https://pypi.org/project/replayt/)**. Read
 
 **[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)** covers **replayt** compatibility, versioning, and **LLM** boundaries for demos and agent tooling.
 
-## Reference documentation (optional)
+## Reference documentation
 
-This checkout may not yet include [`docs/reference-documentation/`](docs/reference-documentation/). When present, that
-tree holds stub index pages and/or bounded markdown excerpts for **OpenTelemetry Python** and **replayt** integration
-context. **Builder contract:** **[docs/SPEC_REFERENCE_DOCUMENTATION.md](docs/SPEC_REFERENCE_DOCUMENTATION.md)** (folder
-**README**: licensing, scope, refresh policy). Until the Builder lands the directory, use specs under **`docs/`** and
-**[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)** for upstream links.
+The repository includes [`docs/reference-documentation/`](docs/reference-documentation/) with stub index pages for **OpenTelemetry Python** and **replayt** integration context (and optional bounded excerpts if maintainers add them later). Start at **[docs/reference-documentation/README.md](docs/reference-documentation/README.md)** for licensing, scope, and refresh policy. **Builder contract:** **[docs/SPEC_REFERENCE_DOCUMENTATION.md](docs/SPEC_REFERENCE_DOCUMENTATION.md)**. Specs under **`docs/`** and **[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)** remain canonical for policy and pins.
 
 ## Quick start
 
@@ -122,7 +118,7 @@ local tooling entries. Adapt or remove optional directories to match your teamâ€
 | `docs/CI_SPEC.md` | CI triggers, Python matrix, install path, and test expectations |
 | `docs/COMPATIBILITY.md` | Supported versions matrix, pin strategy, CI alignment, replayt release links |
 | `docs/SPEC_REFERENCE_DOCUMENTATION.md` | Contract for optional `docs/reference-documentation/` (stubs, snapshots, folder README) |
-| `docs/reference-documentation/` | Optional markdown snapshot for contributors (when present) |
+| `docs/reference-documentation/` | Upstream context indexes (OpenTelemetry Python, replayt); see folder **README** |
 | `src/replayt_otel_span_exporter/` | Python package (import `replayt_otel_span_exporter`) |
 | `pyproject.toml` | Package metadata |
 | `.gitignore` | Ignores `path/` (doc placeholders), `.orchestrator/`, `.cursor/skills/`, and `AGENTS.md` (local tooling) |
