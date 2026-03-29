@@ -8,7 +8,8 @@ This document is an **integrator-facing cookbook** for optional **`ReplaytSpanEx
 
 - Hooks run **after** IR mapping and **before** buffer append, under the exporter’s **buffer lock** (spec **§4.4**).
 - **`on_export_commit`** must return **`"allow"`** or **`"deny"`** **synchronously** (spec **§4.1**).
-- **`on_export_audit`** (if present) is invoked **synchronously** with a small event carrying **§5.2** fields only.
+- **`on_export_audit`** runs **only** when **`on_export_commit`** is set; passing **`on_export_audit`** alone has no effect (spec **§5.1**; same rule in **README.md**).
+- When both are set, **`on_export_audit`** is invoked **synchronously** with a small event carrying **§5.2** fields only.
 - Audit payloads **MUST NOT** include **`PreparedSpanRecord.attributes`** or other arbitrary attribute-derived strings (spec **§5.2**).
 
 ## 2. Async-safe patterns
@@ -20,7 +21,7 @@ The OpenTelemetry Python SDK invokes **`export`** from a worker thread. Your hoo
 3. **Read policy from an already-resolved snapshot** (for example an atomic flag, a versioned config struct updated elsewhere, or a precomputed decision table) instead of performing remote policy checks inside the hook.
 4. **Defer heavy or async work** by enqueueing a **minimal** payload for a background worker:
    - From **`on_export_audit`**, push a **`dict`** (or your ORM row) that contains **only** keys you copied from the allow list (**§3** below).
-   - Use **`queue.SimpleQueue`** or **`asyncio.get_running_loop().call_soon_threadsafe`** from a dedicated worker context you control; avoid unbounded growth (drop or sample under overload if your org policy allows, and document that behavior).
+   - Prefer **`queue.SimpleQueue`** from the hook thread (the OpenTelemetry SDK usually calls **`export`** from a worker thread, which often has **no** running asyncio loop). To hand work to asyncio code on **another** thread, keep a reference to **that** loop and use **`loop.call_soon_threadsafe(...)`** from the hook; do **not** call **`asyncio.get_running_loop()`** inside the hook unless you know this thread owns the loop. Avoid unbounded growth (drop or sample under overload if your org policy allows, and document that behavior).
 
 **Anti-pattern:** Calling **`requests.post`**, opening a database transaction that waits on locks, or **`await remote_allow()`** inside **`on_export_commit`** — these stall tracing and can deadlock.
 
@@ -51,7 +52,9 @@ def on_export_commit(prepared, *, span_count: int):
 
 When forwarding to your sink, **copy** fields explicitly. Do **not** pass through the **`prepared`** sequence, **`PreparedSpanRecord`**, or **`attributes`** to persistent storage or external systems.
 
-**Normative allow list** (spec **§5.2**): **`decision`**, **`prepared_count`**, **`span_count`**, and when applicable **`trace_id`**, **`span_id`**, **`workflow_id`**, **`step_id`** (from the **first** prepared record in batch order). Optional **`reason_code`** applies only if the Builder exposes that shape (spec **§5.2**).
+This package types the callback argument as **`ExportAuditEvent`** (**`TypedDict`** in **`replayt_otel_span_exporter.exporter`**): same field names as the normative allow list. You can still treat it as a mapping and copy keys as below.
+
+**Normative allow list** (spec **§5.2**): **`decision`**, **`prepared_count`**, **`span_count`**, and when applicable **`trace_id`**, **`span_id`**, **`workflow_id`**, **`step_id`** (from the **first** prepared record in batch order). Optional **`reason_code`** applies only if the Builder exposes that shape (spec **§5.2**); the current **`ExportAuditEvent`** shape does **not** include it.
 
 ```python
 ALLOWED_AUDIT_KEYS = frozenset({
@@ -106,7 +109,7 @@ async def audit_drain_loop() -> None:
             await asyncio.sleep(0.05)
             continue
         row = audit_queue.get_nowait()
-        # await send_to_siems(row)  # your async I/O here
+        # await send_to_siem(row)  # your async I/O here
         await asyncio.sleep(0)  # placeholder
 ```
 
