@@ -7,6 +7,7 @@ import re
 
 _ROOT = pathlib.Path(__file__).resolve().parents[1]
 _RELEASE_WORKFLOW = _ROOT / ".github" / "workflows" / "release.yml"
+_CI_SPEC = _ROOT / "docs" / "CI_SPEC.md"
 
 
 def test_release_workflow_file_exists():
@@ -53,3 +54,19 @@ def test_release_workflow_declares_concurrency_no_cancel():
     yml = _RELEASE_WORKFLOW.read_text(encoding="utf-8")
     assert "concurrency:" in yml
     assert "cancel-in-progress: false" in yml
+
+
+def test_ci_spec_documents_section_8_release_workflow():
+    md = _CI_SPEC.read_text(encoding="utf-8")
+    assert "## 8. Optional release workflow (OIDC trusted publishing)" in md
+    for heading in (
+        "### 8.1 Triggers and guards",
+        "### 8.2 Build, check, and upload steps",
+        "### 8.3 OIDC and secrets policy",
+        "### 8.4 GitHub Environment `pypi` and PyPI trusted publisher alignment",
+        "### 8.7 Rollback and recovery expectations",
+    ):
+        assert heading in md, f"docs/CI_SPEC.md missing {heading!r}"
+    assert "id-token: write" in md
+    assert "trusted publisher" in md.lower()
+    assert "yank" in md.lower()

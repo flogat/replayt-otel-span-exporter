@@ -84,6 +84,63 @@ and ensure CI runs the full suite (or document a deliberate subset in this file)
 
 **Codecov:** Upload uses **`fail_ci_if_error: false`** so missing tokens or fork PRs do not fail the workflow; coverage still uploads when Codecov accepts the report.
 
+## 8. Optional release workflow (OIDC trusted publishing)
+
+This section is the normative contract for **`.github/workflows/release.yml`**. The workflow is **optional**: it does **not** count toward [§7](#7-green-mainline-and-workflow-success) unless the organization adds the **`Release`** workflow (or a job from it) as a **required** check. Default merge health remains **`.github/workflows/ci.yml`**.
+
+Implementation file: **`.github/workflows/release.yml`**. Contract tests: **`tests/test_release_workflow_contract.py`**.
+
+### 8.1 Triggers and guards
+
+- **`workflow_dispatch`:** Maintainers start a run from the Actions UI and choose the ref (tag or branch) to build and upload.
+- **`push` of tags `v*`:** Pushing a version tag (for example **`v0.2.0a1`** for **`[project].version` `0.2.0a1`**) triggers a publish run for that ref.
+- Ordinary branch pushes (without a matching tag event) do **not** publish.
+- **`concurrency`:** Group **`release-${{ github.workflow }}-${{ github.ref }}`** with **`cancel-in-progress: false`** so two runs for the same ref are not interleaved; a newer run may queue instead of canceling an in-flight publish.
+
+### 8.2 Build, check, and upload steps
+
+- **Install (publish job only):** **`python -m pip install --upgrade pip`**, then **`pip install "build>=1.2.0" "twine>=5.0"`**. Do **not** run **`pip install -e ".[dev]"`** on the publish job: the release runner must not pull **`replayt`** or other **`[dev]`** pins ([§8.6](#86-runtime-deps-and-replayt)).
+- **Build:** **`rm -rf dist`**, then **`python -m build`** from the repository root (sdist + wheel).
+- **Check:** **`twine check dist/*`** MUST succeed before upload.
+- **Upload:** **`pypa/gh-action-pypi-publish@release/v1`** uploads **`dist/*`** to **PyPI** using OIDC (see [§8.3](#83-oidc-and-secrets-policy)).
+
+This sequence matches the pre-upload bar in **[docs/SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** §4 for teams that use this automation path.
+
+### 8.3 OIDC and secrets policy
+
+- **Workflow permissions:** **`contents: read`** and **`id-token: write`** on the publish job so GitHub can mint an OIDC token for trusted publishing. Do **not** store a long-lived **PyPI API token** in repository **Secrets** for the default PyPI path documented here.
+- **PyPI trusted publishing** exchanges that OIDC identity for a short-lived upload credential; configuration details live on PyPI’s trusted-publisher docs.
+- **Private indexes** (DevPI, Artifactory, etc.) often still need **long-lived credentials** or host-specific auth maintained outside this contract. OIDC as described here targets the **PyPI**-style flow.
+
+### 8.4 GitHub Environment `pypi` and PyPI trusted publisher alignment
+
+- **GitHub Environment name:** **`pypi`** (exact spelling). The publish job sets **`environment: name: pypi`**.
+- **Repository settings:** Create an environment named **`pypi`**. Add **protection rules** if the org wants a human gate (required reviewers, wait timer, deployment branches) before the job runs and OIDC is minted.
+- **On PyPI:** Register a **trusted publisher** for this repository that references:
+  - the **GitHub repository** (owner/name),
+  - workflow file **`release.yml`**,
+  - the **GitHub Environment** **`pypi`**.  
+  Names MUST match the workflow and settings above or uploads will fail at the registry.
+
+### 8.5 Optional TestPyPI lane
+
+This repository does **not** define a second job for **TestPyPI** in **`release.yml`**. If maintainers want a dry-run index, add a parallel trusted publisher + GitHub Environment (for example **`testpypi`**) and either a separate workflow file or an additional job, and extend **`tests/test_release_workflow_contract.py`** in the same change.
+
+### 8.6 Runtime deps and replayt
+
+**`replayt`** MUST remain only under **`[project.optional-dependencies]`** (for example the **`dev`** extra), not under **`[project].dependencies`**. The publish job’s minimal install ([§8.2](#82-build-check-and-upload-steps)) keeps **`replayt`** off the release runner and keeps the uploaded distributions aligned with runtime metadata.
+
+### 8.7 Rollback and recovery expectations
+
+| Situation | Recommended response |
+| --------- | -------------------- |
+| **Wrong files uploaded** | **Yank** the affected files on PyPI (or unpublish per index policy); cut a **new** version (bump **`[project].version`** and **CHANGELOG**) and publish from a **new tag** after fixing the tree. Do not reuse the same version for different artifacts. |
+| **Bad release tag points at broken commit** | Move maintenance forward: fix on **`master`**, tag a **new** patch/prerelease version, and publish that tag. Optionally delete the erroneous tag locally and on the remote only if the team agrees (deleting tags does not remove published wheels). |
+| **Run triggered by mistake** | **Disable** or **restrict** the **`pypi`** environment (remove approval, lock deployments), cancel the workflow if still running, and avoid pushing tags until the workflow is corrected. |
+| **OIDC / trusted-publisher mismatch** | Fix **PyPI** trusted-publisher settings or **GitHub** environment/workflow file name so they match [§8.4](#84-github-environment-pypi-and-pypi-trusted-publisher-alignment); no repo secret is required for the PyPI OIDC path. |
+
+These steps are operator guidance; registry and org policy may impose extra requirements.
+
 ## Optional jobs (recommended, not part of the minimal three backlog bullets)
 
 These align with **[docs/DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md)** (“Observable automation”) and existing docs:
@@ -97,7 +154,7 @@ If the workflow runs **`pytest --cov=...`** or uploads coverage (e.g. Codecov), 
 
 ## Non-goals (this backlog)
 
-- **Release publishing automation** in this workflow file (the **“Set up CI pipeline”** backlog does not require upload jobs or PyPI secrets). Requirements for the **“Publish first alpha release”** backlog live in **[docs/SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)**; if maintainers add a **`release`** or **`publish`** job later, update this document’s **Reference fingerprint** and §7 in the same change.
+- **Release publishing automation inside `ci.yml`:** The **“Set up CI pipeline”** backlog does not require upload jobs in the default PR workflow. Optional PyPI automation lives in **`release.yml`** and [§8](#8-optional-release-workflow-oidc-trusted-publishing). Release content requirements stay in **[docs/SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)**.
 - Deployment or secret-dependent integration tests against live services beyond **`pip-audit`** / install steps already described.
 - Defining replayt upstream release policy (see mission and design docs).
 
