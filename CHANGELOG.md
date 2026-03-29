@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`tests/integration/test_replayt_boundary.py`:** §4.6 reads the **`replayt`** line from **`[project.optional-dependencies].dev`** by **normalized** dependency name (**`replayt`**), requires **exactly one** such line, and still compares **`importlib.metadata.version("replayt")`** with **`Requirement.specifier.contains(..., prereleases=True)`** (no second hard-coded minimum). Backlog **“Integration test: replayt pin drift and boundary failure modes”** (`da6412b4-2b98-44cf-82a1-70fbc12c777c`), phase **3**.
+
 ### Documentation
 
 - **Replayt integration tests (spec):** **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](docs/SPEC_REPLAYT_INTEGRATION_TESTS.md)** — backlog **“Integration test: replayt pin drift and boundary failure modes”** (`da6412b4-2b98-44cf-82a1-70fbc12c777c`), phase **2**: traceability table and normative **Builder acceptance summary**; **§4.6** promoted to **MUST** (installed **`replayt`** vs **`pyproject.toml`** **`dev`** specifier, single source of truth); **§8** failure-mode / **`pytest`** diagnostics (collection exit **2** vs per-test signals); checklist **§6** aligned. **[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)** §6 — **Pin bump proof** cross-links **§8**.
