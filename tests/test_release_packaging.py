@@ -87,13 +87,11 @@ def test_twine_check_passes_on_built_artifacts(built_dist_dir: pathlib.Path) -> 
         )
 
 
-def test_built_wheel_installs_in_clean_venv_with_matching_metadata(
-    built_dist_dir: pathlib.Path,
+def _install_artifact_in_clean_venv_and_assert_version(
+    artifact: pathlib.Path,
     tmp_path: pathlib.Path,
 ) -> None:
-    """Analog to SPEC_FIRST_ALPHA_RELEASE §5: install artifact only (file URL), no editable checkout."""
-    wheels = sorted(built_dist_dir.glob("*.whl"))
-    assert len(wheels) == 1, f"expected one wheel, got {[p.name for p in wheels]}"
+    """Fresh venv, pip upgrade, install single file artifact; metadata + __version__ match pyproject."""
     v = _project_version()
     venv = tmp_path / "venv"
     subprocess.run([sys.executable, "-m", "venv", str(venv)], check=True, capture_output=True)
@@ -107,7 +105,7 @@ def test_built_wheel_installs_in_clean_venv_with_matching_metadata(
     )
     assert up.returncode == 0, up.stderr
     inst = subprocess.run(
-        [str(pip), "install", str(wheels[0])],
+        [str(pip), "install", str(artifact)],
         check=False,
         capture_output=True,
         text=True,
@@ -127,6 +125,26 @@ assert pkg.__version__ == want, (pkg.__version__, want)
         text=True,
     )
     assert run.returncode == 0, run.stderr
+
+
+def test_built_wheel_installs_in_clean_venv_with_matching_metadata(
+    built_dist_dir: pathlib.Path,
+    tmp_path: pathlib.Path,
+) -> None:
+    """Analog to SPEC_FIRST_ALPHA_RELEASE §5: install artifact only (file URL), no editable checkout."""
+    wheels = sorted(built_dist_dir.glob("*.whl"))
+    assert len(wheels) == 1, f"expected one wheel, got {[p.name for p in wheels]}"
+    _install_artifact_in_clean_venv_and_assert_version(wheels[0], tmp_path)
+
+
+def test_built_sdist_installs_in_clean_venv_with_matching_metadata(
+    built_dist_dir: pathlib.Path,
+    tmp_path: pathlib.Path,
+) -> None:
+    """Sdist path on the index: pip builds/installs; same §5-style metadata bar as the wheel file URL."""
+    sdists = sorted(built_dist_dir.glob("*.tar.gz"))
+    assert len(sdists) == 1, f"expected one sdist, got {[p.name for p in sdists]}"
+    _install_artifact_in_clean_venv_and_assert_version(sdists[0], tmp_path)
 
 
 def test_built_wheel_runtime_install_does_not_require_replayt(

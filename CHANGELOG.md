@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`tests/test_release_packaging.py`:** clean-venv install from the built **sdist** (same metadata / **`__version__`** bar as the wheel file install) so both artifact kinds match **[docs/SPEC_FIRST_ALPHA_RELEASE.md](docs/SPEC_FIRST_ALPHA_RELEASE.md)** §4 / §5 expectations before they hit an index. **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §5 notes the sdist path. Backlog **“Complete first alpha publish verification and README install truth”**, phase **3**.
+
 - **`tests/test_pypi_index_and_install_docs.py`:** default **`pytest`** check that public **PyPI** JSON for **`replayt-otel-span-exporter`** matches **`README.md`** integrator honesty and **`docs/COMPATIBILITY.md`** §2 pre-index vs post-upload wording (**[docs/SPEC_FIRST_ALPHA_RELEASE.md](docs/SPEC_FIRST_ALPHA_RELEASE.md)** §0.2 / §6). Asserts **`scripts/verify_published_release.sh`** uses **LF** newlines so the shebang runs on Unix. Backlog **“Complete first alpha publish verification and README install truth”**, phase **3**.
 
 ### Documentation
