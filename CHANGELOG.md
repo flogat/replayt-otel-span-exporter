@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
+- **Integrator cookbook (approval / audit hooks):** **[docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md](docs/RECIPE_SPAN_EXPORT_HOOKS_PRODUCTION.md)** — async-safe hook usage, idempotency for audit emission, allow-list-only forwarding to integrator sinks (no full **`PreparedSpanRecord`** / attribute maps). **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md)** **§7**, **§9**, **§10** and **[docs/MISSION.md](docs/MISSION.md)** scope table / audience rows cross-link the recipe (backlog **“Integrator cookbook: on_export_commit and on_export_audit in production”**, phase **2** spec).
+
 - **Replayt boundary hardening (spec):** **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](docs/SPEC_REPLAYT_INTEGRATION_TESTS.md)** — backlog **“Strengthen replayt boundary tests for pin bumps and contract drift”**, phase **2**: CI pin-bump validation (**§5.1**), import-surface and **`PreparedSpanRecord`** → replayt payload contracts (**§4.4–§4.6**), collection reliability under **`pip install -e ".[dev]"`** (**§3**), expanded §6 checklist; cross-links from **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §5, **[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)** §6, and **[docs/MISSION.md](docs/MISSION.md)** spec-to-suite mapping.
 
 ### Changed
