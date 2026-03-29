@@ -12,7 +12,16 @@ This document refines the backlog item **“Set up CI pipeline for automated tes
 
 The rows below expand those three bullets into checks a human or gate phase can verify without guessing.
 
+**Expand CI matrix to Python 3.13** (separate backlog):
+
+| Backlog acceptance theme | Satisfied by (this doc) |
+| ------------------------- | ------------------------ |
+| Add **3.13** to **`test`** and **`supply-chain`** when dependencies allow | [§3.1 Python 3.13 matrix expansion](#31-python-313-matrix-expansion-normative-backlog) |
+| Update reference fingerprint + **COMPATIBILITY** caveats (**pip-audit**, **`replayt`**, OTel resolution) | §3.1 items 5–6, **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §4.1 |
+
 **Replayt integration tests:** The **`test`** job satisfies §5 here and meets **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** (install path includes **`replayt`** for default **`pytest`**).
+
+**Python 3.13 matrix expansion:** Backlog **“Expand CI matrix to Python 3.13 with documented compatibility fingerprint”** is normative in [§3.1](#31-python-313-matrix-expansion-normative-backlog); it extends **`test`** / **`supply-chain`** matrices, **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §4 / §4.1, and the **Reference fingerprint** below.
 
 ## Goals
 
@@ -41,6 +50,24 @@ The workflow runs on **`push`** and **`pull_request`** for the branches this rep
 CI uses only Python versions that satisfy **`[project].requires-python`** in **`pyproject.toml`** (currently **`>=3.11`**). The job matrix (or single version) must not include interpreters the project metadata excludes, or CI will fail at install time in a confusing way.
 
 **Tomllib validation:** Any step that parses **`pyproject.toml`** with **`tomllib`** requires **Python ≥ 3.11**, which matches the minimum in **`requires-python`**.
+
+### 3.1 Python 3.13 matrix expansion (normative backlog)
+
+**Backlog:** Expand CI matrix to Python 3.13 with documented compatibility fingerprint.
+
+**Objective:** When the **`dev`** stack (**`replayt`**, OpenTelemetry transitives, **`pip-audit`**, **`pytest`**, etc.) supports **Python 3.13** on **`ubuntu-latest`** in GitHub Actions, default CI MUST exercise **3.13** alongside **3.11** and **3.12** on every matrix cell that today runs **3.11** and **3.12**, so the proven contract in **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §4 matches **`.github/workflows/ci.yml`**.
+
+**Acceptance criteria** (one focused change set unless Mission Control splits work):
+
+1. **Workflow matrices (`test` and `supply-chain`):** **`.github/workflows/ci.yml`** includes **`"3.13"`** in each **`python-version:`** list that today lists **3.11** and **3.12**, and **`test`** / **`supply-chain`** matrices stay aligned (same Python set).
+2. **`requires-python`:** **3.13** MUST remain within **`[project].requires-python`** (today **`>=3.11`**). Do not narrow **`requires-python`** in a way that drops **3.11** or **3.12** unless a separate backlog approves it.
+3. **Install + pytest bar:** On **3.13**, **`pip install -e ".[dev]"`** (§4) then **`pytest --cov=replayt_otel_span_exporter --cov-report=xml`** (§5) succeed end-to-end, including default collection of **`tests/integration/test_replayt_boundary.py`** when **`replayt`** is installed via **`[dev]`**.
+4. **`supply-chain` + `pip-audit`:** The **3.13** cell runs the same **`pip-audit`** invocation documented in the **Reference fingerprint** (including **`--ignore-vuln`** flags). Any **new** ignores for **3.13-only** transitives MUST be recorded in **[docs/DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)** with rationale in the same change set.
+5. **Compatibility doc:** Update **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §2 (**Python** row), §4 (matrix table), and §4.1 so integrators see **3.13** in the exercised set and any **3.13**-specific notes for **OpenTelemetry resolution**, **`replayt` / dev pins**, and **`pip-audit`** (cross-link **DEPENDENCY_AUDIT** for CVE policy).
+6. **Reference fingerprint (this doc):** Update the **Reference fingerprint** subsection under **Implementation notes for Builder / Maintainer** so matrix lines list **`3.11`**, **`3.12`**, and **`3.13`**, and refresh **Known drift** / **Otherwise** bullets if needed.
+7. **Contract test:** Update **`tests/test_compatibility_contract.py`** so the expected Python set matches **COMPATIBILITY.md** §4 and **`ci.yml`** (once **`ci.yml`** lists all three, that means extending the assertion to **`{"3.11", "3.12", "3.13"}`**). Do not leave docs and contract tests out of sync.
+
+**Blocked / “when dependencies allow”:** If **`pip install -e ".[dev]"`**, **`pytest`**, or **`pip-audit`** cannot succeed on **3.13** without policy changes this repo will not take in the same item, document the **blocker** (step, package, error class) in **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §4.1.2 (**Deferred — Python 3.13**) and **do not** add **3.13** to **`ci.yml`** until a follow-up unblocks it. Remove §4.1.2 when **3.13** is green in CI.
 
 ### 4. Dependencies from the project
 
@@ -169,8 +196,8 @@ When **`pyproject.toml`** changes **`requires-python`** or dev dependencies, upd
 **Current** **`.github/workflows/ci.yml`** includes:
 
 - **Default `GITHUB_TOKEN` permissions:** workflow-level **`permissions: contents: read`** (least privilege).
-- **`test`**: **`actions/checkout@v3`**, **`actions/setup-python@v4`**, matrix **`python-version: ["3.11", "3.12"]`**, **`tomllib`** parse of **`pyproject.toml`**, **`pip install -e ".[dev]"`**, **`pytest --cov=replayt_otel_span_exporter --cov-report=xml`**, **`codecov/codecov-action@v3`** with **`./coverage.xml`** and **`fail_ci_if_error: false`**.
-- **`supply-chain`**: same Python matrix, checkout/setup/validate/install, then **`pip-audit --ignore-vuln CVE-2026-4539 --ignore-vuln CVE-2025-69872 --desc`**.
+- **`test`**: **`actions/checkout@v3`**, **`actions/setup-python@v4`**, matrix **`python-version: ["3.11", "3.12"]`** (add **`"3.13"`** per [§3.1](#31-python-313-matrix-expansion-normative-backlog) when that backlog is implemented), **`tomllib`** parse of **`pyproject.toml`**, **`pip install -e ".[dev]"`**, **`pytest --cov=replayt_otel_span_exporter --cov-report=xml`**, **`codecov/codecov-action@v3`** with **`./coverage.xml`** and **`fail_ci_if_error: false`**.
+- **`supply-chain`**: same Python matrix as **`test`**, checkout/setup/validate/install, then **`pip-audit --ignore-vuln CVE-2026-4539 --ignore-vuln CVE-2025-69872 --desc`**.
 - **`[project.optional-dependencies].dev`** includes **`build`** and **`twine`** so **`tests/test_release_packaging.py`** can run **`python -m build`** and **`twine check`** in CI.
 - **§8 release / OIDC:** **`.github/workflows/release.yml`** — **`workflow_dispatch`** and **`push`** of tags **`v*`**; **`concurrency`** group **`release-${{ github.workflow }}-${{ github.ref }}`** with **`cancel-in-progress: false`**; job **`publish`** uses GitHub Environment **`pypi`**, **`permissions: contents: read`** and **`id-token: write`**, **`actions/checkout@v3`**, **`actions/setup-python@v4`** with **`python-version: "3.12"`**, **`pip install "build>=1.2.0" "twine>=5.0"`** (no **`pip install -e ".[dev]"`**), **`rm -rf dist`**, **`python -m build`**, **`twine check dist/*`**, then **`pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e`** to **PyPI** (no TestPyPI job in-repo; maintainers may add a parallel trusted publisher + environment if needed per §8.4).
 
@@ -180,4 +207,5 @@ Update this subsection when jobs, pins, or commands diverge.
 
 - **Lint job:** Recommended in [Optional jobs](#optional-jobs-recommended-not-part-of-the-minimal-three-backlog-bullets) but **not** implemented as its own job; **`ruff`** remains available via **`[dev]`** for local use.
 - **Release workflow:** [§8](#8-optional-release-workflow-oidc-trusted-publishing) is implemented as **`release.yml`** (optional; not part of §7 merge gate unless required checks are added).
-- **Otherwise:** The **test** matrix matches **`requires-python`** (**3.11** and **3.12**), **`pytest-cov`** is in **`[project.optional-dependencies].dev`**, and **`pytest --cov`** matches §5. Update this subsection whenever **`pyproject.toml`** or **`.github/workflows/ci.yml`** diverges from the acceptance criteria above.
+- **Python 3.13:** [§3.1](#31-python-313-matrix-expansion-normative-backlog) is **pending** until **`ci.yml`** lists **3.13** and **COMPATIBILITY.md** / contract tests match; until then the matrix remains **3.11** and **3.12** only.
+- **Otherwise:** The **test** matrix uses only versions allowed by **`requires-python`** (**3.11** and **3.12** today; **3.13** when §3.1 lands), **`pytest-cov`** is in **`[project.optional-dependencies].dev`**, and **`pytest --cov`** matches §5. Update this subsection whenever **`pyproject.toml`** or **`.github/workflows/ci.yml`** diverges from the acceptance criteria above.
