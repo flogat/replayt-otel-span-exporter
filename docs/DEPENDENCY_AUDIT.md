@@ -15,7 +15,7 @@ CI **`supply-chain`** runs `pip-audit --ignore-vuln CVE-2026-4539 --ignore-vuln 
 
 | Package | Policy |
 | ------- | ------ |
-| **`replayt`** | Lower bound **`>=0.4.25`** on the **`dev`** extra (not a runtime dependency of the library). Boundary tests in **`tests/integration/test_replayt_boundary.py`** use **`Runner`** / **`RunContext.set`** / **`Workflow`** / **`SQLiteStore`** / **`DryRunLLMClient`** per **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** §7. Bump the lower bound when replayt API used by those imports changes. |
+| **`replayt`** | Lower bound **`>=0.4.25`** on the **`dev`** extra (not a runtime dependency of the library). Boundary tests in **`tests/integration/test_replayt_boundary.py`** use **`Runner`** / **`RunContext.set`** / **`Workflow`** / **`SQLiteStore`** / **`DryRunLLMClient`** / **`LogMode`** per **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** §7. **`packaging`** on **`dev`** supports the §4.6 installed-version check against that specifier. Bump the lower bound when replayt API used by those imports changes. |
 
 ## Accepted risk: CVE-2026-4539 (pygments)
 

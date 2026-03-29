@@ -113,6 +113,7 @@ The bullets below record the API exercised by **`tests/integration/test_replayt_
   - **`replayt.workflow.Workflow`** — minimal one-step workflow for the smoke run.
   - **`replayt.persistence.sqlite.SQLiteStore`** — durable store implementation used only so **`Runner`** can complete a real run (file-backed temp DB in tests).
   - **`replayt.testing.DryRunLLMClient`** — no-network LLM client so the workflow run does not need API keys.
+  - **`replayt.types.LogMode`** — passed to **`Runner`** as **`log_mode`** (for example **`LogMode.redacted`**) so CI logs stay bounded.
 - **Data passed across the boundary:** A plain **`dict`** built from **`PreparedSpanRecord`** (**`trace_id`**, **`span_id`**, **`name`**, **`kind`**, **`start_time_unix_nano`**, **`end_time_unix_nano`**, **`attributes`**, **`workflow_id`**, **`step_id`**) is written with **`RunContext.set("otel_span", ...)`** inside **`Runner`**’s **`before_step`** callback; the step handler reads it with **`get`** and asserts equality. **`workflow_id`** / **`step_id`** mirror the record fields (each may be **`None`**). **`tests/integration/test_replayt_boundary.py`** covers this shape per **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)**.
 - **What “success” means at the boundary:** No **`ContextSchemaError`** or type errors from replayt; the step sees the same mapping; **`Runner.run()`** returns **`RunResult`** with **`status == "completed"`**.
 
