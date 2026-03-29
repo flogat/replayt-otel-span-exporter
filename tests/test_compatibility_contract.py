@@ -18,6 +18,7 @@ _COMPAT = _ROOT / "docs" / "COMPATIBILITY.md"
 _SPEC_REPLAYT = _ROOT / "docs" / "SPEC_REPLAYT_INTEGRATION_TESTS.md"
 _DEP_AUDIT = _ROOT / "docs" / "DEPENDENCY_AUDIT.md"
 _CI = _ROOT / ".github" / "workflows" / "ci.yml"
+_CI_SPEC = _ROOT / "docs" / "CI_SPEC.md"
 _OTEL_POLICY_SPEC = "SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md"
 _OTEL_RUNTIME_NAMES = frozenset({"opentelemetry-api", "opentelemetry-sdk"})
 _EXPECTED_CI_PYTHON_VERSIONS = frozenset({"3.11", "3.12", "3.13"})
@@ -76,6 +77,23 @@ def test_ci_default_path_installs_dev_extra_and_python_matrix():
             "expected matrix "
             f"{sorted(_EXPECTED_CI_PYTHON_VERSIONS)} per docs/COMPATIBILITY.md §4, "
             f"got {sorted(versions)}"
+        )
+
+
+def test_ci_spec_reference_fingerprint_matrix_matches_contract():
+    """docs/CI_SPEC.md §3.1 items 6–7 — Reference fingerprint matrix lines match _EXPECTED_CI_PYTHON_VERSIONS / ci.yml."""
+    text = _CI_SPEC.read_text(encoding="utf-8")
+    anchor = "### Reference fingerprint"
+    start = text.index(anchor)
+    end = text.index("\n### Known drift", start)
+    block = text[start:end]
+    matches = list(re.finditer(r"python-version:\s*\[([^\]]+)\]", block))
+    assert matches, f"expected a python-version matrix inside {anchor!r} subsection"
+    for m in matches:
+        versions = set(re.findall(r'"([0-9]+\.[0-9]+)"', m.group(1)))
+        assert versions == _EXPECTED_CI_PYTHON_VERSIONS, (
+            "CI_SPEC Reference fingerprint python set "
+            f"{sorted(versions)} != contract {sorted(_EXPECTED_CI_PYTHON_VERSIONS)}"
         )
 
 

@@ -67,6 +67,7 @@ These bullets are the **mission-level summary**; **[CI_SPEC.md](CI_SPEC.md)** is
   `pytest --cov=replayt_otel_span_exporter --cov-report=xml`  
   so **all** collected tests under **`tests/`** run on every matrix cell unless **[CI_SPEC.md](CI_SPEC.md)** is explicitly revised (see §5–§6 there).
 - **Python matrix:** versions must satisfy **`[project].requires-python`** (currently **≥ 3.11**); CI exercises **3.11**, **3.12**, and **3.13** on every matrix cell (see **Reference fingerprint** in **[CI_SPEC.md](CI_SPEC.md)**). If a future interpreter cannot be added without policy changes, **[COMPATIBILITY.md](COMPATIBILITY.md)** §4.1 records the deferral until unblocked.
+- **Python matrix maintenance:** Testable criteria for the **3.13** row (and deferring or removing a matrix Python without doc drift) are normative in **[CI_SPEC.md](CI_SPEC.md)** §3.1 (Mission Control backlog **`4a00b7f7-af4e-4200-9d28-38e3827fa2e5`**); operator deferral steps live in **[COMPATIBILITY.md](COMPATIBILITY.md)** §4.1.2.
 - **Workflow success:** a **green** change is a successful run of **every** job in **`.github/workflows/ci.yml`** (today at least **`test`** and **`supply-chain`**); see **[CI_SPEC.md](CI_SPEC.md)** §7.
 - **Spec-to-suite mapping (what CI is expected to prove):**
   - **[SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** — exporter IR, **`ReplaytSpanExporter`** behavior, and skeleton test contract (e.g. **`tests/test_exporter.py`**, **`tests/test_records.py`**).
