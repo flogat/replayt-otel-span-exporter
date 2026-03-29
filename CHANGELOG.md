@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Tests
+
+- **`tests/test_exporter.py`:** **SPEC_SPAN_EXPORT_FAILURE_HANDLING** §6 item **7** — **`on_export_commit`** failure logging mirrors §6 items **4**–**5** (1024 code-point cap and C0/C1 control stripping on **`exc_message`** / log message). Mission Control **`dad27282-2904-4839-ba1c-070e8e3ba7c8`**, phase **3** (**Builder**): **“Harden failure-path logging against log injection and oversized messages”**.
+
 ### Documentation
 
 - **Export failure logging (spec):** **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** — Mission Control **`dad27282-2904-4839-ba1c-070e8e3ba7c8`**, phase **2** (**Spec lead**): backlog **`dad27282`** named as authoritative umbrella for injection/size hardening; **§5.5** logging surface inventory and approval-hook **ERROR** parity; **§6** item **7** (hook-path test recommendation); **§7** checklist item for **§9**; new **§9** explicit MC acceptance criteria and out-of-scope note. **[docs/MISSION.md](docs/MISSION.md)** — traceability subsection + spec-to-suite bullet. **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §5 — aligned failure-handling sentence.
