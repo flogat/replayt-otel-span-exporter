@@ -24,4 +24,4 @@ This document orients **maintainers**, **integrators**, and **Mission Control** 
 | Backlog item | Roadmap anchor |
 | ------------ | -------------- |
 | **Define beta/1.0 promotion criteria and public API stability promises** | This file + **[docs/SPEC_BETA_AND_STABLE_PROMOTION.md](SPEC_BETA_AND_STABLE_PROMOTION.md)** |
-| **Publish first alpha release** / **Close first alpha** | **[docs/SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** |
+| **Publish first alpha release** / **Close first alpha** / **Complete first alpha publish verification and README install truth** | **[docs/SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** ([§0.2](SPEC_FIRST_ALPHA_RELEASE.md#mc-backlog-first-alpha-verify)) |

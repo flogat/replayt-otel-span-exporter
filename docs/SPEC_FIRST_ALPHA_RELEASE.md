@@ -1,6 +1,6 @@
 # Specification: Publish first alpha release
 
-This document refines the backlog item **“Publish first alpha release”** — and the follow-on **“Close first alpha: upload, verify SPEC_FIRST_ALPHA section 5, align README install prose”** — into testable requirements for maintainers and the Builder phase. **Production code, workflow YAML, and release automation** belong in later phases unless this file only adjusts contracts; this spec is the contract for what “done” means.
+This document refines the backlog item **“Publish first alpha release”** — the follow-on **“Close first alpha: upload, verify SPEC_FIRST_ALPHA section 5, align README install prose”** — and the Mission Control wording **“Complete first alpha publish verification and README install truth”** (same operational close; see [§0.2](#mc-backlog-first-alpha-verify)) — into testable requirements for maintainers and the Builder phase. **Production code, workflow YAML, and release automation** belong in later phases unless this file only adjusts contracts; this spec is the contract for what “done” means.
 
 ## Backlog traceability
 
@@ -20,6 +20,16 @@ This document refines the backlog item **“Publish first alpha release”** —
 | **`import replayt_otel_span_exporter`**, **`importlib.metadata.version`** matches, **no transitive `replayt`** | [§5](#5-verification-normative) steps 4–5 |
 | Update **README** / **COMPATIBILITY** when the index is live | [§6 Documentation updates](#6-documentation-updates-normative-for-builder), **[docs/SPEC_README_QUICK_START.md](SPEC_README_QUICK_START.md)** §2.1 |
 | Record verifier Python and install command in release handoff | [§5.2 Release handoff record](#52-release-handoff-record-normative) |
+
+**Mission Control backlog — “Complete first alpha publish verification and README install truth”:**
+
+| Backlog phrase (summary) | Satisfied by (this doc) |
+| -------------------------- | ------------------------ |
+| **`pyproject.toml` already at PEP 440 alpha** (for example **`0.2.0a1`**) | [§2 Versioning](#2-versioning-normative); [§0.2](#mc-backlog-first-alpha-verify) criterion **1** assumes the published version matches source. |
+| Confirm **sdist** / **wheel** on the chosen index | [§4](#4-publishing-target-normative), [§0.2](#mc-backlog-first-alpha-verify) criterion **1**, [§7](#7-acceptance-checklist) |
+| Run **§5** clean-venv install + import + version + no-**`replayt`** runtime dep | [§5](#5-verification-normative), [§0.2](#mc-backlog-first-alpha-verify) criterion **2** |
+| Update **README** quick start and **`docs/COMPATIBILITY.md`** per **§6** | [§6](#6-documentation-updates-normative-for-builder), [§0.2](#mc-backlog-first-alpha-verify) criteria **3–4** |
+| Record verifier Python version and install command in handoff or release notes | [§5.2](#52-release-handoff-record-normative), [§0.2](#mc-backlog-first-alpha-verify) criterion **5** |
 
 **Related contracts:** Distribution metadata MUST stay consistent with **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** (Python / OpenTelemetry policy) and **`[project].name`** in **`pyproject.toml`** (**`replayt-otel-span-exporter`**). README integrator install prose MUST follow **[docs/SPEC_README_QUICK_START.md](SPEC_README_QUICK_START.md)** §2.1 once the package is available on an index. Default CI behavior and “green” definition remain **[docs/CI_SPEC.md](CI_SPEC.md)**; this backlog does **not** require a new CI job unless maintainers choose to add one in the same change set and document it there.
 
@@ -51,6 +61,20 @@ The backlog body below is satisfied **only** when every row passes (cross-check 
 | **`replayt` not pulled transitively** | [§5 step 5](#5-verification-normative) holds unless the verifier installed **`replayt`** separately. |
 | **README quick start + `docs/COMPATIBILITY.md`** when the index is live | [§6](#6-documentation-updates-normative-for-builder) and **[docs/SPEC_README_QUICK_START.md](SPEC_README_QUICK_START.md)** §2.1 (including **version-pinned** integrator example after publish). |
 | **Verifier Python + install command in release handoff** | [§5.2](#52-release-handoff-record-normative) fields recorded for Mission Control / merge handoff. |
+
+<a id="mc-backlog-first-alpha-verify"></a>
+
+## 0.2 Mission Control backlog — Complete first alpha publish verification and README install truth
+
+This item is the **operational close** when **`[project].version`** is already a PEP 440 **alpha** (for example **`0.2.0a1`**): prove the **index**, prove **§5** from a **clean** environment, align **README** / **COMPATIBILITY** prose with integrator reality, and leave a **§5.2** handoff. It is **satisfied only** when **every** numbered criterion below passes (cross-check [§0.1](#01-follow-on-backlog-close-first-alpha-upload-5-verification-readme-alignment) and [§7](#7-acceptance-checklist)).
+
+1. **Index artifacts:** Both **sdist** and **wheel** for **`replayt-otel-span-exporter==<published-version>`** appear on the **chosen** index (PyPI project files or private registry listing). Local **`dist/`** alone is **not** sufficient.
+2. **§5 verification:** On a **fresh** venv with **no** editable install of this repo, using Python **≥** **`[project].requires-python`**, complete [§5](#5-verification-normative) steps **2–5**: pinned **`pip install`** (with **`--index-url`** / **`--extra-index-url`** / **`--trusted-host`** when not using public PyPI), successful **`import replayt_otel_span_exporter`**, **`importlib.metadata.version("replayt-otel-span-exporter") == "<published-version>"`**, shipped **`__version__`** matches per [§2](#2-versioning-normative) if present, and **no** **`replayt`** dependency introduced by this package alone ([§5 step 5](#5-verification-normative)).
+3. **README install truth:** **`README.md`** library-user quick start satisfies **[docs/SPEC_README_QUICK_START.md](SPEC_README_QUICK_START.md)** §2.1: copy-paste **version-pinned** **`pip install replayt-otel-span-exporter==<published-version>`** consistent with the **§5** install line (including index flags for private indexes); prerelease **`--pre`** guidance where unpinned examples would otherwise mislead ([§5 step 3](#5-verification-normative)).
+4. **`docs/COMPATIBILITY.md`:** §2 **Published wheels and sdists** accurately states whether **`<published-version>`** is **on** the named index or still **pre-index**, and matches **[CHANGELOG.md](../CHANGELOG.md)** / **`[project].version`** for that line. Refresh [§6 checklist item 6](COMPATIBILITY.md#6-verifiable-checklist-spec--build--review) when claiming this backlog.
+5. **Handoff record:** All **[§5.2](#52-release-handoff-record-normative)** table fields are recorded in **release notes**, Mission Control **`handoff.md`**, or another merge artifact: **index**, **published version**, **verifier Python** (**`python --version`** output), **install command** (full line), and **recommended** source revision (tag or SHA).
+
+**Optional automation:** **`scripts/verify_published_release.sh`** runs a §5-style minimal install and import/metadata/**`replayt`** absence checks for a version (see script header). It **does not** replace criterion **5**; capture **§5.2** explicitly after a successful run.
 
 ## 1. Goals
 
@@ -102,6 +126,8 @@ After upload, a verifier (human or scripted) MUST confirm from a **clean** envir
    MUST succeed without installing **`[dev]`** extras. If **`__version__`** is defined on the package, it SHOULD match **`<published-version>`** (required at source per [§2](#2-versioning-normative)).
 5. **Runtime deps:** The install MUST **not** pull **`replayt`** into the environment as a dependency of **`replayt-otel-span-exporter`** (consistent with **`[project].dependencies`** in **`pyproject.toml`**). A quick check is: **`pip show replayt-otel-span-exporter`** lists only the declared runtime requirements, and **`pip list`** does not show **`replayt`** as **Required-by** that package unless the user installed it separately.
 
+**Maintainer helper (informative):** From the repository root, **`./scripts/verify_published_release.sh [<published-version>]`** with optional **`INDEX_URL`** / **`TRUSTED_HOST`** performs a fresh venv install and checks aligned with steps **2**, **4**, and **5** above. The interpreter used for the venv SHOULD be **≥** **`requires-python`**; record that interpreter in **§5.2** either way.
+
 ## 5.1 CI and suite health (informative)
 
 This backlog’s **§5** verification uses a **minimal** install path and does **not** replace full **`pytest`** coverage. **[docs/CI_SPEC.md](CI_SPEC.md)** still defines whether the default branch is “green.” **Unrelated** test failures (for example **`tests/integration/test_replayt_boundary.py`** collection errors under **`pip install -e ".[dev]"`**) are owned by the **Tester** phase and **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)**; they SHOULD be resolved **before** merging a release branch so maintainers do not ship from a known-red mainline. Packaging defects that block **§5** (broken **`pyproject.toml`**, wrong files in the wheel) **are** in scope for the **Builder** on this backlog.
@@ -123,7 +149,8 @@ After **§5** succeeds, the maintainer MUST record the following in **release no
 When the package is **actually** available on the chosen index:
 
 - **`README.md`** library-user quick start MUST be updated per **[docs/SPEC_README_QUICK_START.md](SPEC_README_QUICK_START.md)** §2.1 (state that PyPI—or the named private index—install works; show a **version-pinned** **`pip install replayt-otel-span-exporter==<published-version>`** line matching **§5** verification; keep an **unpinned** **`pip install replayt-otel-span-exporter`** example **only** where it matches integrator reality—for public PyPI stable releases—or pair unpinned alphas with **`--pre`** per **§5** step 3).
-- **`docs/COMPATIBILITY.md`** SHOULD mention that published wheels/sdists track **`[project].requires-python`** and OpenTelemetry lower bounds as on PyPI for that version (adjust wording if the matrix is unchanged—still point integrators at the published package name).
+- **`docs/COMPATIBILITY.md`** MUST revise §2 **Published wheels and sdists** in the same maintenance pass: state that **`<published-version>`** is installable from the **named** index (or keep explicit **pre-index** wording until it is), and that published **`Requires-Dist`** / **`requires-python`** on the live project page should match **`pyproject.toml`** at the release revision for that tag.
+- **`docs/COMPATIBILITY.md`** SHOULD continue to summarize that published wheels/sdists track **`[project].requires-python`** and OpenTelemetry lower bounds as shown on the index for that version (even when the numeric matrix rows are unchanged—still point integrators at the published package name).
 
 ## 7. Acceptance checklist
 
@@ -133,7 +160,7 @@ When the package is **actually** available on the chosen index:
 - [ ] **`python -m build`** and **`twine check dist/*`** completed successfully on the release revision before upload, or CI automation documented in **[docs/CI_SPEC.md](CI_SPEC.md)** provides equivalent gates ([§4](#4-publishing-target-normative)).
 - [ ] **Sdist and wheel** for that version are uploaded to the chosen index (artifacts visible in the index UI or API, not only local **`dist/`** files).
 - [ ] **§5 Verification** install + import + version + no-**`replayt`**-runtime-dep checks pass from a **clean** venv on a supported Python version.
-- [ ] **README** / **COMPATIBILITY** updated per [§6](#6-documentation-updates-normative-for-builder) when the index is live.
+- [ ] **README** / **COMPATIBILITY** updated per [§6](#6-documentation-updates-normative-for-builder) when the index is live (including §2 **Published wheels and sdists** accuracy per [§0.2](#mc-backlog-first-alpha-verify) criterion **4**).
 - [ ] **[§5.2](#52-release-handoff-record-normative)** fields (index, version, verifier Python, install command) recorded in handoff or release notes.
 - [ ] **Optional:** Git tag or recorded **SHA** links the published version to source ([§0](#0-testable-acceptance-criteria-expanded-backlog-wording)).
 
