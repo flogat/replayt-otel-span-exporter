@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`tests/test_pypi_index_and_install_docs.py`:** default **`pytest`** check that public **PyPI** JSON for **`replayt-otel-span-exporter`** matches **`README.md`** integrator honesty and **`docs/COMPATIBILITY.md`** §2 pre-index vs post-upload wording (**[docs/SPEC_FIRST_ALPHA_RELEASE.md](docs/SPEC_FIRST_ALPHA_RELEASE.md)** §0.2 / §6). Asserts **`scripts/verify_published_release.sh`** uses **LF** newlines so the shebang runs on Unix. Backlog **“Complete first alpha publish verification and README install truth”**, phase **3**.
+
 ### Documentation
 
 - **First alpha verification and README install truth (spec):** **[docs/SPEC_FIRST_ALPHA_RELEASE.md](docs/SPEC_FIRST_ALPHA_RELEASE.md)** — Mission Control backlog **“Complete first alpha publish verification and README install truth”**, phase **2**: backlog traceability table, **[§0.2](docs/SPEC_FIRST_ALPHA_RELEASE.md#mc-backlog-first-alpha-verify)** numbered acceptance criteria (index artifacts, **§5** clean venv, **README** / **SPEC_README_QUICK_START** §2.1 parity, **`docs/COMPATIBILITY.md`** §2 published-metadata accuracy, **§5.2** handoff), **§5** pointer to **`scripts/verify_published_release.sh`** (optional; does not replace **§5.2**), **§6** normative **COMPATIBILITY** §2 refresh, **§7** checklist cross-link. **[docs/MISSION.md](docs/MISSION.md)** success criterion and **[docs/ROADMAP.md](docs/ROADMAP.md)** backlog table cite the same item.

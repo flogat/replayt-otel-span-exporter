@@ -44,6 +44,8 @@ Values below match the repository **at the time this section was last revised**;
 
 **Published wheels and sdists:** The first alpha line in **[CHANGELOG.md](../CHANGELOG.md)** is **`0.2.0a1`**. When that build is on [PyPI](https://pypi.org/project/replayt-otel-span-exporter/) (or another index), the **`[project]`** metadata for each uploaded version — **`requires-python`**, runtime **`Requires-Dist`** entries — comes from **`pyproject.toml`** at the release revision. Confirm the live project page for the version you install; it should match this matrix for that tag. Until the index lists the release, treat the source tree and local **`python -m build`** artifacts as the source of truth.
 
+**Public PyPI guard:** **`tests/test_pypi_index_and_install_docs.py`** (default **`pytest`**) requests **`https://pypi.org/pypi/replayt-otel-span-exporter/json`**. If both **sdist** and **bdist_wheel** exist there for **`[project].version`**, that test requires dropping the **Until the index lists the release** sentence above and replacing it with live-index prose in the same edit pass (**[docs/SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** §6).
+
 ## 3. Pin strategy
 
 ### 3.1 OpenTelemetry runtime (float policy)
