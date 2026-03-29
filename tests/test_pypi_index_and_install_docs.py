@@ -69,6 +69,11 @@ def test_public_pypi_json_matches_readme_and_compatibility_docs() -> None:
         "Remove the pre-index sentence from docs/COMPATIBILITY.md §2 now that sdist and wheel "
         f"for {version!r} are on public PyPI (SPEC_FIRST_ALPHA_RELEASE §6)."
     )
+    pre_readme = "If that version is not listed on the project page yet"
+    assert pre_readme not in readme, (
+        "README integrator quick start must not defer to a clone once public PyPI lists sdist "
+        f"and wheel for {version!r} (SPEC_README_QUICK_START §2.1, SPEC_FIRST_ALPHA_RELEASE §6)."
+    )
 
 
 def test_verify_published_release_script_uses_unix_line_endings() -> None:

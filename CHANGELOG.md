@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`tests/test_pypi_index_and_install_docs.py`:** when public **PyPI** lists both **sdist** and **wheel** for **`[project].version`**, assert the integrator README line that defers to a clone until upload is removed (**[docs/SPEC_FIRST_ALPHA_RELEASE.md](docs/SPEC_FIRST_ALPHA_RELEASE.md)** §6 / **[docs/SPEC_README_QUICK_START.md](SPEC_README_QUICK_START.md)** §2.1). **[docs/SPEC_FIRST_ALPHA_RELEASE.md](docs/SPEC_FIRST_ALPHA_RELEASE.md)** §5.1 now describes **`test_replayt_boundary`** collection failures when **`replayt`** is missing (editable install without **`[dev]`**), not under **`pip install -e ".[dev]"`**. Backlog **“Complete first alpha publish verification and README install truth”**, phase **3**.
+
 ### Added
 
 - **`tests/test_release_packaging.py`:** clean-venv install from the built **sdist** (same metadata / **`__version__`** bar as the wheel file install) so both artifact kinds match **[docs/SPEC_FIRST_ALPHA_RELEASE.md](docs/SPEC_FIRST_ALPHA_RELEASE.md)** §4 / §5 expectations before they hit an index. **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §5 notes the sdist path. Backlog **“Complete first alpha publish verification and README install truth”**, phase **3**.

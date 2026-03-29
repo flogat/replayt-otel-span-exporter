@@ -130,7 +130,7 @@ After upload, a verifier (human or scripted) MUST confirm from a **clean** envir
 
 ## 5.1 CI and suite health (informative)
 
-This backlog’s **§5** verification uses a **minimal** install path and does **not** replace full **`pytest`** coverage. **[docs/CI_SPEC.md](CI_SPEC.md)** still defines whether the default branch is “green.” **Unrelated** test failures (for example **`tests/integration/test_replayt_boundary.py`** collection errors under **`pip install -e ".[dev]"`**) are owned by the **Tester** phase and **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)**; they SHOULD be resolved **before** merging a release branch so maintainers do not ship from a known-red mainline. Packaging defects that block **§5** (broken **`pyproject.toml`**, wrong files in the wheel) **are** in scope for the **Builder** on this backlog.
+This backlog’s **§5** verification uses a **minimal** install path and does **not** replace full **`pytest`** coverage. **[docs/CI_SPEC.md](CI_SPEC.md)** still defines whether the default branch is “green.” **Unrelated** test failures (for example **`tests/integration/test_replayt_boundary.py`** collection errors when **`replayt`** is not installed — for example editable **`pip install -e "."`** without the **`dev`** extra) are owned by the **Tester** phase and **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)**; they SHOULD be resolved **before** merging a release branch so maintainers do not ship from a known-red mainline. Packaging defects that block **§5** (broken **`pyproject.toml`**, wrong files in the wheel) **are** in scope for the **Builder** on this backlog.
 
 ## 5.2 Release handoff record (normative)
 
