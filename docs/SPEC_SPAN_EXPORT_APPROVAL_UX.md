@@ -4,6 +4,8 @@ This document refines the backlog item **“Define and implement approval UX for
 
 It **extends** **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** (especially §2.2 exporter behavior and constructor). Where the two conflict after this backlog lands, **this document wins** for approval gating, audit visibility, and integrator hook contracts until a follow-on spec reconciles them.
 
+**Hook evolution and semver** (stable releases): **[docs/SPEC_BETA_AND_STABLE_PROMOTION.md](SPEC_BETA_AND_STABLE_PROMOTION.md)** §5.
+
 **Failure logging and redaction** on **internal errors** remain governed by **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)**. A **policy denial** (integrator chooses not to commit a batch) is **not** an export failure under that spec: the exporter **MUST NOT** return **`SpanExportResult.FAILURE`** solely because approval was denied (see §4.2).
 
 ## Backlog traceability
