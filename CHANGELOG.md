@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- **Replayt boundary hardening (spec):** **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](docs/SPEC_REPLAYT_INTEGRATION_TESTS.md)** — backlog **“Strengthen replayt boundary tests for pin bumps and contract drift”**, phase **2**: CI pin-bump validation (**§5.1**), import-surface and **`PreparedSpanRecord`** → replayt payload contracts (**§4.4–§4.6**), collection reliability under **`pip install -e ".[dev]"`** (**§3**), expanded §6 checklist; cross-links from **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §5, **[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)** §6, and **[docs/MISSION.md](docs/MISSION.md)** spec-to-suite mapping.
+
 ### Changed
 
 - **CI:** **`test`** and **`supply-chain`** jobs in **`.github/workflows/ci.yml`** run on **Python 3.13** as well as **3.11** and **3.12** (backlog **“Expand CI matrix to Python 3.13 with documented compatibility fingerprint”**, phase **3** build). **`tests/test_compatibility_contract.py`**, **[README.md](README.md)** (CI summary), **[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)** §2 / §4 / §4.1.1, **[docs/CI_SPEC.md](docs/CI_SPEC.md)** reference fingerprint, **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](docs/SPEC_REPLAYT_INTEGRATION_TESTS.md)** §6, and **[docs/MISSION.md](docs/MISSION.md)** matrix summary match the expanded matrix.
