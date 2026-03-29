@@ -22,7 +22,7 @@ This document refines Mission Control backlog **`21487c24-8d58-4085-896c-4a6bad8
 The backlog body had **no** acceptance list; the following **is** the acceptance bar (cross-check with [§8](#8-verifiable-acceptance-checklist)):
 
 1. **`scripts/otel_to_prepared_demo.py`** exists and is the **only** primary demo module (§2); runnable after **`pip install -e ".[dev]"`** with canonical invocation documented (§2, §5).
-2. Script configures **`TracerProvider`**, registers **`ReplaytSpanExporter`** with **`SimpleSpanProcessor`** or **`BatchSpanProcessor`**, uses a shared **`records=`** buffer, restores the prior global provider in **`finally`** (§3.1).
+2. Script configures **`TracerProvider`**, registers **`ReplaytSpanExporter`** with **`SimpleSpanProcessor`** or **`BatchSpanProcessor`**, uses a shared **`records=`** buffer, and binds tracing with **`get_tracer(..., tracer_provider=provider)`** per §3.1 (no second global **`set_tracer_provider`** that would warn on stderr).
 3. At least one **non-root** span with **`replayt.workflow_id`** and **`replayt.step_id`** (fictional values) and a **non-triage** attribute; exported **`PreparedSpanRecord`** reflects triage fields per **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)** (§3.2).
 4. **Stdout** prints labeled lines for every field in [§3.3](#33-printed-fields-normative); exit **`0`** on success, non-zero on failure (§3.3–§3.4).
 5. **No** `import replayt`; **no** **`replayt`** in **`[project].dependencies`**; public imports from **`replayt_otel_span_exporter`** only (§4).
@@ -53,7 +53,7 @@ The backlog body had **no** acceptance list; the following **is** the acceptance
 
 - Configure a **`TracerProvider`** and register **`ReplaytSpanExporter`** via **`SimpleSpanProcessor`** or **`BatchSpanProcessor`** (pick **one** and stay consistent with tests).
 - Use a **shared** **`list`** (or equivalent) passed into **`ReplaytSpanExporter(records=...)`** per **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** §2.2 so the script can inspect **`PreparedSpanRecord`** instances after export.
-- Set the global tracer provider (**`trace.set_tracer_provider`**) for the duration of the demo and **restore** the previous provider in a **`finally`** block (same isolation pattern as **`tests/readme_usage_example_snippet.py`**) so repeated runs or test subprocesses do not leak global state.
+- Obtain the demo **`Tracer`** with **`trace.get_tracer(..., tracer_provider=provider)`** so spans run on the configured SDK provider **without** calling **`trace.set_tracer_provider`**. The OpenTelemetry API allows only **one** successful global **`set_tracer_provider`** per process; pairing **`set_tracer_provider`** with a **`finally`** that restores the prior provider attempts a second global set and emits a **stderr** diagnostic (“Overriding of current TracerProvider is not allowed”). **`tests/readme_usage_example_snippet.py`** still uses save/restore for in-process **pytest** isolation; this script is subprocess-oriented and avoids touching the global default.
 
 ### 3.2 Spans and triage metadata
 

@@ -60,19 +60,17 @@ def main() -> int:
     provider = TracerProvider()
     provider.add_span_processor(SimpleSpanProcessor(exporter))
 
-    previous = trace.get_tracer_provider()
-    try:
-        trace.set_tracer_provider(provider)
-        tracer = trace.get_tracer("otel-to-prepared-demo")
-        # Non-root span (spec §3.2): attributes live on the child.
-        with tracer.start_as_current_span("demo-root"):
-            with tracer.start_as_current_span(_DEMO_SPAN_NAME) as span:
-                span.set_attribute(_DEMO_ATTR_KEY, _DEMO_ATTR_VALUE)
-                span.set_attribute("replayt.workflow_id", _DEMO_WORKFLOW_ID)
-                span.set_attribute("replayt.step_id", _DEMO_STEP_ID)
-        provider.shutdown()
-    finally:
-        trace.set_tracer_provider(previous)
+    # Bind spans to this SDK provider without set_tracer_provider + restore: the
+    # OpenTelemetry API allows only one successful global set per process; a
+    # finally restore would log "Overriding ... is not allowed" on stderr.
+    tracer = trace.get_tracer("otel-to-prepared-demo", tracer_provider=provider)
+    # Non-root span (spec §3.2): attributes live on the child.
+    with tracer.start_as_current_span("demo-root"):
+        with tracer.start_as_current_span(_DEMO_SPAN_NAME) as span:
+            span.set_attribute(_DEMO_ATTR_KEY, _DEMO_ATTR_VALUE)
+            span.set_attribute("replayt.workflow_id", _DEMO_WORKFLOW_ID)
+            span.set_attribute("replayt.step_id", _DEMO_STEP_ID)
+    provider.shutdown()
 
     if not records:
         print("no prepared records after shutdown", file=sys.stderr)
