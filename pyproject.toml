@@ -4,6 +4,9 @@ version = "0.2.0a1"
 description = "OpenTelemetry Span Exporter for Replayt Workflows: Python project using replayt; see docs for scope."
 readme = "README.md"
 requires-python = ">=3.11"
+# OpenTelemetry: PEP 440 lower bounds only (no `<` upper cap on the 1.x line). CI resolves the
+# newest compatible releases on each run; policy and integrator pinning guidance live in
+# docs/COMPATIBILITY.md §3 and docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md.
 dependencies = [
     "opentelemetry-api>=1.0.0",
     "opentelemetry-sdk>=1.0.0",

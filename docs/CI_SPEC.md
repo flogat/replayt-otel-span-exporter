@@ -23,6 +23,8 @@ The rows below expand those three bullets into checks a human or gate phase can 
 
 **Python 3.13 matrix expansion:** Backlog **“Expand CI matrix to Python 3.13 with documented compatibility fingerprint”** is normative in [§3.1](#31-python-313-matrix-expansion-normative-backlog); it extends **`test`** / **`supply-chain`** matrices, **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §4 / §4.1, and the **Reference fingerprint** below.
 
+**OpenTelemetry runtime pins:** Backlog **“Document OpenTelemetry upper-bound or float policy in pyproject and COMPATIBILITY”** — default install has **no** committed lockfile; **`opentelemetry-api`** / **`opentelemetry-sdk`** **float** to newest compatible **1.x** releases satisfying **`pyproject.toml`** lower bounds on each CI run. Normative policy and integrator guidance: **[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)**; compatibility matrix context: **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §3.1.
+
 ## Goals
 
 - Run automated tests on every relevant **push** and **pull_request** so regressions are caught before merge.
@@ -79,6 +81,8 @@ pip install -e ".[dev]"
 ```
 
 Do not rely on a hand-maintained `requirements-ci.txt` unless the project later adds one and documents it here.
+
+**OpenTelemetry resolution (informative):** This path does **not** pin **`opentelemetry-api`** / **`opentelemetry-sdk`** to exact versions. **`pip`** selects the **latest** releases that satisfy **`[project].dependencies`** lower bounds and remain compatible with **`[dev]`** transitives, so **new OTel minors** are picked up on routine CI installs until maintainers change floors or constraints. See **[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)**.
 
 **Verify:** The workflow does not install ad hoc package lists that bypass **`pyproject.toml`** for the main test path.
 

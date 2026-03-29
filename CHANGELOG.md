@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- **OpenTelemetry dependency policy:** **[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)** — backlog **“Document OpenTelemetry upper-bound or float policy in pyproject and COMPATIBILITY”**, phase **2**: lower bounds only (no runtime upper cap), how default **CI** observes new **1.x** releases via floating **`pip`** resolution, integrator pinning (**API** + **SDK** together). Updates **[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)** §2–§3 (**§3.1** float policy), **[docs/DEPENDENCY_AUDIT.md](docs/DEPENDENCY_AUDIT.md)** § Runtime, **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §4 + backlog traceability, **[docs/MISSION.md](docs/MISSION.md)** compatibility summary; **`pyproject.toml`** comments on runtime OTel deps.
+
 ### Changed
 
 - **Export failure logging:** Exception messages and span names in **`ReplaytSpanExporter`** failure logs are **C0 / C1 control-stripped** (replaced with spaces) and **truncated** to **1024** and **256** Unicode code points respectively, with matching **`exc_message`** / **`span_name`** string fields in log **`extra`**; see **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** §5.4. Backlog **“Audit exporter logging for injection and oversized fields on failure paths”**, phase **3** build.

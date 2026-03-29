@@ -9,6 +9,7 @@ This document refines the backlog item **“Document supported replayt versions 
 | Compatibility matrix documented | [§2 Compatibility matrix](#2-compatibility-matrix) |
 | Pin strategy and CI matrix described | [§3 Pin strategy](#3-pin-strategy), [§4 CI matrix](#4-ci-matrix-and-proven-contract) |
 | Links to replayt release tracking | [§5 Tracking replayt releases](#5-tracking-replayt-releases) |
+| **OpenTelemetry** upper-bound vs float policy, CI observation, integrator pins | [§2](#2-compatibility-matrix) (**OpenTelemetry** rows), [§3.1](#31-opentelemetry-runtime-float-policy) — normative detail in **[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)** |
 
 **Expand CI matrix to Python 3.13** (separate backlog):
 
@@ -17,7 +18,7 @@ This document refines the backlog item **“Document supported replayt versions 
 | Documented **Python × CI** fingerprint including **3.13** | [§2](#2-compatibility-matrix), [§4](#4-ci-matrix-and-proven-contract), [§4.1](#41-python-313-matrix-expansion-operator-notes) |
 | Caveats for **pip-audit**, **`replayt`** dev pin, **OpenTelemetry** resolution on **3.13** | [§4.1.1](#411-when-313-is-in-ci) |
 
-Related specs: **[docs/CI_SPEC.md](CI_SPEC.md)** (workflow contract), **[docs/DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)** (audit and transitive risk), **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** (boundary API and minimum **`replayt`** for tests).
+Related specs: **[docs/CI_SPEC.md](CI_SPEC.md)** (workflow contract), **[docs/DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)** (audit and transitive risk), **[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)** (runtime OTel float / no upper cap), **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** (boundary API and minimum **`replayt`** for tests).
 
 ## 1. Roles of each dependency class
 
@@ -35,17 +36,23 @@ Values below match the repository **at the time this section was last revised**;
 | Component | Supported policy (this package) | Where enforced |
 | --------- | ------------------------------- | -------------- |
 | **Python** | **`>=3.11`** per **`[project].requires-python`** | **`pyproject.toml`**; default CI exercises **3.11**, **3.12**, and **3.13** (see §4). |
-| **opentelemetry-api** | Lower bound **`>=1.0.0`** (compatible line with SDK) | **`pyproject.toml`** **`[project].dependencies`**; **[docs/DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)** § Runtime. |
-| **opentelemetry-sdk** | Lower bound **`>=1.0.0`** | Same as API. |
+| **opentelemetry-api** | **Lower bound only** **`>=1.0.0`**; **no** **`<`** upper bound on runtime deps. New **1.x** releases are picked by the resolver until maintainers raise the floor or fix breakages. | **`pyproject.toml`** **`[project].dependencies`** (comments + spec); **[docs/DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)** § Runtime; **[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)**. |
+| **opentelemetry-sdk** | **Lower bound only** **`>=1.0.0`**, kept on the **same OTel Python release line** as **API** | Same as API. |
 | **replayt** | **Test/dev only:** lower bound **`>=0.4.25`** on **`dev`** extra | **`pyproject.toml`** **`[project.optional-dependencies].dev`**; boundary contract in **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** §7. |
 
-**Interpretation for integrators:** Any **Python** and **OpenTelemetry** versions satisfying the table are in policy for **using this exporter as a library**. Compatibility with **replayt** at runtime is **not** claimed by this matrix unless you align your environment with the **dev** pin or validate **`PreparedSpanRecord`** → replayt yourself; CI proves a **minimum** replayt API against the declared lower bound.
+**Interpretation for integrators:** Any **Python** and **OpenTelemetry** versions satisfying the table are in policy for **using this exporter as a library**. The declared OTel bounds are **minimums**; for **reproducible** installs, pin **`opentelemetry-api`** and **`opentelemetry-sdk`** to **matching** versions (same upstream release line) in **your** application or lockfile — see **[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)** §1. Compatibility with **replayt** at runtime is **not** claimed by this matrix unless you align your environment with the **dev** pin or validate **`PreparedSpanRecord`** → replayt yourself; CI proves a **minimum** replayt API against the declared lower bound.
 
 **Published wheels and sdists:** The first alpha line in **[CHANGELOG.md](../CHANGELOG.md)** is **`0.2.0a1`**. When that build is on [PyPI](https://pypi.org/project/replayt-otel-span-exporter/) (or another index), the **`[project]`** metadata for each uploaded version — **`requires-python`**, runtime **`Requires-Dist`** entries — comes from **`pyproject.toml`** at the release revision. Confirm the live project page for the version you install; it should match this matrix for that tag. Until the index lists the release, treat the source tree and local **`python -m build`** artifacts as the source of truth.
 
 ## 3. Pin strategy
 
-- **Runtime (OpenTelemetry):** Use **PEP 440 lower bounds** in **`[project].dependencies`**. When bumping, move **API** and **SDK** together on the same OpenTelemetry release line, per **[docs/DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)**.
+### 3.1 OpenTelemetry runtime (float policy)
+
+- **No upper bounds:** **`[project].dependencies`** MUST **not** add **`<`** caps on **`opentelemetry-api`** / **`opentelemetry-sdk`** under this policy (avoids resolver conflicts with applications that need newer **1.x** OTel). A deliberate change requires a backlog, spec update, and **CHANGELOG** entry.
+- **How CI sees new minors:** Default CI uses **`pip install -e ".[dev]"`** **without** a committed lockfile, so pip selects the **newest** OTel **1.x** releases compatible with the declared **lower bounds** and the **`dev`** graph. A **green `test`** job means the suite passed against **that resolved pair** on each matrix Python. Upstream releases that break tests surface as **CI failures** until the code or **minimum** bounds are updated — see **[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)** §2–§4 and **[docs/CI_SPEC.md](CI_SPEC.md)** §4.
+- **Integrators:** Pin **API** + **SDK** together at versions you validate; treat this package as declaring **floor** versions only (**[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)** §1).
+
+- **OpenTelemetry version bumps:** When raising (or reconciling) floors in **`pyproject.toml`**, move **`opentelemetry-api`** and **`opentelemetry-sdk`** together on the **same** OpenTelemetry Python release line, per **[docs/DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)** § Runtime.
 - **replayt (dev extra):** Use a **lower bound** that matches the **minimum version** documented in **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** §7 (**Implemented boundary**). Raising the bound is appropriate when replayt’s public API used by **`tests/integration/test_replayt_boundary.py`** changes; do that in the same change set as spec §7 and **`DEPENDENCY_AUDIT.md`** updates.
 - **No duplicate source of truth:** Do not maintain a shadow pin file (for example **`requirements.txt`**) for the default CI path unless the project adds one and documents it in **[docs/CI_SPEC.md](CI_SPEC.md)** §4.
 - **Resolver behavior:** **`pip install -e ".[dev]"`** resolves **replayt** and transitives to current releases compatible with the lower bound; CI therefore proves **≥ minimum**, not an exact single version. If the team needs a **fully locked** integration environment, document an optional lockfile workflow separately (not required by this backlog).
@@ -91,7 +98,7 @@ Upstream **source** or **changelog** URLs may appear on the PyPI sidebar as **Pr
 ## 6. Verifiable checklist (Spec / Build / review)
 
 1. **Matrix** — §2 table matches **`pyproject.toml`** and the Python matrix in **`.github/workflows/ci.yml`**. When the matrix or **3.13** notes change, update §4.1.1 in the same pass.
-2. **Pins** — Any change to **`replayt`**, OpenTelemetry, or **`requires-python`** updates §2–§4 here, **`docs/DEPENDENCY_AUDIT.md`**, and **[docs/CI_SPEC.md](CI_SPEC.md)** reference fingerprint when applicable.
+2. **Pins** — Any change to **`replayt`**, OpenTelemetry, or **`requires-python`** updates §2–§4 here (including §3.1 float policy if policy shifts), **`docs/DEPENDENCY_AUDIT.md`**, **[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)** when normative OTel policy changes, and **[docs/CI_SPEC.md](CI_SPEC.md)** reference fingerprint when applicable.
 3. **Boundary** — **`SPEC_REPLAYT_INTEGRATION_TESTS.md`** §7 **minimum replayt** stays in sync with the **`dev`** extra lower bound.
 4. **Pin bump proof** — A **`replayt`** lower-bound change is supported by **green** default CI (**`test`** job): **`pip install -e ".[dev]"`** then full **`pytest`** collects and passes **`tests/integration/test_replayt_boundary.py`** on **each** matrix Python. See **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)** §5.1 and **[docs/CI_SPEC.md](CI_SPEC.md)** §5.
 5. **Links** — §5 URLs remain valid; adjust if PyPI layout changes.
@@ -101,4 +108,4 @@ Upstream **source** or **changelog** URLs may appear on the PyPI sidebar as **Pr
 
 - Declaring **replayt** as a **runtime** dependency of this library (unless mission scope changes elsewhere).
 - Multi-version **replayt** CI matrices (optional future backlog).
-- Pinning **OpenTelemetry** to exact releases in CI without a documented policy change in **`pyproject.toml`** and this file.
+- Adding **runtime** **`<`** upper bounds on **OpenTelemetry** under the current policy (**[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)** §1); optional lockfiles or pinned CI constraints are a **separate** documented change, not silent drift.
