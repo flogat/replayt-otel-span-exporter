@@ -17,6 +17,7 @@ def test_promotion_spec_has_normative_sections_and_roadmap_pointer():
     assert "## 3. Semantic versioning and public API (normative)" in text
     assert "## 4. Changelog discipline (normative)" in text
     assert "## 5. Optional hooks and extension points (normative)" in text
+    assert "## 6. Deprecation policy (normative)" in text
     assert "### 3.1 `PreparedSpanRecord`" in text
     assert "### 3.2 `ReplaytSpanExporter`" in text
     assert "docs/ROADMAP.md" in text

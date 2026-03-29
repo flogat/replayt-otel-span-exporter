@@ -16,7 +16,7 @@ Supported **Python**, **OpenTelemetry**, and **replayt (dev/test)** versions, **
 
 ## Releases (alpha and later)
 
-**PEP 440** prerelease tagging, **CHANGELOG** cut lines, artifact upload, and post-upload **`pip install`** verification for **`replayt-otel-span-exporter`** are specified in **[docs/SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)**. **Beta**, **1.0**, **SemVer** expectations for the small public API, **changelog** discipline for majors, and **optional hook** evolution are in **[docs/SPEC_BETA_AND_STABLE_PROMOTION.md](SPEC_BETA_AND_STABLE_PROMOTION.md)** with a phase index in **[docs/ROADMAP.md](ROADMAP.md)**. CI automation for publishing is optional and must be documented in **[docs/CI_SPEC.md](CI_SPEC.md)** if added.
+**PEP 440** prerelease tagging, **CHANGELOG** cut lines, artifact upload, and post-upload **`pip install`** verification for **`replayt-otel-span-exporter`** are specified in **[docs/SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)**. **Beta**, **1.0**, **SemVer** expectations for the small public API, **changelog** discipline for majors, **optional hook** evolution, and **deprecation** policy (**§6**) are in **[docs/SPEC_BETA_AND_STABLE_PROMOTION.md](SPEC_BETA_AND_STABLE_PROMOTION.md)** with a phase index in **[docs/ROADMAP.md](ROADMAP.md)**. CI automation for publishing is optional and must be documented in **[docs/CI_SPEC.md](CI_SPEC.md)** if added.
 
 ## LLM / demos (if applicable)
 

@@ -1,6 +1,6 @@
 # Specification: Beta and 1.0 promotion, semver, and public API stability
 
-This document refines the backlog item **“Define beta/1.0 promotion criteria and public API stability promises”** into **testable maintainer and integrator expectations**. **Production code** and **automated CI gates** that enforce §2 checklists are **optional** follow-ons unless a backlog adds them (see §7). Default **`pytest`** includes **`tests/test_beta_stable_promotion_docs.py`**, which only checks that this file and **`docs/ROADMAP.md`** keep expected headings and cross-links (**[docs/CI_SPEC.md](CI_SPEC.md)** §5). This file remains the **normative policy** for promotion gates, **semantic versioning**, **changelog discipline**, and **evolution of optional hooks**.
+This document refines backlog items **“Define beta/1.0 promotion criteria and public API stability promises”** and Mission Control **`e9115fe4-6d8f-44b7-97e1-008a1a8cf478`** (**Post-alpha roadmap: beta or 1.0 criteria and deprecation policy**) into **testable maintainer and integrator expectations**. **Production code** and **automated CI gates** that enforce §2 checklists are **optional** follow-ons unless a backlog adds them (see §8). Default **`pytest`** includes **`tests/test_beta_stable_promotion_docs.py`**, which checks that this file keeps the normative **§2–§6** section headings (and key semver subheadings) and that **`docs/ROADMAP.md`** keeps expected cross-links (**[docs/CI_SPEC.md](CI_SPEC.md)** §5). This file remains the **normative policy** for promotion gates, **semantic versioning**, **changelog discipline**, **evolution of optional hooks**, and **deprecation** (§6).
 
 **Human-readable roadmap:** **[docs/ROADMAP.md](ROADMAP.md)** — release phases and links for Mission Control alignment.
 
@@ -14,6 +14,7 @@ This document refines the backlog item **“Define beta/1.0 promotion criteria a
 | **Semver** expectations for **`PreparedSpanRecord`** and **`ReplaytSpanExporter`** | [§3 Semantic versioning](#3-semantic-versioning-and-public-api-normative) |
 | **Changelog** discipline | [§4 Changelog discipline](#4-changelog-discipline-normative) |
 | How **optional hooks** evolve | [§5 Optional hooks evolution](#5-optional-hooks-and-extension-points-normative) |
+| **Deprecation** policy (warnings, timeline, **`__all__` / IR / hooks**) | [§6 Deprecation policy](#6-deprecation-policy-normative) |
 | **Mission Control** / integrator alignment | **[docs/ROADMAP.md](ROADMAP.md)** + cross-links from **[docs/MISSION.md](MISSION.md)** |
 
 **Related contracts:** Public symbols and IR fields are defined in **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** (especially **§3** and **`__all__`**). Approval / audit hooks are specified in **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)**. **OpenTelemetry** dependency policy remains **[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)**. **replayt** boundary tests remain **[docs/SPEC_REPLAYT_INTEGRATION_TESTS.md](SPEC_REPLAYT_INTEGRATION_TESTS.md)**.
@@ -104,17 +105,60 @@ Optional **`on_export_commit`** / **`on_export_audit`** (names per **[docs/SPEC_
 
 New **optional** exporter parameters MUST **default** to current behavior. Integrators relying on **exact** exception types or log message strings rely on **undefined** behavior unless a spec explicitly freezes them; **CHANGELOG** should still mention **observable** log field changes when **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)** requires.
 
-## 6. Verifiable acceptance checklist (Spec gate / maintainer review)
+## 6. Deprecation policy (normative)
 
-Use when closing the backlog **“Define beta/1.0 promotion criteria and public API stability promises”** or when reviewing a release plan:
+This section defines how **documented public API** (§3) and **optional hooks** (§5) **sunset** before removal. It complements §4 (**CHANGELOG**) and §3 (**SemVer** when behavior is removed).
+
+### 6.1 What requires a deprecation period
+
+Any change that would be a **MAJOR** removal or **narrowing** under §3 or §5 **SHOULD** ship a **published deprecation** on a **stable** line (no PEP 440 prerelease segment) **or** on a **beta** line that integrators already treat as frozen (§2.2), **before** the breaking release.
+
+Maintainers **MUST** run a deprecation period (§6.2) before removal or incompatible narrowing of:
+
+- Symbols listed in **`replayt_otel_span_exporter.__all__`**
+- **Documented** **`PreparedSpanRecord`** fields or encodings in **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** §3
+- **Documented** **`ReplaytSpanExporter`** constructor parameters, methods, or **`SpanExporter`** return contracts in that spec §2
+- **Documented** optional hook parameters, callback ordering guarantees, or audit allow-list keys per **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)**
+
+Maintainers **MAY** omit a deprecation period when **any** of the following holds:
+
+- The surface is **not** in **`__all__`**, **not** described in **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** as integrator-facing stable IR / exporter API, and **not** already promised by a published **beta** or **stable** release under §2.
+- The change is **security-critical** and delay is **explicitly** waived in **CHANGELOG** with maintainer rationale (exceptional).
+
+### 6.2 Minimum process
+
+1. **Announce:** Add a **`Deprecated`** bullet under **`[Unreleased]`** in **[CHANGELOG.md](../CHANGELOG.md)** naming the symbol or contract, the **first version** that emits the deprecation, and the **replacement** or migration path when one exists.
+2. **Runtime signal (Python API):** For callable or importable **public** deprecations, emit **`warnings.warn(..., category=DeprecationWarning, stacklevel=...)`** at the point of use (constructor, method, or module access as appropriate). A one-**MINOR** **`PendingDeprecationWarning`** phase is allowed if **CHANGELOG** documents it.
+3. **Docs:** Update **docstrings** and the relevant spec (**[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** and/or **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)**) so integrators see a clear **deprecated since X.Y.Z** note aligned with **CHANGELOG**.
+4. **Timeline:** Prefer **at least one published MINOR** on the same **MAJOR** line after the release that **introduces** the deprecation before **removal** (align with §4 fourth bullet). Shorter paths on **alpha**-only lines are allowed with explicit **CHANGELOG** notice that the line is experimental.
+5. **Removal:** Ship removal in the **MAJOR** (or documented **MINOR** if the project commits to that rarer pattern) promised in **CHANGELOG**; use **`Removed`** / **migration** sections per §4.
+
+### 6.3 Non-API surfaces
+
+**Log message text**, **exception** types not documented as stable, and **private** helpers remain outside the SemVer scope of §3; they **SHOULD** still appear under **Changed** in **CHANGELOG** when observability shifts materially, per **[docs/SPEC_SPAN_EXPORT_FAILURE_HANDLING.md](SPEC_SPAN_EXPORT_FAILURE_HANDLING.md)**.
+
+## 7. Verifiable acceptance checklist (Spec gate / maintainer review)
+
+Use when closing **“Define beta/1.0 promotion criteria and public API stability promises”**, Mission Control **`e9115fe4-6d8f-44b7-97e1-008a1a8cf478`** (**Post-alpha roadmap: beta or 1.0 criteria and deprecation policy**), or when reviewing a release plan:
 
 - [ ] **[docs/ROADMAP.md](ROADMAP.md)** exists and links this spec, **first alpha** spec, and **[docs/MISSION.md](MISSION.md)**.
-- [ ] **[docs/MISSION.md](MISSION.md)** references promotion/stability (scope, success criteria, or dedicated subsection).
-- [ ] §2–§5 of **this document** are consistent with **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** and **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)**.
-- [ ] **CHANGELOG** practice for **beta** and **stable** matches §4.
+- [ ] **[docs/MISSION.md](MISSION.md)** references promotion/stability and deprecation (scope, success criteria, traceability, or dedicated subsection).
+- [ ] §2–§6 of **this document** are consistent with **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** and **[docs/SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)**.
+- [ ] **CHANGELOG** practice for **beta** and **stable** matches §4, including deprecations per §6.
 - [ ] **Beta** and **1.0** promotion claims on a version are backed by §2.2 / §2.3 checklists (recorded in PR, release issue, or **`handoff.md`**).
 
-## 7. Non-goals (this backlog)
+### 7.1 Mission Control `e9115fe4-6d8f-44b7-97e1-008a1a8cf478` — documentation closure criteria
+
+The following are **documentation deliverables** for the **Post-alpha roadmap** backlog; they do **not** require shipping a beta/stable release in the same change set:
+
+1. **Promotion** — §2.2 and §2.3 checklists are present and actionable.
+2. **SemVer** — §3 tables cover **`PreparedSpanRecord`**, **`ReplaytSpanExporter`**, and optional hooks.
+3. **Changelog** — §4 defines **Unreleased**, **migration**, and **deprecation** expectations.
+4. **Hooks** — §5 ties hook contract changes to **MAJOR** / **MINOR** as appropriate.
+5. **Deprecation** — §6 defines what **MUST** be deprecated before removal and the **minimum process**.
+6. **Roadmap alignment** — **[docs/ROADMAP.md](ROADMAP.md)** orients Mission Control and integrators to phases; **[docs/MISSION.md](MISSION.md)** links **ROADMAP** and this spec.
+
+## 8. Non-goals (this backlog)
 
 - Mandating a **calendar** date or **download count** for promotion.
 - Changing **replayt** runtime dependency policy (separate backlog).
