@@ -103,7 +103,7 @@ For **stub-only** files with no verbatim third-party text, a short note **“No 
 When this backlog is satisfied, the root **`README.md`** MUST:
 
 - In the **Reference documentation** section, state that the folder is **present** and point readers to **`docs/reference-documentation/README.md`** for licensing, scope, and refresh policy, and to **`docs/SPEC_REFERENCE_DOCUMENTATION.md`** (this file) as the **Builder contract**.
-- Add a row to the **Project layout** table (or equivalent inventory) for **`docs/SPEC_REFERENCE_DOCUMENTATION.md`** as the spec that defines the folder’s requirements.
+- Add rows to the **Project layout** table (or equivalent inventory) for **`docs/reference-documentation/`** and **`docs/SPEC_REFERENCE_DOCUMENTATION.md`** so the folder and its normative spec both appear in the root index.
 
 Until the Builder lands the folder, the README **MAY** keep wording that the checkout does not yet include the tree; the Builder MUST replace that with the above in the same change set that adds **`docs/reference-documentation/`**.
 
@@ -122,7 +122,7 @@ These criteria restate the Mission Control backlog **“Seed `docs/reference-doc
 2. **OpenTelemetry Python** and **replayt** each have a dedicated index **`.md`** under the folder satisfying **§4.1** and **§5** (canonical **`https://`** links, maintainer-written “why this matters” prose, and discoverability of exporter / triage / dev-only **replayt** story).
 3. **License-appropriate content:** Any **verbatim** upstream text satisfies **§4.2** and **§6**; **stub-only** trees state the no-verbatim posture per **§3.1** and the index disclaimer per **§6** (last paragraph).
 4. **Bounded size:** The tree respects **§4.2** size guidance (enforced in CI by total **`*.md`** size under **`docs/reference-documentation/`**).
-5. Root **`README.md`** satisfies **§7** once the folder is present (reference section + project layout row for this spec).
+5. Root **`README.md`** satisfies **§7** once the folder is present (reference section + project layout rows for **`docs/reference-documentation/`** and **`docs/SPEC_REFERENCE_DOCUMENTATION.md`**).
 
 **Note:** If the checkout **already** satisfies §9.2 before this backlog starts, the Builder’s remaining work may be **verification only**, optional **§4.2** excerpts in **additional** files, or **README** tweaks — still subject to **§4.3** and CI.
 
