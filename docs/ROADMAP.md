@@ -26,3 +26,4 @@ This document orients **maintainers**, **integrators**, and **Mission Control** 
 | **Define beta/1.0 promotion criteria and public API stability promises** | This file + **[docs/SPEC_BETA_AND_STABLE_PROMOTION.md](SPEC_BETA_AND_STABLE_PROMOTION.md)** |
 | **Publish first alpha release** / **Close first alpha** | **[docs/SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** |
 | **Add optional GitHub Actions trusted publishing for PyPI** | **[docs/CI_SPEC.md](CI_SPEC.md)** §8 (**`release.yml`**, OIDC, **`tests/test_release_workflow_contract.py`**) |
+| **Ship a minimal runnable example package or scripts/ recipe** (MC **`21487c24-8d58-4085-896c-4a6bad8d0af4`**) | **[docs/SPEC_SCRIPTS_OTEL_PREPARED_DEMO.md](SPEC_SCRIPTS_OTEL_PREPARED_DEMO.md)** |

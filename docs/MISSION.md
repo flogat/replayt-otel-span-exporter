@@ -63,6 +63,18 @@ Mission Control **`9b94e677-914a-471a-8499-071c1cb92455`** (phase **2** spec lea
 | **Integrator pins** — **API** + **SDK** together; floors vs app lockfiles | **[SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)** **§1.1**, **§7** row **C** |
 | **Compatibility matrix** (summary row) | [Compatibility matrix](#compatibility-matrix) — **OpenTelemetry** row |
 
+## Backlog traceability — “Ship a minimal runnable example package or scripts/ recipe”
+
+Mission Control **`21487c24-8d58-4085-896c-4a6bad8d0af4`** (phase **2** spec lead): **copy-paste runnable** OpenTelemetry → **`PreparedSpanRecord`** demo under **`scripts/`**, **without** **`replayt`** as a runtime dependency, **beyond** the README snippet harness.
+
+| Acceptance theme | Where satisfied |
+| ---------------- | --------------- |
+| **`scripts/`** primary module, canonical **`python scripts/otel_to_prepared_demo.py`**, contributor install | **[SPEC_SCRIPTS_OTEL_PREPARED_DEMO.md](SPEC_SCRIPTS_OTEL_PREPARED_DEMO.md)** §2, §5 |
+| **`TracerProvider`**, **`ReplaytSpanExporter`**, triage attributes, printed IR fields, exit codes | Same spec §3–§4 |
+| **Design principles** / **LLM–demos** hygiene; **no** **`replayt`** import or **`[project].dependencies`** change | Same spec §4–§5 |
+| **CI proof** via **`tests/test_scripts_otel_prepared_demo.py`** | Same spec §6; **[CI_SPEC.md](CI_SPEC.md)** §5 |
+| **“Example package”** disambiguation (in-repo recipe vs PyPI subpackage) | Same spec opening + traceability |
+
 ## Users and problem
 
 **Integrators** running Python services with OpenTelemetry tracing want a **narrow, well-tested bridge** from the OTel SDK to **replayt-oriented** workflow data. Today that path is underspecified; this package provides an explicit **exporter skeleton** and **documented intermediate representation** so replayt consumers can adopt it without forking replayt core.

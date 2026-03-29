@@ -1,16 +1,35 @@
 # Specification: Runnable `scripts/` OpenTelemetry → prepared-record demo
 
-This document refines the backlog item **“Ship a runnable scripts/ demo beyond the README snippet test harness”** into testable requirements. **The script under `scripts/`** and **any new tests** that prove it belong in phase **3** (Builder); this file is the contract for what “done” means.
+This document refines Mission Control backlog **`21487c24-8d58-4085-896c-4a6bad8d0af4`** — **“Ship a minimal runnable example package or scripts/ recipe”** — into testable requirements. **Synonyms in backlog prose:** “minimal runnable example,” “copy-paste runnable example,” and “`scripts/` recipe” all refer to the **same** deliverable defined here unless a future backlog explicitly adds a **separate** installable example distribution.
+
+**Terminology — “example package”:** In this backlog, that phrase means a **small, self-contained runnable** in the repository (**one primary Python file** under **`scripts/`**), **not** a second **`[project]`** distribution on PyPI, **not** a nested **`src/`** package, and **not** a substitute for the README snippet CI contract (**[docs/SPEC_README_QUICK_START.md](SPEC_README_QUICK_START.md)** §4).
+
+**The script under `scripts/`** and **any new or updated tests** that prove it belong in phase **3** (Builder); this file is the contract for what “done” means.
 
 ## Backlog traceability
 
 | Original theme | Satisfied by (this doc) |
 | ---------------- | ------------------------ |
-| Runnable script under **`scripts/`** (beyond **`tests/readme_usage_example_snippet.py`**) | [§2 Script deliverable](#2-script-deliverable-normative), [§6 Checklist](#6-verifiable-acceptance-checklist) |
-| Configures **`TracerProvider`**, emits spans with **`replayt.workflow_id`** / **`replayt.step_id`** | [§3 Required behavior](#3-required-behavior-normative) |
-| Prints key **`PreparedSpanRecord`** fields | [§3.3 Printed fields](#33-printed-fields-normative) |
-| Aligns with **[docs/DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md)**; no **`replayt`** runtime dependency | [§4 Constraints](#4-constraints-normative), [§5 Documentation and demos](#5-documentation-and-demos-normative) |
+| Runnable path **beyond** **`tests/readme_usage_example_snippet.py`** | [§2 Script deliverable](#2-script-deliverable-normative), [§6 Test contract](#6-test-contract-script-must-be-proven-in-ci), [§8 Checklist](#8-verifiable-acceptance-checklist) |
+| **Copy-paste runnable** from repo root (shell + **`python …`**) | [§2](#2-script-deliverable-normative), [§5 Documentation and demos](#5-documentation-and-demos-normative) |
+| **`TracerProvider`**, spans with **`replayt.workflow_id`** / **`replayt.step_id`** | [§3 Required behavior](#3-required-behavior-normative) |
+| Prints **`PreparedSpanRecord`** fields (stdout, human-readable) | [§3.3 Printed fields](#33-printed-fields-normative) |
+| **[docs/DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md)**; **no `replayt`** in runtime deps or script | [§4 Constraints](#4-constraints-normative), [§5 Documentation and demos](#5-documentation-and-demos-normative) |
 | Documented invocation (README and/or **`scripts/`** README) | [§5 Documentation and demos](#5-documentation-and-demos-normative) |
+
+### Mission Control **`21487c24-8d58-4085-896c-4a6bad8d0af4`** — normative acceptance criteria (Spec gate / Builder)
+
+The backlog body had **no** acceptance list; the following **is** the acceptance bar (cross-check with [§8](#8-verifiable-acceptance-checklist)):
+
+1. **`scripts/otel_to_prepared_demo.py`** exists and is the **only** primary demo module (§2); runnable after **`pip install -e ".[dev]"`** with canonical invocation documented (§2, §5).
+2. Script configures **`TracerProvider`**, registers **`ReplaytSpanExporter`** with **`SimpleSpanProcessor`** or **`BatchSpanProcessor`**, uses a shared **`records=`** buffer, and binds tracing with **`get_tracer(..., tracer_provider=provider)`** per §3.1 (no second global **`set_tracer_provider`** that would warn on stderr).
+3. At least one **non-root** span with **`replayt.workflow_id`** and **`replayt.step_id`** (fictional values) and a **non-triage** attribute; exported **`PreparedSpanRecord`** reflects triage fields per **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)** (§3.2).
+4. **Stdout** prints labeled lines for every field in [§3.3](#33-printed-fields-normative); exit **`0`** on success, non-zero on failure (§3.3–§3.4).
+5. **No** `import replayt`; **no** **`replayt`** in **`[project].dependencies`**; public imports from **`replayt_otel_span_exporter`** only (§4).
+6. **No** network I/O or filesystem writes except stdout/stderr (§4).
+7. **Documentation** of prerequisites and **`python scripts/otel_to_prepared_demo.py`** in README and/or **`scripts/README.md`** per §5.
+8. **`tests/test_scripts_otel_prepared_demo.py`** (or name recorded in **[docs/CI_SPEC.md](CI_SPEC.md)** §5) proves the script in CI per §6.
+9. **CHANGELOG** **Unreleased** notes when the Builder ships user-visible script/docs (§6, §8 item 5).
 
 **Related contracts:** The demo MUST use the public API and tracing pipeline patterns defined in **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** (§2, §3). Triage attributes **`replayt.workflow_id`** / **`replayt.step_id`** MUST follow **[docs/SPEC_EXPORT_TRIAGE_METADATA.md](SPEC_EXPORT_TRIAGE_METADATA.md)**. The README quick-start example remains governed by **[docs/SPEC_README_QUICK_START.md](SPEC_README_QUICK_START.md)**; this script is an **additional** operator-facing entry point, not a replacement for **`tests/readme_usage_example_snippet.py`** or **`tests/test_readme_usage_example.py`**.
 
@@ -34,7 +53,7 @@ This document refines the backlog item **“Ship a runnable scripts/ demo beyond
 
 - Configure a **`TracerProvider`** and register **`ReplaytSpanExporter`** via **`SimpleSpanProcessor`** or **`BatchSpanProcessor`** (pick **one** and stay consistent with tests).
 - Use a **shared** **`list`** (or equivalent) passed into **`ReplaytSpanExporter(records=...)`** per **[docs/SPEC_OTEL_EXPORTER_SKELETON.md](SPEC_OTEL_EXPORTER_SKELETON.md)** §2.2 so the script can inspect **`PreparedSpanRecord`** instances after export.
-- Set the global tracer provider (**`trace.set_tracer_provider`**) for the duration of the demo and **restore** the previous provider in a **`finally`** block (same isolation pattern as **`tests/readme_usage_example_snippet.py`**) so repeated runs or test subprocesses do not leak global state.
+- Obtain the demo **`Tracer`** with **`trace.get_tracer(..., tracer_provider=provider)`** so spans run on the configured SDK provider **without** calling **`trace.set_tracer_provider`**. The OpenTelemetry API allows only **one** successful global **`set_tracer_provider`** per process; pairing **`set_tracer_provider`** with a **`finally`** that restores the prior provider attempts a second global set and emits a **stderr** diagnostic (“Overriding of current TracerProvider is not allowed”). **`tests/readme_usage_example_snippet.py`** still uses save/restore for in-process **pytest** isolation; this script is subprocess-oriented and avoids touching the global default.
 
 ### 3.2 Spans and triage metadata
 
@@ -104,7 +123,7 @@ The backlog is **not** satisfied by manual runs alone.
 
 ## 8. Verifiable acceptance checklist
 
-Use this checklist in **Spec gate**, **Build gate**, and PR review for **“Ship a runnable scripts/ demo beyond the README snippet test harness”**.
+Use this checklist in **Spec gate**, **Build gate**, and PR review for Mission Control **`21487c24-8d58-4085-896c-4a6bad8d0af4`** — **“Ship a minimal runnable example package or scripts/ recipe”** (same nine items as the **Mission Control … normative acceptance criteria** subsection under **Backlog traceability** above).
 
 1. **`scripts/otel_to_prepared_demo.py`** exists and runs per §2–§3 with exit codes per §3.4.
 2. **No `replayt` import** in the script or its dedicated test module (§4).
