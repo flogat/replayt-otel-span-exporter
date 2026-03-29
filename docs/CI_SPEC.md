@@ -94,6 +94,8 @@ Do not rely on a hand-maintained `requirements-ci.txt` unless the project later 
 
 **Reference docs tree:** **`docs/reference-documentation/`** is specified in **[docs/SPEC_REFERENCE_DOCUMENTATION.md](SPEC_REFERENCE_DOCUMENTATION.md)**. **`tests/test_reference_documentation.py`** checks that the folder **README** covers licensing, scope, and refresh policy, that stub index pages include canonical **`https://`** links and maintainer summaries, and that the tree stays within the spec’s size guidance. That module is part of default **`pytest`** discovery like other contract tests under **`tests/`**.
 
+**Beta / stable promotion docs:** **`tests/test_beta_stable_promotion_docs.py`** checks that **`docs/SPEC_BETA_AND_STABLE_PROMOTION.md`** keeps the normative §2–§5 headings (promotion gates, semver tables, changelog discipline, optional hooks) and that **`docs/ROADMAP.md`** still points integrators and maintainers at **MISSION**, **SPEC_FIRST_ALPHA_RELEASE**, and the promotion spec. If that test module name changes, update this sentence in the same maintenance pass.
+
 **CI command (must stay equivalent unless this doc is updated):** after install,
 
 ```bash

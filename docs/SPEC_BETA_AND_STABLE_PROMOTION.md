@@ -1,6 +1,6 @@
 # Specification: Beta and 1.0 promotion, semver, and public API stability
 
-This document refines the backlog item **“Define beta/1.0 promotion criteria and public API stability promises”** into **testable maintainer and integrator expectations**. **Production code and new automated tests** for these criteria belong in later phases unless a backlog explicitly adds them; this file is the **normative policy** for promotion gates, **semantic versioning**, **changelog discipline**, and **evolution of optional hooks**.
+This document refines the backlog item **“Define beta/1.0 promotion criteria and public API stability promises”** into **testable maintainer and integrator expectations**. **Production code** and **automated CI gates** that enforce §2 checklists are **optional** follow-ons unless a backlog adds them (see §7). Default **`pytest`** includes **`tests/test_beta_stable_promotion_docs.py`**, which only checks that this file and **`docs/ROADMAP.md`** keep expected headings and cross-links (**[docs/CI_SPEC.md](CI_SPEC.md)** §5). This file remains the **normative policy** for promotion gates, **semantic versioning**, **changelog discipline**, and **evolution of optional hooks**.
 
 **Human-readable roadmap:** **[docs/ROADMAP.md](ROADMAP.md)** — release phases and links for Mission Control alignment.
 
