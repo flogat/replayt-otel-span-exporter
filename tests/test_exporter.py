@@ -392,6 +392,67 @@ def test_exporter_failure_log_truncates_span_name_to_256_code_points(
     assert logged_name == long_prefix
 
 
+def test_exporter_approval_hook_failure_log_truncates_exception_message_to_1024_code_points(
+    caplog,
+):
+    """SPEC_SPAN_EXPORT_FAILURE_HANDLING §6 item 7 — hook ERROR path mirrors item 4."""
+    from replayt_otel_span_exporter import exporter as exporter_mod
+
+    tail = "TAIL_MARKER_APPROVAL_HOOK_FAIL"
+    long_body = "M" * 1024 + tail
+
+    def commit(_p, *, span_count: int):
+        raise RuntimeError(long_body)
+
+    caplog.set_level(logging.ERROR, logger="replayt_otel_span_exporter.exporter")
+    exporter = ReplaytSpanExporter(on_export_commit=commit)
+    provider = TracerProvider()
+    provider.add_span_processor(SimpleSpanProcessor(exporter))
+    tracer = provider.get_tracer(__name__)
+
+    with tracer.start_as_current_span("hook-long-exc"):
+        pass
+
+    assert len(exporter.records) == 0
+    errors = [r for r in caplog.records if r.levelno == logging.ERROR]
+    exc_message = getattr(errors[0], "exc_message")
+    assert len(exc_message) <= exporter_mod._MAX_LOG_EXCEPTION_MESSAGE_CHARS
+    assert tail not in exc_message
+    primary = errors[0].getMessage()
+    assert tail not in primary
+    assert len(primary) <= len("Span export failed in approval hook: ") + 1024
+
+
+def test_exporter_approval_hook_failure_log_strips_c0_c1_from_exception_in_msg_and_extra(
+    caplog,
+):
+    """SPEC_SPAN_EXPORT_FAILURE_HANDLING §6 item 7 — hook ERROR path mirrors item 5."""
+    poison = "preamble\nmiddle\r\u0085end"
+
+    def commit(_p, *, span_count: int):
+        raise RuntimeError(poison)
+
+    caplog.set_level(logging.ERROR, logger="replayt_otel_span_exporter.exporter")
+    exporter = ReplaytSpanExporter(on_export_commit=commit)
+    provider = TracerProvider()
+    provider.add_span_processor(SimpleSpanProcessor(exporter))
+    tracer = provider.get_tracer(__name__)
+
+    with tracer.start_as_current_span("hook-poison-exc"):
+        pass
+
+    assert len(exporter.records) == 0
+    rec = [r for r in caplog.records if r.levelno == logging.ERROR][0]
+    exc_message = getattr(rec, "exc_message")
+    primary = rec.getMessage()
+    assert "\n" not in exc_message
+    assert "\r" not in exc_message
+    assert "\u0085" not in exc_message
+    assert "\n" not in primary
+    assert "\r" not in primary
+    assert "\u0085" not in primary
+
+
 def test_exporter_approval_shutdown_does_not_invoke_hook():
     """SPEC_SPAN_EXPORT_APPROVAL_UX §8 — post-shutdown export is a no-op; hook does not run."""
     calls = {"n": 0}
