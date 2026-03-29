@@ -59,7 +59,7 @@ These bullets are the **mission-level summary**; **[CI_SPEC.md](CI_SPEC.md)** is
   - **`tests/integration/test_opentelemetry_api_usage.py`** — OpenTelemetry trace API smoke only (no **`replayt`**), per **[CI_SPEC.md](CI_SPEC.md)** §5.
   - **[SPEC_README_QUICK_START.md](SPEC_README_QUICK_START.md)** — README quick start, usage example, and CI proof via **`tests/test_readme_usage_example.py`** and **`tests/readme_usage_example_snippet.py`** (names recorded in **[CI_SPEC.md](CI_SPEC.md)** §5).
   - **[SPEC_SPAN_EXPORT_APPROVAL_UX.md](SPEC_SPAN_EXPORT_APPROVAL_UX.md)** — optional **`ReplaytSpanExporter`** **`on_export_commit`** / **`on_export_audit`**, **`SpanExportResult.SUCCESS`** on policy denial, audit allow-list, and tests in **`tests/test_exporter.py`** per that spec §8.
-  - **[SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** — first **alpha** prerelease to PyPI or a private index: PEP 440 **alpha** **`[project].version`**, **[CHANGELOG.md](../CHANGELOG.md)** release section, upload, and §5 install verification (automation optional unless documented in **[CI_SPEC.md](CI_SPEC.md)**).
+  - **[SPEC_FIRST_ALPHA_RELEASE.md](SPEC_FIRST_ALPHA_RELEASE.md)** — first **alpha** prerelease to PyPI or a private index: PEP 440 **alpha** **`[project].version`**, **[CHANGELOG.md](../CHANGELOG.md)** release section, upload, and §5 install verification (optional **GitHub Actions** / OIDC: **[CI_SPEC.md](CI_SPEC.md) [§8](CI_SPEC.md#8-optional-release-workflow-oidc-trusted-publishing)** and **`release.yml`**).
 - **Supply chain:** **`supply-chain`** job expectations and **`pip-audit`** ignore rules live in **[DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)** and **[CI_SPEC.md](CI_SPEC.md)** (optional jobs §).
 
 ## Success criteria
