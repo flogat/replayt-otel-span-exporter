@@ -4,6 +4,13 @@ CI **`supply-chain`** runs `pip-audit --ignore-vuln CVE-2026-4539 --ignore-vuln 
 
 **Supported versions and CI alignment:** See **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** for the compatibility matrix, pin strategy, and how the **`test`** / **`supply-chain`** matrices relate to **`pyproject.toml`**. **OpenTelemetry** upper-bound vs float policy (why there is **no** **`<`** cap on runtime deps, how CI observes new releases, integrator pinning) is normative in **[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)**.
 
+**Clarify OpenTelemetry upper-bound strategy** (Mission Control **`9b94e677-914a-471a-8499-071c1cb92455`**, phase **2** spec lead):
+
+| Theme | Where satisfied |
+| ----- | ---------------- |
+| Runtime policy vs audit job | § **Runtime: OpenTelemetry** (lower bounds, **API**/**SDK** pairing); this section + **[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)** §4 — **`pip-audit`** proves **CVE policy**, not OTel **API** compatibility (**`pytest`** does). |
+| Integrator / maintainer cross-links | **[docs/COMPATIBILITY.md](COMPATIBILITY.md)** §2–§3.1 and the normative spec **§1.1** / **§7**. |
+
 ## Runtime: OpenTelemetry
 
 | Package | Policy |
@@ -11,7 +18,9 @@ CI **`supply-chain`** runs `pip-audit --ignore-vuln CVE-2026-4539 --ignore-vuln 
 | **`opentelemetry-api`** | Lower bound **`>=1.0.0`** in **`pyproject.toml`** only — **no** PEP 440 **upper bound** on the **1.x** line under current policy. Keep in step with **`opentelemetry-sdk`** from the **same** upstream release line. |
 | **`opentelemetry-sdk`** | Lower bound **`>=1.0.0`**; required for **`SpanExporter`**, **`TracerProvider`**, and **`ReadableSpan`** used by **`ReplaytSpanExporter`**. Bump both API and SDK together when adjusting pins. |
 
-**CI observation:** After **`pip install -e ".[dev]"`**, **`pip`** resolves **API** and **SDK** to the **newest** versions satisfying these floors (and compatible with the **`dev`** graph). Default **`test`** CI therefore exercises the adapter against **floating** **1.x** OTel until floors are raised — see **[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)** §4 and **[docs/CI_SPEC.md](CI_SPEC.md)** §4.
+**CI observation (compatibility proof):** After **`pip install -e ".[dev]"`**, **`pip`** resolves **API** and **SDK** to the **newest** versions satisfying these floors (and compatible with the **`dev`** graph). Default **`test`** CI therefore exercises the adapter against **floating** **1.x** OTel until floors are raised — see **[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)** §4 and **[docs/CI_SPEC.md](CI_SPEC.md)** §4–§5.
+
+**Not the supply-chain job:** The **`supply-chain`** job’s **`pip-audit`** step does **not** pin or validate OpenTelemetry **minor**/**patch** API behavior; it only applies the **vulnerability ignore / fix** policy documented in this file and **`.github/workflows/ci.yml`**. Treat **green `test`** as the OTel **runtime contract** signal.
 
 ## Test / integration: replayt
 
