@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`scripts/otel_to_prepared_demo.py`** and **`scripts/README.md`:** runnable OpenTelemetry → **`PreparedSpanRecord`** demo (**`replayt.workflow_id`** / **`replayt.step_id`**, labeled stdout); no **`replayt`** import. **`tests/test_scripts_otel_prepared_demo.py`** runs the script in a subprocess (exit **0** + field checks). Spec: **[docs/SPEC_SCRIPTS_OTEL_PREPARED_DEMO.md](docs/SPEC_SCRIPTS_OTEL_PREPARED_DEMO.md)**; backlog **“Ship a runnable scripts/ demo beyond the README snippet test harness”**, phase **3**.
 - **`tests/test_compatibility_contract.py`:** asserts runtime **`opentelemetry-api`** / **`opentelemetry-sdk`** specifiers contain **no** **`<`** upper bound and that **[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)** and **[docs/DEPENDENCY_AUDIT.md](docs/DEPENDENCY_AUDIT.md)** link **[docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md](docs/SPEC_OPENTELEMETRY_DEPENDENCY_POLICY.md)** (backlog **“Document OpenTelemetry upper-bound or float policy in pyproject and COMPATIBILITY”**, phase **3**).
 
 ### Documentation
