@@ -9,16 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`tests/test_readme_integrator_install.py`**: README **`pip install replayt-otel-span-exporter==<version>`** matches **`[project].version`**, documents **`--pre`** for alphas, and **`[project].readme`** is set (**[docs/SPEC_README_QUICK_START.md](docs/SPEC_README_QUICK_START.md)** §2.1).
 - **`tests/test_release_packaging.py`**: after **`python -m build`** and **`twine check`**, installs the built wheel into a **fresh venv** and asserts **`importlib.metadata`**, **`__version__`**, and **no `replayt`** on the minimal install path (per that spec §4–§5).
 - **`scripts/verify_published_release.sh`**: maintainer helper for post-upload **§5** verification against PyPI or **`INDEX_URL`**.
 
 ### Changed
 
+- **`[project].readme`** in **`pyproject.toml`** points at **`README.md`** so sdist/wheel metadata includes the long description (cleaner **`twine check`**).
 - **`tests/test_release_metadata.py`**: asserts **CHANGELOG** has a dated **`## [<version>] - YYYY-MM-DD`** heading matching **`[project].version`** and a **`[Unreleased]`** section (per that spec §3).
 
 ### Documentation
 
-- **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §5 lists **`tests/test_release_packaging.py`** next to release metadata tests.
+- **[README.md](README.md)** quick start for integrators: PyPI project link, pinned **`==0.2.0a1`** install matching **[docs/SPEC_FIRST_ALPHA_RELEASE.md](docs/SPEC_FIRST_ALPHA_RELEASE.md)** §5, **`--pre`** note for prereleases, and honest wording when the index does not list the build yet.
+- **[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)** §2 ties published-metadata expectations to the **`0.2.0a1`** changelog line and pre-index source of truth.
+- **[docs/CI_SPEC.md](docs/CI_SPEC.md)** §5 lists **`tests/test_readme_integrator_install.py`** next to README release-adjacent tests.
 - Refined **[docs/SPEC_FIRST_ALPHA_RELEASE.md](docs/SPEC_FIRST_ALPHA_RELEASE.md)** for the **Publish first alpha release** backlog: expanded testable acceptance criteria ([§0](docs/SPEC_FIRST_ALPHA_RELEASE.md#0-testable-acceptance-criteria-expanded-backlog-wording)), **`__version__`** / **`importlib.metadata`** alignment with **`[project].version`**, recommended **`twine check`**, private-index install example, **`--pre`** note for integrators, [§5.1](docs/SPEC_FIRST_ALPHA_RELEASE.md#51-ci-and-suite-health-informative) CI vs **§5** verification scope, and checklist updates.
 - Phase **2** spec pass (**Close first alpha**): **[docs/SPEC_FIRST_ALPHA_RELEASE.md](docs/SPEC_FIRST_ALPHA_RELEASE.md)** — follow-on backlog traceability, §0.1 testable mapping, normative **`python -m build`** / **`twine check`** before upload ([§4](docs/SPEC_FIRST_ALPHA_RELEASE.md#4-publishing-target-normative)), [§5.2](docs/SPEC_FIRST_ALPHA_RELEASE.md#52-release-handoff-record-normative) release handoff fields, §6 README pin guidance; **[docs/SPEC_README_QUICK_START.md](docs/SPEC_README_QUICK_START.md)** §2.1 version-pin rule; **[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)** §6 checklist item for published distribution; **[docs/MISSION.md](docs/MISSION.md)** success criterion cross-link.
 
